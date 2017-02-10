@@ -3,7 +3,7 @@
 CS 487 - Software Engineering Project
 
 ### CS 487 Project Proposal ###
-Due 2/18/17
+- [x] Due 2/18/17
 
 :+1:
 
@@ -15,24 +15,21 @@ Due 2/18/17
 ##### Team Members and Roles #####
 
 User Interface - CSS/HTML
-
 Le
 
 Application/Logic - Javascript or Python
-
 Haosheng
 
 Database - Firebase, MongoDB or SQLITE
-
 Vinesh
 
 Data Steams, e.g. API, news feeds, data scraping - Javascript or Python
-
 Yuan
 
 
+<br>
 
-** Things we will NOT include **
+**Things we will NOT include**
 
 * No monetary payouts
 * No monetary payouts
@@ -42,14 +39,14 @@ Yuan
 * No online stores to sell memorabilia
 
 
-** Requirements **
+**Requirements**
 
 * List of government members/wards that users can draft
 * App will aggregate relevant information to score points
 * User are scored based on how well the members they chose
 
 
-** Nice To Haves **
+**Nice To Haves**
 
 * City agnostic
 * Include police districts 
@@ -61,10 +58,10 @@ Yuan
 * Leaderboard
 
 
-** Others **
+**Others**
 
 [govtrack API](https://www.govtrack.us/developers)
 
 
 ### Preliminary Design Report ###
-Due 3/11/17
+- [ ] Due 3/11/17
