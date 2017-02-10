@@ -15,16 +15,16 @@ CS 487 - Software Engineering Project
 ##### Team Members and Roles #####
 
 User Interface - CSS/HTML
-Le
+<br>Le
 
 Application/Logic - Javascript or Python
-Haosheng
+<br>Haosheng
 
 Database - Firebase, MongoDB or SQLITE
-Vinesh
+<br>Vinesh
 
 Data Steams, e.g. API, news feeds, data scraping - Javascript or Python
-Yuan
+<br>Yuan
 
 
 <br>
