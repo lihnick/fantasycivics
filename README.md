@@ -58,7 +58,25 @@ Data Streams, e.g. API, news feeds, data scraping - Javascript or Python
 * Leaderboard
 
 
-**Others**
+**APIs and other Infos **
+
+Important Got Ya's
+	Users are not the same as players
+	Date rages are for score history and not for team history
+	When requesting rosters, time range has to be specified because rosters come with scores
+
+Chicago APIs
+
+[Graffiti] – (https://data.cityofchicago.org/Service-Requests/311-Service-Requests-Graffiti-Removal/hec5-y4x5)
+[Abandoned Vehicles] – (https://data.cityofchicago.org/Service-Requests/311-Service-Requests-Abandoned-Vehicles/3c9v-pnva)
+[Pot Holes Reported] – (https://data.cityofchicago.org/Service-Requests/311-Service-Requests-Pot-Holes-Reported/7as2-ds3y)
+[Tree Debris] – (https://data.cityofchicago.org/Service-Requests/311-Service-Requests-Tree-Debris/mab8-y9h3)
+[Tree Trim] – (https://data.cityofchicago.org/Service-Requests/311-Service-Requests-Tree-Trims/uxic-zsuj)
+[Rodent Baiting] – (https://data.cityofchicago.org/Service-Requests/311-Service-Requests-Rodent-Baiting/97t6-zrhs)
+[Sanitation Complaint] – (https://data.cityofchicago.org/Service-Requests/311-Service-Requests-Sanitation-Code-Complaints/me59-5fac)
+[Street Lights Outage] – (https://data.cityofchicago.org/Service-Requests/311-Service-Requests-Street-Lights-One-Out/3aav-uy2v)
+[Alley Lights Outage] – (https://data.cityofchicago.org/Service-Requests/311-Service-Requests-Alley-Lights-Out/t28b-ys7j)
+[Garbage Cart] – (https://data.cityofchicago.org/Service-Requests/311-Service-Requests-Garbage-Carts/9ksk-na4q)
 
 [govtrack API](https://www.govtrack.us/developers)
 
