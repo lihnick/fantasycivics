@@ -1,3 +1,5 @@
+// Get User
+
 getUser({
 	userid: 'userid0001'
 })
@@ -7,6 +9,8 @@ getUser({
 	name: 'Derek Eder',
 	image: '//url//'
 }
+
+// Get User Leagues
 
 getUserLeagues({
 	userid: 'userid0001'
@@ -47,6 +51,8 @@ getUserLeagues({
 		}
 	}
 }
+
+// Get League
 
 getLeague({
 	leagueid: 'leagueid0008',
@@ -127,6 +133,8 @@ getLeague({
 	}
 }
 
+// Get Roster
+
 getRoster({
 	userid: 'userid0001',
 	leagueid: 'leagueid0008',
@@ -193,6 +201,8 @@ getRoster({
 	}
 }
 
+// Get Player
+
 getPlayer({
 	leagueid: 'leagueid0008',
 	playerid: 'playerid0010',
@@ -216,8 +226,11 @@ getPlayer({
 	owner: 'userid0001'
 }
 
+// Get Match
+
 getMatch({
 	leagueid: 'leagueid0008',
+	userid: 'userid0001',
 	date: timestamp // Date during the match
 })
 
@@ -227,4 +240,39 @@ getMatch({
 	end: timestamp, // End of the match
 	home: 'userid0001',
 	away: 'userid0013'
+}
+
+// Get Trade Offers
+
+getTrades({
+	leagueid: 'leagueid0008',
+	userid: 'userid0001'
+})
+
+{
+	leagueid: 'leagueid0008',
+	userid: 'userid0001',
+	trades: [{
+		tradeid: 'tradeid0005',
+		timestamp: timestamp,
+		send: {
+			userid: 'userid0001',
+			playerid: 'playerid0032'
+		},
+		swap: {
+			userid: 'userid0021',
+			playerid: 'playerid0007'
+		}
+	}, {
+		tradeid: 'tradeid0009',
+		timestamp: timestamp,
+		send: {
+			userid: 'userid0007',
+			playerid: 'playerid0005'
+		},
+		swap: {
+			userid: 'userid0001',
+			playerid: 'playerid0025'
+		}
+	}]
 }
