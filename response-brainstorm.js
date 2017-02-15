@@ -215,3 +215,16 @@ getPlayer({
 	},
 	owner: 'userid0001'
 }
+
+getMatch({
+	leagueid: 'leagueid0008',
+	date: timestamp // Date during the match
+})
+
+{
+	leagueid: 'leagueid0008',
+	start: timestamp, // Start of the match
+	end: timestamp, // End of the match
+	home: 'userid0001',
+	away: 'userid0013'
+}
