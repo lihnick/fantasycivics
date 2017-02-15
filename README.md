@@ -23,7 +23,7 @@ Application/Logic - Javascript or Python
 Database - Firebase, MongoDB or SQLITE
 <br>Vinesh
 
-Data Steams, e.g. API, news feeds, data scraping - Javascript or Python
+Data Streams, e.g. API, news feeds, data scraping - Javascript or Python
 <br>Yuan
 
 
@@ -32,11 +32,11 @@ Data Steams, e.g. API, news feeds, data scraping - Javascript or Python
 **Things we will NOT include**
 
 * No monetary payouts
-* No monetary payouts
 * Illinois only 
 * No fact checking
 * Outdated browsers support
 * No online stores to sell memorabilia
+* No assessment in news bias
 
 
 **Requirements**
