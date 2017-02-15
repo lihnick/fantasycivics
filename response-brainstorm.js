@@ -72,54 +72,56 @@ getLeague({
 		}
 	},
 	rosters: {
-		playerid0012: {
-			name: 'George Cardenas',
-			image: '//url//',
-			starter: true,
-			scores: {
-				graffiti: 12,
-				potholes: 3,
-				streetlights: -4
-			}
-		},
-		playerid0014: {
-			name: 'Ed Burke',
-			image: '//url//',
-			starter: true,
-			scores: {
-				graffiti: 6,
-				potholes: 8,
-				streetlights: 9
-			}
-		},
-		playerid0015: {
-			name: 'Raymond Lopez',
-			image: '//url//',
-			starter: true,
-			scores: {
-				graffiti: -2,
-				potholes: 15,
-				streetlights: 3
-			}
-		},
-		playerid0010: {
-			name: 'Susan Garza',
-			image: '//url//',
-			starter: false,
-			scores: {
-				graffiti: 2,
-				potholes: 5,
-				streetlights: 1
-			}
-		},
-		playerid0025: {
-			name: 'Daniel Solis',
-			image: '//url//',
-			starter: false,
-			scores: {
-				graffiti: 1,
-				potholes: 0,
-				streetlights: 1
+		userid0001: {
+			playerid0012: {
+				name: 'George Cardenas',
+				image: '//url//',
+				starter: true,
+				scores: {
+					graffiti: 12,
+					potholes: 3,
+					streetlights: -4
+				}
+			},
+			playerid0014: {
+				name: 'Ed Burke',
+				image: '//url//',
+				starter: true,
+				scores: {
+					graffiti: 6,
+					potholes: 8,
+					streetlights: 9
+				}
+			},
+			playerid0015: {
+				name: 'Raymond Lopez',
+				image: '//url//',
+				starter: true,
+				scores: {
+					graffiti: -2,
+					potholes: 15,
+					streetlights: 3
+				}
+			},
+			playerid0010: {
+				name: 'Susan Garza',
+				image: '//url//',
+				starter: false,
+				scores: {
+					graffiti: 2,
+					potholes: 5,
+					streetlights: 1
+				}
+			},
+			playerid0025: {
+				name: 'Daniel Solis',
+				image: '//url//',
+				starter: false,
+				scores: {
+					graffiti: 1,
+					potholes: 0,
+					streetlights: 1
+				}
 			}
 		}
 	}
