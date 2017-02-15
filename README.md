@@ -61,10 +61,11 @@ Data Streams, e.g. API, news feeds, data scraping - Javascript or Python
 **APIs and other Infos **
 
 Important Got Ya's
-	Users are not the same as players<br>
-	Date rages are for score history and not for team history<br>
-	When requesting rosters, time range has to be specified because rosters come with scores<br>
-	All response and request functions return promises, and the arguments of the callbacks are the response<br>
+
+* Users are not the same as players
+* Date rages are for score history and not for team history
+* When requesting rosters, time range has to be specified because rosters come with scores
+* All response and request functions return promises, and the arguments of the callbacks are the response
 
 Chicago APIs
 
