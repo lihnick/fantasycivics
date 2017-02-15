@@ -192,3 +192,26 @@ getRoster({
 		}
 	}
 }
+
+getPlayer({
+	leagueid: 'leagueid0008',
+	playerid: 'playerid0010',
+	from: timestamp,
+	to: timestamp
+})
+
+{
+	leagueid: 'leagueid0008',
+	playerid: 'playerid0010',
+	from: timestamp,
+	to: timestamp,
+	name: 'Susan Garza',
+	image: '//url//',
+	starter: false,
+	scores: {
+		graffiti: 2,
+		potholes: 5,
+		streetlights: 1
+	},
+	owner: 'userid0001'
+}
