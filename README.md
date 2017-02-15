@@ -1,4 +1,4 @@
-# Fantasy Goverment League #
+# Fantasy Civics #
 
 CS 487 - Software Engineering Project
 
