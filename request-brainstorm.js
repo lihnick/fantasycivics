@@ -53,9 +53,9 @@ acceptTrade({
 	success: true
 }
 
-// Update Roster (Sit/Start)
+// Move Player (Sit/Start)
 
-updateRoster({
+movePlayer({
 	sit: 'playerid0032',
 	start: 'playerid0070'
 });
@@ -64,9 +64,9 @@ updateRoster({
 	success: true
 }
 
-// Update Roster (Add/Drop)
+// Acquire Player (Add/Drop)
 
-updateRoster({
+acquirePlayer({
 	add: 'playerid1700',
 	drop: 'playerid0032'
 });
