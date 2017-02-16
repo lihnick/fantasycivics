@@ -29,6 +29,35 @@
 			var res = Util.uniqueList(arr);
 			console.log(res);
 
+			var testLeague = {
+				id: 'leagueid0008',
+				name: 'ChiHackNight',
+				start: 1487138400000,
+				end: 1489554000000,
+				users: {
+					'userid0001': {
+						name: 'Derek Eder'
+					},
+					'userid0002': {
+						name: 'Nina Sandlin'
+					},
+					'userid0003': {
+						name: 'Karl Fogel'
+					}
+				}
+			}
+
+			// Test Generate Schedule
+			console.log('Test Generate Schedule');
+			var users = Object.keys(testLeague.users);
+			var schedule = League.generateSchedule(users);
+			console.log(schedule);
+
+			// Test Generate Rosters
+			console.log('Test Generate Rosters');
+			var rosters = League.generateRosters(users, PLAYER_MAP);
+			console.log(rosters);
+
 		</script>
 	
 	</body>

@@ -11,7 +11,7 @@ var League = {
 		if(users.length < 1){
 			throw new Error('List of userids is empty.');
 		}
-		else if(userids.length % 2 !== 0){
+		else if(users.length % 2 !== 0){
 			throw new Error('List of userids must be even in length.');
 		}
 		else{
@@ -31,7 +31,7 @@ var League = {
 		if(users.length < 1){
 			throw new Error('List of userids is empty.');
 		}
-		else if(userids.length % 2 !== 0){
+		else if(users.length % 2 !== 0){
 			throw new Error('List of userids must be even in length.');
 		}
 		else if(Object.keys(players).length < L.PLAYERS_PER_ROSTER * users.length){
