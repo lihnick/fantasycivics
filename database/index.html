@@ -29,6 +29,36 @@
 		
 		<script type="text/javascript">
 
+			function renderRosters(roster, uid, userMap){
+				var div = document.createElement('div');
+				var h2 = document.createElement('h2');
+				var entry = userMap[uid] || BOT_MAP[uid];
+					h2.innerText = 'Roster for ' + entry.name;
+				var table = document.createElement('table');
+				var hdr = '';
+					hdr += '<tr>'
+					hdr += '<td>Player</td>'
+					hdr += '<td>Ward</td>'
+					hdr += '<td>Pot Holes</td>'
+					hdr += '<td>Status</td>'
+					hdr += '</tr>';
+				for(var pid in roster){
+				var player = roster[pid];
+				var row = '';
+					row += '<tr>'
+					row += '<td>' + player.name + '</td>'
+					row += '<td>' + player.ward + '</td>'
+					row += '<td>' + player.scores['pot_holes'] + '</td>'
+					row += '<td>' + (player.starter ? 'Starting' : 'Benched') + '</td>'
+					row += '</tr>';
+					hdr += row;
+				}
+				table.innerHTML = hdr;
+				div.appendChild(h2);
+				div.appendChild(table);
+				document.body.appendChild(div);
+			}
+
 
 			var testUsers = {
 				'userid0001': {
@@ -92,6 +122,9 @@
 			}).then((data) => {
 				console.log('Test Get League Response');
 				console.log(data);
+				for(var uid in data.rosters){
+					renderRosters(data.rosters[uid], uid, testUsers);
+				}
 			}).catch((err) => {
 				console.log('Test Get League Response');
 				console.error(err);
