@@ -1,5 +1,6 @@
 var Database = {
 	
+
 	getLeague: (params) => {
 		return new Promise((resolve, reject) => {
 			League.getLeague(params.leagueid).then((league) => {
@@ -8,13 +9,16 @@ var Database = {
 				for(var uid in rosters){
 					var roster = rosters[uid];
 					for(var pid in roster){
-						var p = Scoring.queryDataset('pot_holes', {
-							'$where': Scoring.buildDateQuery('creation_date', params.from, params.to),
-							'ward': PLAYER_MAP[pid].ward
-						});
-						p.uid = uid;
-						p.pid = pid;
-						scorePromises.push(p);
+						for(var dataset in Scoring.DATASETS){
+							var p = Scoring.queryDataset(dataset, {
+								'$where': Scoring.buildDateQuery('creation_date', params.from, params.to),
+								'ward': PLAYER_MAP[pid].ward
+							});
+							p.uid = uid;
+							p.pid = pid;
+							p.dataset = dataset;
+							scorePromises.push(p);
+						}
 					}
 				}
 				Promise.all(scorePromises).then((scores) => {
@@ -23,9 +27,10 @@ var Database = {
 						var meta = scorePromises[s];
 						rosters[meta.uid][meta.pid].name = PLAYER_MAP[meta.pid].name;
 						rosters[meta.uid][meta.pid].ward = PLAYER_MAP[meta.pid].ward;
-						rosters[meta.uid][meta.pid].scores = {
-							pot_holes: data.length
+						if(!rosters[meta.uid][meta.pid].scores){
+							rosters[meta.uid][meta.pid].scores = {};
 						}
+						rosters[meta.uid][meta.pid].scores[meta.dataset] = data.length;
 					}
 				}).then((scores) => {
 					var response = {

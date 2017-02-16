@@ -10,7 +10,9 @@
 		</script>
 		<style>
 
-
+			table td {
+				padding: 4px;
+			}
 
 		</style>
 	</head>
@@ -35,11 +37,14 @@
 				var entry = userMap[uid] || BOT_MAP[uid];
 					h2.innerText = 'Roster for ' + entry.name;
 				var table = document.createElement('table');
+				var scoreHeaders = Object.keys(Scoring.DATASETS);
 				var hdr = '';
 					hdr += '<tr>'
 					hdr += '<td>Player</td>'
 					hdr += '<td>Ward</td>'
-					hdr += '<td>Pot Holes</td>'
+				for(var h = 0; h < scoreHeaders.length; h++){
+					hdr += '<td>' + Scoring.DATASET_NAMES[scoreHeaders[h]] + '</td>'
+				}
 					hdr += '<td>Status</td>'
 					hdr += '</tr>';
 				for(var pid in roster){
@@ -48,7 +53,9 @@
 					row += '<tr>'
 					row += '<td>' + player.name + '</td>'
 					row += '<td>' + player.ward + '</td>'
-					row += '<td>' + player.scores['pot_holes'] + '</td>'
+				for(var h = 0; h < scoreHeaders.length; h++){
+					row += '<td>' + player.scores[scoreHeaders[h]] + '</td>'
+				}
 					row += '<td>' + (player.starter ? 'Starting' : 'Benched') + '</td>'
 					row += '</tr>';
 					hdr += row;

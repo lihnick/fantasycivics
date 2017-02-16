@@ -1,11 +1,19 @@
 var SOCRATA_URL = "https://data.cityofchicago.org/resource/";
 var SECRET_TOKEN = "Le00VXF0GK0d8D1tTn2v6Vkpl";
 
-var DATASETS = {
-	pot_holes: '787j-mys9.json'
-}
-
 var Scoring = {
+
+	DATASETS: {
+		pot_holes: '787j-mys9.json',
+		street_lights: 'h555-t6kz.json',
+		graffiti: 'cdmx-wzbz.json'
+	},
+
+	DATASET_NAMES: {
+		pot_holes: 'Pot Holes',
+		street_lights: 'Light Outages',
+		graffiti: 'Graffiti'
+	},
 
 	getSocrataData: (url, query, callback, limit) => {
 		query['$$app_token'] = SECRET_TOKEN;
@@ -31,7 +39,7 @@ var Scoring = {
 	queryDataset: (dataset, query) => {
 		return new Promise((resolve, reject) => {
 			try{
-				Scoring.getSocrataData(SOCRATA_URL + DATASETS[dataset], query, resolve);
+				Scoring.getSocrataData(SOCRATA_URL + Scoring.DATASETS[dataset], query, resolve);
 			}
 			catch(e){
 				reject(e);
