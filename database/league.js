@@ -122,9 +122,44 @@ var League = {
 			name: config.name || 'Untitled League',
 			start: start,
 			end: end,
+			users: users,
 			schedule: schedule,
 			rosters: rosters
 		}
+	},
+
+	getLeague: (id) => {
+		return new Promise((resolve, reject) => {
+			// Dummy Data
+			var testUsers = {
+				'userid0001': {
+					name: 'Derek Eder'
+				},
+				'userid0002': {
+					name: 'Nina Sandlin'
+				},
+				'userid0003': {
+					name: 'Karl Fogel'
+				}
+			}
+			var testLeague = {
+				id: id,
+				name: 'Test League',
+				start: 1487138400000,
+				end: 1489554000000,
+				users: Object.keys(testUsers),
+				bots: BOT_MAP,
+				players: PLAYER_MAP
+			}
+			var res = false;
+			try{
+				res = League.generateLeague(testLeague);
+				resolve(res);
+			}
+			catch(err){
+				reject(err);
+			}
+		});
 	}
 
 }

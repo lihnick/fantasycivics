@@ -25,6 +25,7 @@
 		<script type="text/javascript" src="./player.js"></script>
 		<script type="text/javascript" src="./league.js"></script>
 		<script type="text/javascript" src="./scoring.js"></script>
+		<script type="text/javascript" src="./database.js"></script>
 		
 		<script type="text/javascript">
 
@@ -79,6 +80,20 @@
 				console.log(data.length, data);
 			}).catch((err) => {
 				console.log('Test Scoring Requests');
+				console.log(err);
+			});
+
+
+			// Testing Get League Response
+			Database.getLeague({
+				leagueid: 'leagueid0008',
+				from: new Date('2/14/2017').getTime(),
+				to: Date.now()
+			}).then((data) => {
+				console.log('Test Get League Response');
+				console.log(data);
+			}).catch((err) => {
+				console.log('Test Get League Response');
 				console.log(err);
 			});
 
