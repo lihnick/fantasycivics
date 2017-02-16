@@ -47,9 +47,11 @@
 				}
 			}
 
+			var users = Object.keys(testLeague.users);
+				users = League.fixUserList(users, BOT_MAP);
+
 			// Test Generate Schedule
 			console.log('Test Generate Schedule');
-			var users = Object.keys(testLeague.users);
 			var schedule = League.generateSchedule(users);
 			console.log(schedule);
 

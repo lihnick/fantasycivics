@@ -1,6 +1,26 @@
 var League = {
 
 	PLAYERS_PER_ROSTER: 5,
+
+	/*
+	 * Fix list of users for a league
+	 * Input: list of userids, map of bot users
+	 * Output: list of userids
+	 */
+	fixUserList: (users, bots) => {
+		var res = false;
+		if(users.length < 1){
+			throw new Error('List of userids is empty.');
+		}
+		else if(users.length % 2 !== 0){
+			var newUsers = Util.clone(users);
+			var bot = Util.getRandomKey(bots);
+			newUsers.push(bots);
+			res = newUsers;
+		}
+		return res;
+	},
+
 	/*
 	 * Generate schedules for a league of users
 	 * Input: list of userids (must be unique and even-length)
