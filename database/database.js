@@ -21,6 +21,7 @@ var Database = {
 					for(var s = 0; s < scores.length; s++){
 						var data = scores[s];
 						var meta = scorePromises[s];
+						rosters[meta.uid][meta.pid].name = PLAYER_MAP[meta.pid].name;
 						rosters[meta.uid][meta.pid].scores = {
 							pot_holes: data.length
 						}
