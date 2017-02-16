@@ -1,7 +1,7 @@
 var League = {
 
-	PLAYERS_PER_ROSTER: 5,
-
+	STARTERS_PER_ROSTER: 3,
+	SITTERS_PER_ROSTER: 2,
 	DEFAULT_SEASON_LENGTH: 3,
 
 	/*
@@ -81,18 +81,20 @@ var League = {
 		else if(users.length % 2 !== 0){
 			throw new Error('List of userids must be even in length.');
 		}
-		else if(Object.keys(players).length < (League.PLAYERS_PER_ROSTER * users.length)){
+		else if(Object.keys(players).length < ((League.STARTERS_PER_ROSTER + League.SITTERS_PER_ROSTER) * users.length)){
 			throw new Error('Not enough players to fill rosters.');
 		}
 		else{
 			var possiblePlayers = Object.keys(players);
 			for(var u = 0; u < users.length; u++){
 				var uid = users[u];
-				rosterMap[uid] = [];
-				for(var p = 0; p < League.PLAYERS_PER_ROSTER; p++){
+				rosterMap[uid] = {};
+				for(var p = 0; p < (League.STARTERS_PER_ROSTER + League.SITTERS_PER_ROSTER); p++){
 					var ridx = Math.floor(possiblePlayers.length * Math.random());
 					var pid = possiblePlayers.splice(ridx, 1)[0];
-					rosterMap[uid].push(pid);
+					rosterMap[uid][pid] = {
+						starter: p < League.STARTERS_PER_ROSTER
+					}
 				}
 			}
 		}
@@ -111,8 +113,8 @@ var League = {
 		}
 		Util.checkValidTimestamp(config.start);
 		Util.checkValidTimestamp(config.end);
-		var start = Util.roundToDay(config.start);
-		var end = Util.roundToDay(config.end);
+		var start = Util.floorTimestamp(config.start);
+		var end = Util.floorTimestamp(config.end);
 		var users = League.fixUserList(config.users, config.bots);
 		var rosters = League.generateRosters(users, config.players);
 		var schedule = League.generateSchedule(users, config.weeks);

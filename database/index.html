@@ -43,7 +43,9 @@
 				name: 'ChiHackNight',
 				start: 1487138400000,
 				end: 1489554000000,
-				users: Object.keys(testUsers)
+				users: Object.keys(testUsers),
+				bots: BOT_MAP,
+				players: PLAYER_MAP
 			}
 
 			var users = League.fixUserList(testLeague.users, BOT_MAP);
@@ -58,6 +60,10 @@
 			var rosters = League.generateRosters(users, PLAYER_MAP);
 			console.log(rosters);
 
+			// Test Generate League
+			console.log('Test Generate League');
+			var league = League.generateLeague(testLeague);
+			console.log(league);
 
 
 		</script>
