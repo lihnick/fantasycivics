@@ -1,4 +1,4 @@
-var SOCRATA_URL = "https://data.cityofchicago.org/resource/7as2-ds3y.json"
+var SOCRATA_URL = "https://data.cityofchicago.org/resource/787j-mys9.json"
 var SECRET_TOKEN = "Le00VXF0GK0d8D1tTn2v6Vkpl";
 
 
@@ -19,11 +19,15 @@ function getData(url, query, callback, limit){
 	});
 }
 
-var LIMIT = 20000;
+var LIMIT = 3;
 
-getData({}, function(data){
+getData(SOCRATA_URL, {}, function(data){
 	main(data);
 }, LIMIT);
+
+function main(data){
+	console.log(data);
+}
 
 
 var Scoring = {
