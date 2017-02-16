@@ -46,7 +46,6 @@ var League = {
 	 * Output: map of rosters to userids
 	 */
 	generateRosters: (users, players) => {
-		var L = this;
 		var rosterMap = {};
 		if(users.length < 1){
 			throw new Error('List of userids is empty.');
@@ -54,11 +53,20 @@ var League = {
 		else if(users.length % 2 !== 0){
 			throw new Error('List of userids must be even in length.');
 		}
-		else if(Object.keys(players).length < L.PLAYERS_PER_ROSTER * users.length){
-			throw new Errors('Not enough players to fill rosters.');
+		else if(Object.keys(players).length < (League.PLAYERS_PER_ROSTER * users.length)){
+			throw new Error('Not enough players to fill rosters.');
 		}
 		else{
-
+			var possiblePlayers = Object.keys(players);
+			for(var u = 0; u < users.length; u++){
+				var uid = users[u];
+				rosterMap[uid] = [];
+				for(var p = 0; p < League.PLAYERS_PER_ROSTER; p++){
+					var ridx = Math.floor(possiblePlayers.length * Math.random());
+					var pid = possiblePlayers.splice(ridx, 1)[0];
+					rosterMap[uid].push(pid);
+				}
+			}
 		}
 		return rosterMap;
 	}
