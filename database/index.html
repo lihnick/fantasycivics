@@ -19,6 +19,7 @@
 
 		<h1>Database Testing Suite</h1>
 
+		<script type="text/javascript" src="../assets/promise.min.js"></script>
 		<script type="text/javascript" src="../assets/jquery-3.1.1.min.js"></script>
 		<script type="text/javascript" src="../lib/util.js"></script>
 		<script type="text/javascript" src="./player.js"></script>
@@ -66,6 +67,20 @@
 			console.log('Test Generate League');
 			var league = League.generateLeague(testLeague);
 			console.log(league);
+
+			// Test Scoring Requests
+			var from = new Date('2/14/2017').getTime();
+			var to = new Date().getTime();
+			Scoring.queryDataset('pot_holes', {
+				'$where': Scoring.buildDateQuery('creation_date', from, to),
+				'ward': 2
+			}).then((data) => {
+				console.log('Test Scoring Requests');
+				console.log(data.length, data);
+			}).catch((err) => {
+				console.log('Test Scoring Requests');
+				console.log(err);
+			});
 
 
 		</script>
