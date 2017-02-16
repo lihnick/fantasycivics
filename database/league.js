@@ -97,6 +97,32 @@ var League = {
 			}
 		}
 		return rosterMap;
+	},
+
+	generateLeague: (config) => {
+		if(!config.users){
+			throw new Error('Must provide users in league config.');
+		}
+		else if(!config.bots){
+			throw new Error('Must specify what bots to use in league config.');
+		}
+		else if(!config.players){
+			throw new Error('Must specify what players to use in league config');
+		}
+		Util.checkValidTimestamp(config.start);
+		Util.checkValidTimestamp(config.end);
+		var start = Util.roundToDay(config.start);
+		var end = Util.roundToDay(config.end);
+		var users = League.fixUserList(config.users, config.bots);
+		var rosters = League.generateRosters(users, config.players);
+		var schedule = League.generateSchedule(users, config.weeks);
+		return {
+			name: config.name || 'Untitled League',
+			start: start,
+			end: end,
+			schedule: schedule,
+			rosters: rosters
+		}
 	}
 
 }
