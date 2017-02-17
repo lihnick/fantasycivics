@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Fantasy Civics</title>
+		<!--<link rel="icon" type="img/png" href="style/favicon.png" style="width:30px;">-->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script src="https://www.gstatic.com/firebasejs/3.6.6/firebase.js"></script>
+		<script>
+			// Initialize Firebase
+		</script>
+		<style>
+
+			table td {
+				padding-right: 10px;
+			}
+
+			.center {
+				text-align: center;
+			}
+
+			td.center {
+				width: 90px;
+			}
+
+			td.player-name {
+				width: 180px;
+			}
+
+		</style>
+	</head>
+
+	<body>
+
+		<h1>Database Testing Suite</h1>
+
+		<script type="text/javascript" src="../assets/promise.min.js"></script>
+		<script type="text/javascript" src="../assets/jquery-3.1.1.min.js"></script>
+		<script type="text/javascript" src="../lib/util.js"></script>
+		<script type="text/javascript" src="./player.js"></script>
+		<script type="text/javascript" src="./league.js"></script>
+		<script type="text/javascript" src="./scoring.js"></script>
+		<script type="text/javascript" src="./database.js"></script>
+		
+		<script type="text/javascript">
+
+			function renderRosters(roster, uid, userMap){
+				var div = document.createElement('div');
+				var h2 = document.createElement('h2');
+				var entry = userMap[uid] || BOT_MAP[uid];
+					h2.innerText = 'Roster for ' + entry.name;
+				var table = document.createElement('table');
+				var scoreHeaders = Object.keys(Scoring.DATASETS);
+				var scoreFill = '';
+				var hdr = '';
+					hdr += '<tr>'
+					hdr += '<td class="player-name">Player</td>'
+					hdr += '<td class="center">Ward</td>'
+				for(var h = 0; h < scoreHeaders.length; h++){
+					hdr += '<td class="center">' + Scoring.DATASET_NAMES[scoreHeaders[h]] + '</td>'
+					scoreFill += '<td></td>'
+				}
+					hdr += '<td class="center">Score</td>'
+					hdr += '<td>Status</td>'
+					hdr += '</tr>';
+				var total = 0;
+				for(var pid in roster){
+				var player = roster[pid];
+				var score = 0;
+				var row = '';
+					row += '<tr>'
+					row += '<td>' + player.name + '</td>'
+					row += '<td class="center">' + player.ward + '</td>'
+				for(var h = 0; h < scoreHeaders.length; h++){
+					row += '<td class="center">' + player.scores[scoreHeaders[h]] + '</td>'
+					score += player.scores[scoreHeaders[h]]
+				}
+					row += '<td class="center">' + score + '</td>'
+					row += '<td>' + (player.starter ? 'Starting' : 'Benched') + '</td>'
+					row += '</tr>';
+					hdr += row;
+					if(player.starter){
+						total += score;
+					}
+				}
+					hdr += '<tr><td></td><td></td>' + scoreFill + '<td class="center">' + total + '</td><td>Total</td></tr>'
+				table.innerHTML = hdr;
+				div.appendChild(h2);
+				div.appendChild(table);
+				document.body.appendChild(div);
+			}
+
+			function renderSchedule(schedule, league, userMap){
+				var div = document.createElement('div');
+				var h2 = document.createElement('h2');
+					h2.innerText = 'League Schedule for ' + league.name;
+				var table = document.createElement('table');
+				var hdr = '';
+					hdr += '<tr>'
+					hdr += '<td>Week</td>'
+					hdr += '<td>Away</td>'
+					hdr += '<td></td>'
+					hdr += '<td>Home</td>'
+					hdr += '</tr>';
+				for(var w = 0; w < schedule.length; w++){
+					var games = schedule[w];
+				for(var h = 0; h < games.length; h++){
+					var row = '';
+					row += '<tr>'
+					row += '<td>Week ' + (w + 1) + '</td>'
+					var home = userMap[games[h].home] || BOT_MAP[[games[h].home]];
+					var away = userMap[games[h].away] || BOT_MAP[[games[h].away]];
+					row += '<td>' + away.name + '</td>'
+					row += '<td> @ </td>'
+					row += '<td>' + home.name + '</td>'
+					row += '<tr>'
+					hdr += row;
+				}
+				}
+				table.innerHTML = hdr;
+				div.appendChild(h2);
+				div.appendChild(table);
+				document.body.appendChild(div);
+			}
+
+
+			var testUsers = {
+				'userid0001': {
+					name: 'Derek Eder'
+				},
+				'userid0002': {
+					name: 'Nina Sandlin'
+				},
+				'userid0003': {
+					name: 'Karl Fogel'
+				}
+			}
+
+			var testLeague = {
+				id: 'leagueid0008',
+				name: 'ChiHackNight',
+				start: 1487138400000,
+				end: 1489554000000,
+				users: Object.keys(testUsers),
+				bots: BOT_MAP,
+				players: PLAYER_MAP
+			}
+
+			var users = League.fixUserList(testLeague.users, BOT_MAP);
+
+			// Test Generate Schedule
+			console.log('Test Generate Schedule');
+			var schedule = League.generateSchedule(users);
+			console.log(schedule);
+
+			// Test Generate Rosters
+			console.log('Test Generate Rosters');
+			var rosters = League.generateRosters(users, PLAYER_MAP);
+			console.log(rosters);
+
+			// Test Generate League
+			console.log('Test Generate League');
+			var league = League.generateLeague(testLeague);
+			console.log(league);
+
+			// Test Scoring Requests
+			var from = new Date('2/14/2017').getTime();
+			var to = new Date().getTime();
+			Scoring.queryDataset('pot_holes', {
+				'$where': Scoring.buildDateQuery('creation_date', from, to),
+				'ward': 2
+			}).then((data) => {
+				console.log('Test Scoring Requests');
+				console.log(data.length, data);
+			}).catch((err) => {
+				console.log('Test Scoring Requests');
+				console.error(err);
+			});
+
+
+			// Testing Get League Response
+			Database.getLeague({
+				leagueid: 'leagueid0008',
+				from: new Date('2/14/2017').getTime(),
+				to: Date.now()
+			}).then((data) => {
+				console.log('Test Get League Response');
+				console.log(data);
+				for(var uid in data.rosters){
+					renderRosters(data.rosters[uid], uid, testUsers);
+				}
+				renderSchedule(data.schedule, data, testUsers);
+			}).catch((err) => {
+				console.log('Test Get League Response');
+				console.error(err);
+			});
+
+
+		</script>
+	
+	</body>
+
+</html>
