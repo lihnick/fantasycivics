@@ -1,3 +1,25 @@
+var TEST_USERS = {
+	'userid0001': {
+		name: 'Derek Eder'
+	},
+	'userid0002': {
+		name: 'Nina Sandlin'
+	},
+	'userid0003': {
+		name: 'Karl Fogel'
+	}
+}
+
+var TEST_LEAGUE = {
+	id: 'test',
+	name: 'Test League',
+	start: 1487138400000,
+	end: 1489554000000,
+	users: Object.keys(TEST_USERS),
+	bots: BOT_MAP,
+	players: PLAYER_MAP
+}
+
 var League = {
 
 	STARTERS_PER_ROSTER: 3,
@@ -118,11 +140,19 @@ var League = {
 		var users = League.fixUserList(config.users, config.bots);
 		var rosters = League.generateRosters(users, config.players);
 		var schedule = League.generateSchedule(users, config.weeks);
+		var usersMap = {};
+		for(var u = 0; u < users.length; u++){
+			usersMap[users[u]] = {
+				team: 'Untitled Team',
+				wins: 0,
+				losses: 0
+			}
+		}
 		return {
 			name: config.name || 'Untitled League',
 			start: start,
 			end: end,
-			users: users,
+			users: usersMap,
 			schedule: schedule,
 			rosters: rosters
 		}
@@ -131,29 +161,9 @@ var League = {
 	getLeague: (id) => {
 		return new Promise((resolve, reject) => {
 			// Dummy Data
-			var testUsers = {
-				'userid0001': {
-					name: 'Derek Eder'
-				},
-				'userid0002': {
-					name: 'Nina Sandlin'
-				},
-				'userid0003': {
-					name: 'Karl Fogel'
-				}
-			}
-			var testLeague = {
-				id: id,
-				name: 'Test League',
-				start: 1487138400000,
-				end: 1489554000000,
-				users: Object.keys(testUsers),
-				bots: BOT_MAP,
-				players: PLAYER_MAP
-			}
 			var res = false;
 			try{
-				res = League.generateLeague(testLeague);
+				res = League.generateLeague(TEST_LEAGUE);
 				resolve(res);
 			}
 			catch(err){

@@ -14,6 +14,18 @@
 				padding-right: 10px;
 			}
 
+			.center {
+				text-align: center;
+			}
+
+			td.center {
+				width: 90px;
+			}
+
+			td.player-name {
+				width: 180px;
+			}
+
 		</style>
 	</head>
 
@@ -38,28 +50,39 @@
 					h2.innerText = 'Roster for ' + entry.name;
 				var table = document.createElement('table');
 				var scoreHeaders = Object.keys(Scoring.DATASETS);
+				var scoreFill = '';
 				var hdr = '';
 					hdr += '<tr>'
-					hdr += '<td>Player</td>'
-					hdr += '<td>Ward</td>'
+					hdr += '<td class="player-name">Player</td>'
+					hdr += '<td class="center">Ward</td>'
 				for(var h = 0; h < scoreHeaders.length; h++){
-					hdr += '<td>' + Scoring.DATASET_NAMES[scoreHeaders[h]] + '</td>'
+					hdr += '<td class="center">' + Scoring.DATASET_NAMES[scoreHeaders[h]] + '</td>'
+					scoreFill += '<td></td>'
 				}
+					hdr += '<td class="center">Score</td>'
 					hdr += '<td>Status</td>'
 					hdr += '</tr>';
+				var total = 0;
 				for(var pid in roster){
 				var player = roster[pid];
+				var score = 0;
 				var row = '';
 					row += '<tr>'
 					row += '<td>' + player.name + '</td>'
-					row += '<td>' + player.ward + '</td>'
+					row += '<td class="center">' + player.ward + '</td>'
 				for(var h = 0; h < scoreHeaders.length; h++){
-					row += '<td>' + player.scores[scoreHeaders[h]] + '</td>'
+					row += '<td class="center">' + player.scores[scoreHeaders[h]] + '</td>'
+					score += player.scores[scoreHeaders[h]]
 				}
+					row += '<td class="center">' + score + '</td>'
 					row += '<td>' + (player.starter ? 'Starting' : 'Benched') + '</td>'
 					row += '</tr>';
 					hdr += row;
+					if(player.starter){
+						total += score;
+					}
 				}
+					hdr += '<tr><td></td><td></td>' + scoreFill + '<td class="center">' + total + '</td><td>Total</td></tr>'
 				table.innerHTML = hdr;
 				div.appendChild(h2);
 				div.appendChild(table);
