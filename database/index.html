@@ -11,7 +11,7 @@
 		<style>
 
 			table td {
-				padding: 4px;
+				padding-right: 10px;
 			}
 
 		</style>
@@ -59,6 +59,39 @@
 					row += '<td>' + (player.starter ? 'Starting' : 'Benched') + '</td>'
 					row += '</tr>';
 					hdr += row;
+				}
+				table.innerHTML = hdr;
+				div.appendChild(h2);
+				div.appendChild(table);
+				document.body.appendChild(div);
+			}
+
+			function renderSchedule(schedule, league, userMap){
+				var div = document.createElement('div');
+				var h2 = document.createElement('h2');
+					h2.innerText = 'League Schedule for ' + league.name;
+				var table = document.createElement('table');
+				var hdr = '';
+					hdr += '<tr>'
+					hdr += '<td>Week</td>'
+					hdr += '<td>Away</td>'
+					hdr += '<td></td>'
+					hdr += '<td>Home</td>'
+					hdr += '</tr>';
+				for(var w = 0; w < schedule.length; w++){
+					var games = schedule[w];
+				for(var h = 0; h < games.length; h++){
+					var row = '';
+					row += '<tr>'
+					row += '<td>Week ' + (w + 1) + '</td>'
+					var home = userMap[games[h].home] || BOT_MAP[[games[h].home]];
+					var away = userMap[games[h].away] || BOT_MAP[[games[h].away]];
+					row += '<td>' + away.name + '</td>'
+					row += '<td> @ </td>'
+					row += '<td>' + home.name + '</td>'
+					row += '<tr>'
+					hdr += row;
+				}
 				}
 				table.innerHTML = hdr;
 				div.appendChild(h2);
@@ -132,6 +165,7 @@
 				for(var uid in data.rosters){
 					renderRosters(data.rosters[uid], uid, testUsers);
 				}
+				renderSchedule(data.schedule, data, testUsers);
 			}).catch((err) => {
 				console.log('Test Get League Response');
 				console.error(err);

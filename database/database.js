@@ -40,6 +40,7 @@ var Database = {
 						end: league.end,
 						from: params.from,
 						to: params.to,
+						schedule: league.schedule,
 						users: league.users,
 						rosters: rosters
 					}
