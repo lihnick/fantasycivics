@@ -14,10 +14,15 @@
 		<!-- Start write requests -->
 
 		<h2>Create Leagues</h2>
-		<form id="league">
+		<form id="newLeague">
 			<h3>League Name: {{ name }}</h3>
-			<input v-model="name" type="text" name="" placeholder="League Name"><br>
-			<input type="" name="">
+			<input v-model="name" type="text" placeholder="League Name"><br>
+
+			<input v-model="invite" v-on:keyup.enter="inviteUsers" placeholder="Invite User">
+			<ul>
+				<li is="invite-list" v-for="(user, index) in users" v-bind:invite="user" v-on:remove="users.splice(index, 1)"></li>
+			</ul>
+
 			<input type="submit" name="Create" onclick="test()">
 		</form>
 
@@ -34,6 +39,7 @@
 		<!-- End read requests -->
 
 		<!-- script -->
+		<script type="text/javascript" src="app.js"></script>
 		<script type="text/javascript" src="main.js"></script>
 		<script type="text/javascript" src="../database/player.js"></script>
 		<script type="text/javascript" src="../database/database.js"></script>
