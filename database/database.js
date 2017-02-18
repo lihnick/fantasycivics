@@ -1,3 +1,31 @@
+var config = {
+	apiKey: "AIzaSyDusGUpsFfhJmRnmB2cgfetwR3ZR2otqe4",
+	authDomain: "fantasycivics.firebaseapp.com",
+	databaseURL: "https://fantasycivics.firebaseio.com",
+	storageBucket: "fantasycivics.appspot.com",
+	messagingSenderId: "245596715039"
+};
+DatabaseFirebase = firebase.initializeApp(config, 'Fantasy Civics Database');
+
+var db = DatabaseFirebase.database();
+
+function getBotMap(){
+	return new Promise((resolve, reject) => {
+		try{
+			var ref = db.ref('users');
+			ref.orderByChild('bot').equalTo(true).on('child_added', (snapshot) => {
+				var bot = snapshot.val();
+				var botMap = {};
+					botMap[snapshot.key] = bot;
+					resolve(botMap);
+			});
+		}
+		catch(err){
+			reject(err);
+		}
+	});
+}
+
 var Database = {
 	
 	getUser: (uid) => {
@@ -7,9 +35,33 @@ var Database = {
 		});
 	},
 
+	createLeague: (params) => {
+		return new Promise((resolve, reject) => {
+			getBotMap().then((botMap) => {
+				params.players = PLAYER_MAP;
+				params.bots = botMap;
+				var league = League.generateLeague(params);
+				var ref = db.ref('leagues');
+				ref.push(league).then((status) => {
+					resolve({
+						success: true,
+						leagueid: status.key
+					});
+				});
+			}).catch(reject)
+		});
+	},
+
 	getLeague: (params) => {
 		return new Promise((resolve, reject) => {
-			League.getLeague(params.leagueid).then((league) => {
+			new Promise((resolveLeague, rejectLeague) => {
+				var ref = db.ref('leagues/' + id);
+				ref.once('value', (snapshot) => {
+					var leagueData = snapshot.val();
+					leagueData.id = id;
+					resolveLeague(leagueData);
+				}).catch(rejectLeague);
+			}).then((league) => {
 				var rosters = league.rosters;
 				var userPromises = [];
 				var promises = [];
@@ -34,7 +86,6 @@ var Database = {
 					}
 				}
 				Promise.all(promises).then((packets) => {
-					console.log('begin', packets)
 					for(var s = 0; s < packets.length; s++){
 						var data = packets[s];
 						var meta = promises[s];
