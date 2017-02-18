@@ -4,9 +4,14 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Requests</title>
 
+		<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
 		<script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
 		<script type="text/javascript" src="../assets/vue.js"></script>
 		<script type="text/javascript" src="../assets/promise.min.js"></script>
+		<script type="text/javascript" src="../assets/moment.min.js"></script>
+		<script type="text/javascript" src="../assets/jquery-3.1.1.min.js"></script>
+		<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 	</head>
 	<body>
 		
@@ -17,10 +22,17 @@
 		<h2>Create Leagues</h2>
 		<div id="newLeague">
 			<h3>League Name: {{ name }}</h3>
-			<input v-model="name" type="text" placeholder="League Name"><br>
+			<input v-model="name" type="text" placeholder="League Name">
 			<input v-model="invite" v-on:keyup.enter="inviteUsers" placeholder="Invite User"><br>
+
+			<div id="datepicker">
+				<input id="displayDate" type="text" size="45" disabled>
+			</div>
+			<!-- <div id="displayDate"></div> -->
+
 			<button v-on:click="inviteUsers" :disabled="(!invite)? true : false">Invite</button>
-			<button v-on:click="createLeague" :disabled="(!name)? true : false">Create League</button>
+			<button v-on:click="createLeague" :disabled="(!name || !range)? true : false">Create League</button>
+			<button v-on:click="debug">Debug</button>
 			<ul>
 				<li is="invite-list" v-for="(user, index) in users" v-bind:invite="user" v-on:pop="users.splice(index, 1)"></li>
 			</ul>
@@ -44,9 +56,7 @@
 		<!-- End read requests -->
 
 		<!-- script -->
-<!-- 		<script type="text/javascript" src="../assets/promise.min.js"></script>
-		<script type="text/javascript" src="../assets/moment.min.js"></script>
-		<script type="text/javascript" src="../assets/jquery-3.1.1.min.js"></script> -->
+
 		<script type="text/javascript" src="../lib/util.js"></script>
 		<script type="text/javascript" src="../database/player.js"></script>
 		<script type="text/javascript" src="../database/league.js"></script>

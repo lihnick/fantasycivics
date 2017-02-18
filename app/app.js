@@ -25,12 +25,17 @@ function Application() {
 				el: '#newLeague',
 				data: {
 					name: "",
+					range: "",
 					start: -1,
 					end: -1,
 					users: [],
 					invite: ''
 				}, 
 				methods: {
+					debug: () => {
+						console.log(APP);
+						test = APP;
+					},
 					inviteUsers: () => {
 						var tmp = APP['newLeague'];
 						test = APP;
@@ -58,6 +63,29 @@ function Application() {
 					}
 				}
 			});
+
+			$(function() {
+				$("#datepicker").datepicker({
+					showOtherMonths: true,
+					selectOtherMonths: true,
+					altField: "#displayDate",
+					altFormat: "'Ending on' DD, d MM, yy",
+					onSelect: function() { // debugging purposes
+						var start = new Date();
+						var end = $(this).datepicker('getDate');
+						console.log(start + " -- " + end);
+						console.log(start.getTime() + " (Floored: " + Util.floorTimestamp(start.getTime()) + ") -- " + end.getTime());
+						console.log(start.toLocaleDateString() + " -- " + end.toLocaleDateString());
+
+						if ((Math.floor(( end - start ) / 86400000) + 1) < 1) 
+							console.log("Invalid Date: " +  (Math.floor(( end - start ) / 86400000) + 1) + " days in duration.");
+						else
+							console.log("Duration: " + (Math.floor(( end - start ) / 86400000) + 1) + " days.");
+						APP['newLeague'].range = $(this).datepicker('getDate');
+					}
+				});
+			});
+
 		},
 
 		// Read Functions
