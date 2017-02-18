@@ -111,13 +111,17 @@ var League = {
 				allWeeks.push(flipWeek);
 			}
 
-
-
+			// Prevent back-to-back repeated matchups in short leagues (allows matchups, but not same host)
+			var lastWeekIndex = -1;
 			for(var w = 0; w < weeks; w++){
-				// Later: Prevent repeated matchups in short leagues
 				// Later: Equalize number of home/away matches
-				var weekMatches = Util.getRandomItem(allWeeks);
+				var ridx = Math.floor(allWeeks.length * Math.random());
+				while(ridx === lastWeekIndex){
+					ridx = Math.floor(allWeeks.length * Math.random());
+				}
+				var weekMatches = allWeeks[ridx];
 				schedule.push(weekMatches);
+				lastWeekIndex = ridx;
 			}
 		}
 		return schedule;
