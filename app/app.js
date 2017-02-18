@@ -81,11 +81,11 @@ function Application() {
 		},
 
 		getUserLeagues: () => {
-			
+
 		},
 
 		getLeague: () => {
-			Database.getLeague("KdEABT6mOvW_ayE5p2Z").then(function(result) {
+			Database.getLeague("-KdEABT6mOvW_ayE5p2Z").then(function(result) {
 				console.log(result);
 			}, function(err) {
 				console.log(err);
