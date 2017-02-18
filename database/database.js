@@ -1,4 +1,30 @@
-var db = firebase.database();
+var config = {
+	apiKey: "AIzaSyDusGUpsFfhJmRnmB2cgfetwR3ZR2otqe4",
+	authDomain: "fantasycivics.firebaseapp.com",
+	databaseURL: "https://fantasycivics.firebaseio.com",
+	storageBucket: "fantasycivics.appspot.com",
+	messagingSenderId: "245596715039"
+};
+DatabaseFirebase = firebase.initializeApp(config, 'Fantasy Civics Database');
+
+var db = DatabaseFirebase.database();
+
+function getBotMap(){
+	return new Promise((resolve, reject) => {
+		try{
+			var ref = db.ref('users');
+			ref.orderByChild('bot').equalTo(true).on('child_added', (snapshot) => {
+				var bot = snapshot.val();
+				var botMap = {};
+					botMap[snapshot.key] = bot;
+					resolve(botMap);
+			});
+		}
+		catch(err){
+			reject(err);
+		}
+	});
+}
 
 var Database = {
 	
@@ -10,7 +36,20 @@ var Database = {
 	},
 
 	createLeague: (params) => {
-		return false;
+		return new Promise((resolve, reject) => {
+			getBotMap().then((botMap) => {
+				params.players = PLAYER_MAP;
+				params.bots = botMap;
+				var league = League.generateLeague(params);
+				var ref = db.ref('leagues');
+				ref.push(league).then((status) => {
+					resolve({
+						success: true,
+						leagueid: status.key
+					});
+				});
+			}).catch(reject)
+		});
 	},
 
 	getLeague: (params) => {

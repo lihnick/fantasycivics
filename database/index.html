@@ -4,10 +4,7 @@
 		<title>Fantasy Civics</title>
 		<!--<link rel="icon" type="img/png" href="style/favicon.png" style="width:30px;">-->
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<script src="https://www.gstatic.com/firebasejs/3.6.6/firebase.js"></script>
-		<script>
-			// Initialize Firebase
-		</script>
+		<script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
 		<style>
 
 			table td {
@@ -154,7 +151,7 @@
 
 			// Testing Get League Response
 			Database.getLeague({
-				leagueid: 'leagueid0008',
+				leagueid: '-KdEABT6mOvW_ayE5p2Z',
 				from: new Date('2/12/2017').getTime(),
 				to: Date.now()
 			}).then((data) => {
@@ -168,6 +165,20 @@
 				console.log('Test Get League Response');
 				console.error(err);
 			});
+
+			/*Database.createLeague({
+				name: 'First League',
+				start: new Date('1/7/2017').getTime(),
+				end: new Date('1/14/2017').getTime(),
+				users: ['testuser0001', 'testuser0002', 'testuser0003'],
+				weeks: 4
+			}).then((response) => {
+				console.log('Testing Create League');
+				console.log(response);
+			}).catch((err) => {
+				console.log('Testing Create League');
+				console.error(err);
+			});*/
 
 
 		</script>
