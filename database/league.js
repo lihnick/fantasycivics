@@ -177,6 +177,15 @@ var League = {
 		var users = League.fixUserList(config.users, config.bots);
 		var rosters = League.generateRosters(users, config.players);
 		var schedule = League.generateSchedule(users, config.weeks);
+		var seasonDuration = end - start;
+		var matchDuration = seasonDuration / config.weeks;
+		for(var w = 0; w < schedule.length; w++){
+			for(var g = 0; g < schedule[w].length; g++){
+				var match = schedule[w][g];
+				match.start = start + (w * matchDuration);
+				match.end = match.start + matchDuration;
+			}
+		}
 		var usersMap = {};
 		for(var u = 0; u < users.length; u++){
 			usersMap[users[u]] = {
