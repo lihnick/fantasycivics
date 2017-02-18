@@ -1,26 +1,3 @@
-var TEST_USERS = {
-	'userid0001': {
-		name: 'Derek Eder'
-	},
-	'userid0002': {
-		name: 'Nina Sandlin'
-	},
-	'userid0003': {
-		name: 'Karl Fogel'
-	}
-}
-
-var TEST_LEAGUE = {
-	id: 'test',
-	name: 'Test League',
-	start: 1487138400000,
-	end: 1489554000000,
-	users: Object.keys(TEST_USERS),
-	bots: BOT_MAP,
-	players: PLAYER_MAP,
-	weeks: 6
-}
-
 var League = {
 
 	STARTERS_PER_ROSTER: 3,
@@ -170,22 +147,32 @@ var League = {
 		else if(!config.players){
 			throw new Error('Must specify what players to use in league config');
 		}
+
 		Util.checkValidTimestamp(config.start);
 		Util.checkValidTimestamp(config.end);
+
 		var start = Util.floorTimestamp(config.start);
 		var end = Util.floorTimestamp(config.end);
+
 		var users = League.fixUserList(config.users, config.bots);
 		var rosters = League.generateRosters(users, config.players);
 		var schedule = League.generateSchedule(users, config.weeks);
+
 		var seasonDuration = end - start;
-		var matchDuration = seasonDuration / config.weeks;
+		var matchDuration = Math.floor(seasonDuration / config.weeks);
+		//console.log(seasonDuration, matchDuration)
+		var matchStart = start;
 		for(var w = 0; w < schedule.length; w++){
+			var matchEnd = matchStart + matchDuration;
 			for(var g = 0; g < schedule[w].length; g++){
 				var match = schedule[w][g];
-				match.start = start + (w * matchDuration);
-				match.end = match.start + matchDuration;
+				match.start = matchStart;
+				match.end = matchEnd;
+				//console.log('week ' + (w + 1) + new Date(match.start))
 			}
+			matchStart = matchEnd;
 		}
+
 		var usersMap = {};
 		for(var u = 0; u < users.length; u++){
 			usersMap[users[u]] = {

@@ -101,6 +101,8 @@
 					hdr += '<td>Away</td>'
 					hdr += '<td></td>'
 					hdr += '<td>Home</td>'
+					hdr += '<td>Start</td>'
+					hdr += '<td>End</td>'
 					hdr += '</tr>';
 				for(var w = 0; w < schedule.length; w++){
 					var games = schedule[w];
@@ -113,6 +115,8 @@
 					row += '<td>' + away.name + '</td>'
 					row += '<td> @ </td>'
 					row += '<td>' + home.name + '</td>'
+					row += '<td>' + new Date(games[h].start) + '</td>'
+					row += '<td>' + new Date(games[h].end) + '</td>'
 					row += '<tr>'
 					hdr += row;
 				}
@@ -124,7 +128,7 @@
 			}
 
 
-			var testUsers = {
+			var TEST_USERS = {
 				'userid0001': {
 					name: 'Derek Eder'
 				},
@@ -136,47 +140,16 @@
 				}
 			}
 
-			var testLeague = {
-				id: 'leagueid0008',
-				name: 'ChiHackNight',
-				start: 1487138400000,
-				end: 1489554000000,
-				users: Object.keys(testUsers),
+			var TEST_LEAGUE = {
+				id: 'test',
+				name: 'Test League',
+				start: new Date('1/3/2017').getTime(),
+				end: new Date('1/14/2017').getTime(),
+				users: Object.keys(TEST_USERS),
 				bots: BOT_MAP,
 				players: PLAYER_MAP,
-				weeks: 6
+				weeks: 4
 			}
-
-			var users = League.fixUserList(testLeague.users, BOT_MAP);
-
-			// Test Generate Schedule
-			console.log('Test Generate Schedule');
-			var schedule = League.generateSchedule(users);
-			console.log(schedule);
-
-			// Test Generate Rosters
-			console.log('Test Generate Rosters');
-			var rosters = League.generateRosters(users, PLAYER_MAP);
-			console.log(rosters);
-
-			// Test Generate League
-			console.log('Test Generate League');
-			var league = League.generateLeague(testLeague);
-			console.log(league);
-
-			// Test Scoring Requests
-			var from = new Date('2/14/2017').getTime();
-			var to = new Date().getTime();
-			Scoring.queryDataset('pot_holes', {
-				'$where': Scoring.buildDateQuery('creation_date', from, to),
-				'ward': 2
-			}).then((data) => {
-				console.log('Test Scoring Requests');
-				console.log(data.length, data);
-			}).catch((err) => {
-				console.log('Test Scoring Requests');
-				console.error(err);
-			});
 
 
 			// Testing Get League Response
@@ -188,9 +161,9 @@
 				console.log('Test Get League Response');
 				console.log(data);
 				for(var uid in data.rosters){
-					renderRosters(data.rosters[uid], uid, testUsers);
+					renderRosters(data.rosters[uid], uid, TEST_USERS);
 				}
-				renderSchedule(data.schedule, data, testUsers);
+				renderSchedule(data.schedule, data, TEST_USERS);
 			}).catch((err) => {
 				console.log('Test Get League Response');
 				console.error(err);
