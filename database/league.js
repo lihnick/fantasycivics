@@ -1,25 +1,3 @@
-var TEST_USERS = {
-	'userid0001': {
-		name: 'Derek Eder'
-	},
-	'userid0002': {
-		name: 'Nina Sandlin'
-	},
-	'userid0003': {
-		name: 'Karl Fogel'
-	}
-}
-
-var TEST_LEAGUE = {
-	id: 'test',
-	name: 'Test League',
-	start: 1487138400000,
-	end: 1489554000000,
-	users: Object.keys(TEST_USERS),
-	bots: BOT_MAP,
-	players: PLAYER_MAP
-}
-
 var League = {
 
 	STARTERS_PER_ROSTER: 3,
@@ -63,11 +41,10 @@ var League = {
 			throw new Error('Season must be at least one week long');
 		}
 		else{
-			var allWeeks = [];
-			var half = Math.floor(users.length / 2);
-			for(var a = 1; a < users.length; a++){
+			
+			/*for(var a = 0; a < half; a++){
 				var thisWeek = [];
-				for(var u = 0; u < half; u++){
+				for(var u = half; u < users.length; u++){
 					var nidx = (u + a) % users.length;
 					var opponent = users[nidx];
 					if(users[u] === opponent){
@@ -79,12 +56,49 @@ var League = {
 					});
 				}
 				allWeeks.push(thisWeek);
+			}*/
+
+			var allWeeks = [];
+			var half = Math.floor(users.length / 2);
+			for(var x = 0; x < half; x++){
+				var thisWeek = [];
+				var flipWeek = [];
+				for(var a = 0; a < half; a++){
+					var home = users[a];
+					var aidx = half + ((a + x) % half);
+					var away = users[aidx];
+					if(!home && !away){
+						throw new Error('Failed to match up two teams.');
+					}
+					else if(home === away){
+						throw new Error('A user cannot be matched up against their own team.');
+					}
+					else{
+						thisWeek.push({
+							home: home,
+							away: away
+						});
+						flipWeek.push({
+							home: away,
+							away: home
+						});
+					}
+				}
+				allWeeks.push(thisWeek);
+				allWeeks.push(flipWeek);
 			}
+
+			// Prevent back-to-back repeated matchups in short leagues (allows matchups, but not same host)
+			var lastWeekIndex = -1;
 			for(var w = 0; w < weeks; w++){
-				// Later: Prevent repeated matchups in short leagues
 				// Later: Equalize number of home/away matches
-				var weekMatches = Util.getRandomItem(allWeeks);
+				var ridx = Math.floor(allWeeks.length * Math.random());
+				while(ridx === lastWeekIndex){
+					ridx = Math.floor(allWeeks.length * Math.random());
+				}
+				var weekMatches = allWeeks[ridx];
 				schedule.push(weekMatches);
+				lastWeekIndex = ridx;
 			}
 		}
 		return schedule;
@@ -133,13 +147,32 @@ var League = {
 		else if(!config.players){
 			throw new Error('Must specify what players to use in league config');
 		}
+
 		Util.checkValidTimestamp(config.start);
 		Util.checkValidTimestamp(config.end);
+
 		var start = Util.floorTimestamp(config.start);
 		var end = Util.floorTimestamp(config.end);
+
 		var users = League.fixUserList(config.users, config.bots);
 		var rosters = League.generateRosters(users, config.players);
 		var schedule = League.generateSchedule(users, config.weeks);
+
+		var seasonDuration = end - start;
+		var matchDuration = Math.floor(seasonDuration / config.weeks);
+		//console.log(seasonDuration, matchDuration)
+		var matchStart = start;
+		for(var w = 0; w < schedule.length; w++){
+			var matchEnd = matchStart + matchDuration;
+			for(var g = 0; g < schedule[w].length; g++){
+				var match = schedule[w][g];
+				match.start = matchStart;
+				match.end = matchEnd;
+				//console.log('week ' + (w + 1) + new Date(match.start))
+			}
+			matchStart = matchEnd;
+		}
+
 		var usersMap = {};
 		for(var u = 0; u < users.length; u++){
 			usersMap[users[u]] = {
@@ -156,20 +189,6 @@ var League = {
 			schedule: schedule,
 			rosters: rosters
 		}
-	},
-
-	getLeague: (id) => {
-		return new Promise((resolve, reject) => {
-			// Dummy Data
-			var res = false;
-			try{
-				res = League.generateLeague(TEST_LEAGUE);
-				resolve(res);
-			}
-			catch(err){
-				reject(err);
-			}
-		});
 	}
 
 }
