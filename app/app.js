@@ -1,43 +1,64 @@
 
 // Global Variables
 // var USER = {};
+var test;
 
 // App APIs
 function Application() {
 
 	// Private Variables
 	var USER = {};
+	var APP = {};
 
 	// Public Variables
 	return {
+
 		// Write Functions
 
 		createLeague: () => {
 			Vue.component('invite-list', {
 				props: ['invite'],
-				template: '\
-				<li>\
-					{{ invite }}<button v-on:click="$emit(\'pop\')">X</button>\
-				</li>'
+				template: '<li>{{ invite }}<button v-on:click="$emit(\'pop\')">X</button></li>'
 			});
 
-			if (Application['newLeague']) 
-				return Application['newLeague'];
+			if (APP['newLeague']) {
+				return APP['newLeague'];
+			}
 			else {
-				Application['newLeague'] = new Vue({
+				APP['newLeague'] = new Vue({
 					el: '#newLeague',
 					data: {
 						name: "",
 						start: -1,
 						end: -1,
-						users: ['userid001', 'userid002', '', '', ''],
+						users: [],
 						invite: ''
 					}, 
 					methods: {
 						inviteUsers: () => {
-							console.log(this);
-							this.users.push(this.invite);
-							this.invite = '';
+							var tmp = APP['newLeague'];
+							test = APP;
+							if (tmp.invite) {
+								tmp.users.push(tmp.invite);
+								tmp.invite = "";
+							} else {
+								alert("No Inputs");
+							}
+						},
+						createLeague: () => {
+							var tmp = APP['newLeague'];
+							if (tmp.name && tmp.users.length > 0) {
+								var result = {
+									name: tmp.name,
+									start: tmp.start,
+									end: tmp.end,
+									users: tmp.users
+								}
+								console.log("Starting Game (Without the current user, current user info is retrieved from userLogin())");
+								console.log(result);
+							} else {
+								alert("Invalid Game");
+							}
 						}
 					}
 				});
@@ -51,12 +72,13 @@ function Application() {
 			USER['userid'] = "userid0001";
 			console.log("Logged in as user: " + USER['userid']);
 			// optional function call, to chain the process
-			Application.getUser();
+			Application().getUser();
 		},
 
 		// Once the userLogin is called, call this function to get user info based on user id
 		getUser: () => {
 			Database.getUser(USER['userid']).then(function(result) {
+				console.log(result);
 				USER['name'] = result['name'];
 				console.log(USER);
 			}, function(err) {

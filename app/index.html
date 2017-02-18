@@ -17,14 +17,12 @@
 		<div id="newLeague">
 			<h3>League Name: {{ name }}</h3>
 			<input v-model="name" type="text" placeholder="League Name"><br>
-
-			<input v-model="invite" v-on:keyup.enter="inviteUsers" placeholder="Invite User">
+			<input v-model="invite" v-on:keyup.enter="inviteUsers" placeholder="Invite User"><br>
 			<button v-on:click="inviteUsers" :disabled="(!invite)? true : false">Invite</button>
+			<button v-on:click="createLeague" :disabled="(!name)? true : false">Create League</button>
 			<ul>
 				<li is="invite-list" v-for="(user, index) in users" v-bind:invite="user" v-on:pop="users.splice(index, 1)"></li>
 			</ul>
-
-			<input type="submit" name="Create" onclick="test()">
 		</div>
 
 		<!-- End write requests -->
@@ -33,7 +31,7 @@
 
 		<h2>User Login</h2>
 		<form>
-			<input type="button" value="Google Authentication" onclick="Application.userLogin()">
+			<input type="button" value="Google Authentication" onclick="Application().userLogin()">
 		</form>
 
 
