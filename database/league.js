@@ -189,20 +189,6 @@ var League = {
 			schedule: schedule,
 			rosters: rosters
 		}
-	},
-
-	getLeague: (id) => {
-		return new Promise((resolve, reject) => {
-			// Dummy Data
-			var res = false;
-			try{
-				res = League.generateLeague(TEST_LEAGUE);
-				resolve(res);
-			}
-			catch(err){
-				reject(err);
-			}
-		});
 	}
 
 }

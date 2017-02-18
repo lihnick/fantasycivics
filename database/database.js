@@ -1,3 +1,5 @@
+var db = firebase.database();
+
 var Database = {
 	
 	getUser: (uid) => {
@@ -13,7 +15,14 @@ var Database = {
 
 	getLeague: (params) => {
 		return new Promise((resolve, reject) => {
-			League.getLeague(params.leagueid).then((league) => {
+			new Promise((resolveLeague, rejectLeague) => {
+				var ref = db.ref('leagues/' + id);
+				ref.once('value', (snapshot) => {
+					var leagueData = snapshot.val();
+					leagueData.id = id;
+					resolveLeague(leagueData);
+				}).catch(rejectLeague);
+			}).then((league) => {
 				var rosters = league.rosters;
 				var userPromises = [];
 				var promises = [];
