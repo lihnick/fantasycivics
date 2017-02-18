@@ -142,7 +142,8 @@
 				end: 1489554000000,
 				users: Object.keys(testUsers),
 				bots: BOT_MAP,
-				players: PLAYER_MAP
+				players: PLAYER_MAP,
+				weeks: 6
 			}
 
 			var users = League.fixUserList(testLeague.users, BOT_MAP);
@@ -180,7 +181,7 @@
 			// Testing Get League Response
 			Database.getLeague({
 				leagueid: 'leagueid0008',
-				from: new Date('2/14/2017').getTime(),
+				from: new Date('2/12/2017').getTime(),
 				to: Date.now()
 			}).then((data) => {
 				console.log('Test Get League Response');

@@ -17,7 +17,8 @@ var TEST_LEAGUE = {
 	end: 1489554000000,
 	users: Object.keys(TEST_USERS),
 	bots: BOT_MAP,
-	players: PLAYER_MAP
+	players: PLAYER_MAP,
+	weeks: 6
 }
 
 var League = {
@@ -63,11 +64,10 @@ var League = {
 			throw new Error('Season must be at least one week long');
 		}
 		else{
-			var allWeeks = [];
-			var half = Math.floor(users.length / 2);
-			for(var a = 1; a < users.length; a++){
+			
+			/*for(var a = 0; a < half; a++){
 				var thisWeek = [];
-				for(var u = 0; u < half; u++){
+				for(var u = half; u < users.length; u++){
 					var nidx = (u + a) % users.length;
 					var opponent = users[nidx];
 					if(users[u] === opponent){
@@ -79,7 +79,40 @@ var League = {
 					});
 				}
 				allWeeks.push(thisWeek);
+			}*/
+
+			var allWeeks = [];
+			var half = Math.floor(users.length / 2);
+			for(var x = 0; x < half; x++){
+				var thisWeek = [];
+				var flipWeek = [];
+				for(var a = 0; a < half; a++){
+					var home = users[a];
+					var aidx = half + ((a + x) % half);
+					var away = users[aidx];
+					if(!home && !away){
+						throw new Error('Failed to match up two teams.');
+					}
+					else if(home === away){
+						throw new Error('A user cannot be matched up against their own team.');
+					}
+					else{
+						thisWeek.push({
+							home: home,
+							away: away
+						});
+						flipWeek.push({
+							home: away,
+							away: home
+						});
+					}
+				}
+				allWeeks.push(thisWeek);
+				allWeeks.push(flipWeek);
 			}
+
+
+
 			for(var w = 0; w < weeks; w++){
 				// Later: Prevent repeated matchups in short leagues
 				// Later: Equalize number of home/away matches

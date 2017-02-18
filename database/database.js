@@ -7,6 +7,10 @@ var Database = {
 		});
 	},
 
+	createLeague: (params) => {
+		return false;
+	},
+
 	getLeague: (params) => {
 		return new Promise((resolve, reject) => {
 			League.getLeague(params.leagueid).then((league) => {
@@ -34,7 +38,6 @@ var Database = {
 					}
 				}
 				Promise.all(promises).then((packets) => {
-					console.log('begin', packets)
 					for(var s = 0; s < packets.length; s++){
 						var data = packets[s];
 						var meta = promises[s];
