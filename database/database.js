@@ -30,8 +30,11 @@ var Database = {
 	
 	getUser: (uid) => {
 		return new Promise((resolve, reject) => {
-			var entry = TEST_USERS[uid] || BOT_MAP[uid];
-			resolve(entry);
+			var ref = db.ref('users/' + uid);
+			ref.once('value', (snapshot) => {
+				var userData = snapshot.val();
+				resolve(userData);
+			});
 		});
 	},
 
@@ -55,10 +58,10 @@ var Database = {
 	getLeague: (params) => {
 		return new Promise((resolve, reject) => {
 			new Promise((resolveLeague, rejectLeague) => {
-				var ref = db.ref('leagues/' + id);
+				var ref = db.ref('leagues/' + params.leagueid);
 				ref.once('value', (snapshot) => {
 					var leagueData = snapshot.val();
-					leagueData.id = id;
+					leagueData.leagueid = params.leagueid;
 					resolveLeague(leagueData);
 				}).catch(rejectLeague);
 			}).then((league) => {
@@ -90,6 +93,7 @@ var Database = {
 						var data = packets[s];
 						var meta = promises[s];
 						if(meta.type === 'user'){
+							console.log(league.users, data)
 							league.users[meta.uid].name = data.name;
 						}
 						else if(meta.type === 'score'){
@@ -105,7 +109,7 @@ var Database = {
 					}
 				}).then(() => {
 					var response = {
-						id: params.leagueid,
+						leagueid: params.leagueid,
 						name: league.name,
 						start: league.start,
 						end: league.end,

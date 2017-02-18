@@ -44,7 +44,7 @@
 			function renderRosters(roster, uid, userMap){
 				var div = document.createElement('div');
 				var h2 = document.createElement('h2');
-				var entry = userMap[uid] || BOT_MAP[uid];
+				var entry = userMap[uid];
 					h2.innerText = 'Roster for ' + entry.name;
 				var table = document.createElement('table');
 				var scoreHeaders = Object.keys(Scoring.DATASETS);
@@ -107,13 +107,13 @@
 					var row = '';
 					row += '<tr>'
 					row += '<td>Week ' + (w + 1) + '</td>'
-					var home = userMap[games[h].home] || BOT_MAP[[games[h].home]];
-					var away = userMap[games[h].away] || BOT_MAP[[games[h].away]];
+					var home = userMap[games[h].home];
+					var away = userMap[games[h].away];
 					row += '<td>' + away.name + '</td>'
 					row += '<td> @ </td>'
 					row += '<td>' + home.name + '</td>'
-					row += '<td>' + new Date(games[h].start) + '</td>'
-					row += '<td>' + new Date(games[h].end) + '</td>'
+					row += '<td>' + moment(games[h].start).format('M/D h:mm A') + '</td>'
+					row += '<td>' + moment(games[h].end).format('M/D h:mm A') + '</td>'
 					row += '<tr>'
 					hdr += row;
 				}
@@ -154,13 +154,13 @@
 				leagueid: '-KdEABT6mOvW_ayE5p2Z',
 				from: new Date('2/12/2017').getTime(),
 				to: Date.now()
-			}).then((data) => {
+			}).then((league) => {
 				console.log('Test Get League Response');
-				console.log(data);
-				for(var uid in data.rosters){
-					renderRosters(data.rosters[uid], uid, TEST_USERS);
+				console.log(league);
+				for(var uid in league.rosters){
+					renderRosters(league.rosters[uid], uid, league.users);
 				}
-				renderSchedule(data.schedule, data, TEST_USERS);
+				renderSchedule(league.schedule, league, league.users);
 			}).catch((err) => {
 				console.log('Test Get League Response');
 				console.error(err);
