@@ -14,17 +14,18 @@
 		<!-- Start write requests -->
 
 		<h2>Create Leagues</h2>
-		<form id="newLeague">
+		<div id="newLeague">
 			<h3>League Name: {{ name }}</h3>
 			<input v-model="name" type="text" placeholder="League Name"><br>
 
 			<input v-model="invite" v-on:keyup.enter="inviteUsers" placeholder="Invite User">
+			<button v-on:click="inviteUsers" :disabled="(!invite)? true : false">Invite</button>
 			<ul>
-				<li is="invite-list" v-for="(user, index) in users" v-bind:invite="user" v-on:remove="users.splice(index, 1)"></li>
+				<li is="invite-list" v-for="(user, index) in users" v-bind:invite="user" v-on:pop="users.splice(index, 1)"></li>
 			</ul>
 
 			<input type="submit" name="Create" onclick="test()">
-		</form>
+		</div>
 
 		<!-- End write requests -->
 

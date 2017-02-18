@@ -15,7 +15,10 @@ function Application() {
 		createLeague: () => {
 			Vue.component('invite-list', {
 				props: ['invite'],
-				template: '<li :name="invite">{{ invite }}<button v-on:click="$emit(\'remove\')">X</button></li>'
+				template: '\
+				<li>\
+					{{ invite }}<button v-on:click="$emit(\'pop\')">X</button>\
+				</li>'
 			});
 
 			if (Application['newLeague']) 
@@ -32,6 +35,7 @@ function Application() {
 					}, 
 					methods: {
 						inviteUsers: () => {
+							console.log(this);
 							this.users.push(this.invite);
 							this.invite = '';
 						}
