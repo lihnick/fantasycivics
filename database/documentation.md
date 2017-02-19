@@ -307,8 +307,8 @@ Promise bearing data or error.
 			{
 				home: 'testuser0001',
 				away: 'testuser0002',
-				from: 1483250400000,
-				to: 1485928800000
+				start: 1483250400000,
+				end: 1485928800000
 			}
 			...
 		]
@@ -419,3 +419,37 @@ Transaction will fail with descriptive errors if any of the following are true:
 * Either player is not on the roster
 * Player to sit is already benched
 * Player to start is already starting
+
+* Note: in the future, a process to restrict when users can modify their rosters should be implemented, possibly relative to time in the current match.
+
+## Matches
+
+### Database.getMatch()
+Get the match a given player is competing in or will compete in on a given date.
+
+**Parameters**
+```
+{
+	userid: 'testuser0001',
+	leagueid: 'leagueid0001',
+	on: 1483250400000
+}
+```
+
+**Response**
+Promise bearing data or error.
+```
+	{
+		userid: 'testuser0001',
+		leagueid: 'leagueid0001',
+		on: 1483250400000,
+		home: 'testuser0001',
+		away: 'testuser0002',
+		start: 1483250400000,
+		end: 1485928800000
+	}
+```
+
+* Properties `start` and `end` represent the start and ending times of the match.
+* Note: in the future, a process to restrict when users can modify their rosters should be implemented, possibly relative to time in the current match.
+* Note: the process to determine who wins a past match and save that result are still under development.
