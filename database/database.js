@@ -1,3 +1,5 @@
+function InitDatabase(){
+
 var config = {
 	apiKey: "AIzaSyDusGUpsFfhJmRnmB2cgfetwR3ZR2otqe4",
 	authDomain: "fantasycivics.firebaseapp.com",
@@ -8,6 +10,9 @@ var config = {
 var DatabaseFirebase = firebase.initializeApp(config, 'Fantasy Civics Database');
 
 var db = DatabaseFirebase.database();
+
+var League = DatabaseLeague();
+var Scoring = DatabaseScoring();
 
 function getBotMap(){
 	return new Promise((resolve, reject) => {
@@ -29,6 +34,7 @@ function getBotMap(){
 var Database = {
 
 	Auth: DatabaseAuth(DatabaseFirebase),
+	Scoring: Scoring,
 
 	updateUser: (params) => {
 		if(!params.userid){
@@ -428,5 +434,9 @@ var Database = {
 			}).catch(reject);
 		});		
 	}
+
+}
+
+return Database;
 
 }

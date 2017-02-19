@@ -1,3 +1,5 @@
+function DatabaseLeague(){
+
 var League = {
 
 	STARTERS_PER_ROSTER: 3,
@@ -206,5 +208,9 @@ var League = {
 			rosters: rosters
 		}
 	}
+
+}
+
+return League;
 
 }

@@ -1,3 +1,5 @@
+function DatabaseScoring(){
+
 var SOCRATA_URL = "https://data.cityofchicago.org/resource/";
 var SECRET_TOKEN = "Le00VXF0GK0d8D1tTn2v6Vkpl";
 
@@ -59,5 +61,9 @@ var Scoring = {
 			}
 		});
 	}
+
+}
+
+return Scoring;
 
 }
