@@ -18,11 +18,10 @@ function getBotMap(){
 	return new Promise((resolve, reject) => {
 		try{
 			var ref = db.ref('users');
-			ref.orderByChild('bot').equalTo(true).on('child_added', (snapshot) => {
-				var bot = snapshot.val();
-				var botMap = {};
-					botMap[snapshot.key] = bot;
-					resolve(botMap);
+			var query = ref.orderByChild('bot').startAt(true).endAt(true);
+			query.once('value', (snapshot) => {
+				var botMap = snapshot.val();
+				resolve(botMap);
 			});
 		}
 		catch(err){
