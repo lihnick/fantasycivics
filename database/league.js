@@ -1,3 +1,5 @@
+function DatabaseLeague(){
+
 var League = {
 
 	STARTERS_PER_ROSTER: 3,
@@ -137,6 +139,24 @@ var League = {
 		return rosterMap;
 	},
 
+	assignScheduleTimes: (matches, start, end) => {
+		var seasonDuration = end - start;
+		var matchDuration = seasonDuration / matches.length;
+		var schedule = matches.map((week, widx) => {
+			return week.map((game, gidx) => {
+				var matchStart = start + (widx * matchDuration);
+				var matchEnd = matchStart + matchDuration;
+				return {
+					home: game.home,
+					away: game.away,
+					start: matchStart,
+					end: matchEnd
+				}
+			});
+		});
+		return schedule;
+	},
+
 	generateLeague: (config) => {
 		if(!config.users){
 			throw new Error('Must provide users in league config.');
@@ -145,7 +165,19 @@ var League = {
 			throw new Error('Must specify what bots to use in league config.');
 		}
 		else if(!config.players){
-			throw new Error('Must specify what players to use in league config');
+			throw new Error('Must specify what players to use in league config.');
+		}
+		else if(!config.start){
+			throw new Error('Must specify start date in league config.');
+		}
+		else if(!config.end){
+			throw new Error('Must specify end date in league config.');
+		}
+		else if(config.end < config.start){
+			throw new Error('League end date is before league start date.');
+		}
+		else if(config.end === config.start){
+			throw new Error('League end date is the same as league start date.');
 		}
 
 		Util.checkValidTimestamp(config.start);
@@ -156,22 +188,8 @@ var League = {
 
 		var users = League.fixUserList(config.users, config.bots);
 		var rosters = League.generateRosters(users, config.players);
-		var schedule = League.generateSchedule(users, config.weeks);
-
-		var seasonDuration = end - start;
-		var matchDuration = Math.floor(seasonDuration / config.weeks);
-		//console.log(seasonDuration, matchDuration)
-		var matchStart = start;
-		for(var w = 0; w < schedule.length; w++){
-			var matchEnd = matchStart + matchDuration;
-			for(var g = 0; g < schedule[w].length; g++){
-				var match = schedule[w][g];
-				match.start = matchStart;
-				match.end = matchEnd;
-				//console.log('week ' + (w + 1) + new Date(match.start))
-			}
-			matchStart = matchEnd;
-		}
+		var matches = League.generateSchedule(users, config.weeks);
+		var schedule = League.assignScheduleTimes(matches, config.start, config.end);
 
 		var usersMap = {};
 		for(var u = 0; u < users.length; u++){
@@ -190,5 +208,9 @@ var League = {
 			rosters: rosters
 		}
 	}
+
+}
+
+return League;
 
 }

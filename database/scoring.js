@@ -1,3 +1,5 @@
+function DatabaseScoring(){
+
 var SOCRATA_URL = "https://data.cityofchicago.org/resource/";
 var SECRET_TOKEN = "Le00VXF0GK0d8D1tTn2v6Vkpl";
 
@@ -23,10 +25,14 @@ var Scoring = {
 			method: "GET",
 			dataType: "json",
 			data: query,
-			success: function(data, status, jqxhr){
+			success: function(data, status, jqxhr){				
 				callback(data);
 			},
 			error: function(jqxhr, status, error){
+				callback({
+					failed: true,
+					status: jqxhr.status
+				});
 				throw new Error("Socrata request failed: " + error);
 			}
 		});
@@ -39,12 +45,25 @@ var Scoring = {
 	queryDataset: (dataset, query) => {
 		return new Promise((resolve, reject) => {
 			try{
-				Scoring.getSocrataData(SOCRATA_URL + Scoring.DATASETS[dataset], query, resolve);
+				Scoring.getSocrataData(SOCRATA_URL + Scoring.DATASETS[dataset], query, function(data){
+					if(data.failed){
+						resolve([]);
+					}
+					else{
+						resolve(data);
+					}
+				});
 			}
 			catch(e){
-				reject(e);
+				console.log('Socrata/AJAX error allowed to be resolved.');
+				console.error(e);
+				//reject(e);
 			}
 		});
 	}
+
+}
+
+return Scoring;
 
 }
