@@ -174,6 +174,63 @@ var Database = {
 				resolve(res);
 			}).catch(reject);
 		});
+	},
+
+	getPlayer: (params) => {
+		if(!params.playerid){
+			throw new Error('Must specify {playerid}.');
+		}
+		else if(!PLAYER_MAP[params.playerid]){
+			throw new Error('Could not find player {playerid: ' + params.playerid + '}.');
+		}
+		else if(!params.leagueid){
+			console.warn('No {leagueid} specified.');
+		}
+		else if(!params.from){
+			throw new Error('Must specify {from}.');
+		}
+		else if(!params.to){
+			throw new Error('Must specify {to}.');
+		}
+
+		return new Promise((resolve, reject) => {
+			var playerData = PLAYER_MAP[params.playerid];
+			var res = {
+				playerid: params.playerid,
+				leagueid: params.leagueid,
+				from: params.from,
+				to: params.to,
+				owner: 'zika',
+				starter: false,
+				scores: {}
+			}
+			var promises = [];
+			for(var dataset in Scoring.DATASETS){
+				var p = Scoring.queryDataset(dataset, {
+					'$where': Scoring.buildDateQuery('creation_date', params.from, params.to),
+					'ward': playerData.ward
+				});
+				p.playerid = params.playerid;
+				p.type = 'score';
+				p.dataset = dataset;
+				promises.push(p);
+			}
+			Promise.all(promises).then((packets) => {
+				for(var s = 0; s < packets.length; s++){
+					var data = packets[s];
+					var meta = promises[s];
+					if(meta.type === 'score'){
+						res.name = PLAYER_MAP[meta.playerid].name;
+						res.ward = PLAYER_MAP[meta.playerid].ward;
+						var dups = data.filter((issue) => { return issue.status == 'Open - Dup' });
+						var completed = data.filter((issue) => { return issue.status === 'Completed' });
+						res.scores[meta.dataset] = completed.length - dups.length;
+					}
+				}
+			}).then(() => {
+				resolve(res);
+			}).catch(reject);
+		});
 	}
 
 }
