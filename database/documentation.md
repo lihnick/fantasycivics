@@ -30,7 +30,7 @@ Launch Google Authentication popup to sign in user. Pop-ups may be blocked by yo
 
 **Response**
 Promise bearing data or error.
-```
+```json
 {
 	userid: 'testuser0001',
 	name: 'Test User',
@@ -56,7 +56,7 @@ Get data for the user who is currently authenticated, if any.
 
 **Response**
 Promise bearing data or error.
-```
+```json
 {
 	userid: 'testuser0001',
 	name: 'Test User',
@@ -64,3 +64,5 @@ Promise bearing data or error.
 	image: 'https://fantasycivics.edu/image.png'
 }
 ```
+
+## Users
