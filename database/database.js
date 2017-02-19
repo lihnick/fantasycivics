@@ -200,13 +200,13 @@ var Database = {
 				leagueid: params.leagueid,
 				from: params.from,
 				to: params.to,
-				owner: 'zika',
+				owner: false,
+				name: playerData.name,
+				ward: playerData.ward,
 				starter: false,
 				scores: {}
 			}
-			res.name = PLAYER_MAP[meta.playerid].name;
-			res.ward = PLAYER_MAP[meta.playerid].ward;
-			Database.getLeague(parems).then((league) => {
+			Database.getLeague(params).then((league) => {
 				var onRoster = false;
 				for(var uid in league.rosters){
 					for(var pid in league.rosters[uid]){
