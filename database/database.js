@@ -52,14 +52,16 @@ var Database = {
 					}
 					ref.set(newData).then(() => {
 						resolve({
-							success: true
+							success: true,
+							newUser: false
 						});
 					});
 				}
 				else{
 					ref.set(params).then(() => {
 						resolve({
-							success: true
+							success: true,
+							newUser: true
 						});
 					});
 				}
@@ -155,8 +157,8 @@ var Database = {
 		}
 		
 		return new Promise((resolve, reject) => {
-			var members = db.ref('invitations/' + params.inviteid + '/members');
-			members.push({
+			var members = db.ref('invitations/' + params.inviteid + '/members/' + params.userid);
+			members.set({
 				userid: params.userid,
 				accepted: Date.now()
 			}).then(() => {
