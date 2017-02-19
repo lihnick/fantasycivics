@@ -163,12 +163,12 @@
 				weeks: 4
 			}
 
-			var l2 = '-KdIiWEUj7_toD3MKMO_';
+			var l1 = '-KdIiWEUj7_toD3MKMO_';
 			var l2 = '-KdJnBQC6hc7OF9FguyQ';
 
 			// Testing Get League Response
 			Database.getLeague({
-				leagueid: l2,
+				leagueid: l1,
 				from: new Date('2/12/2017').getTime(),
 				to: Date.now()
 			}).then((league) => {
@@ -190,6 +190,18 @@
 				console.log(res);
 			}).catch((err) => {
 				console.log('Test Get User Leagues Response');
+				console.error(err);
+			});
+
+			Database.getMatch({
+				userid: 'testuser0002',
+				leagueid: l1,
+				on: Date.now()
+			}).then((res) => {
+				console.log('Test Get Match Response');
+				console.log(res);
+			}).catch((err) => {
+				console.log('Test Get Match Response');
 				console.error(err);
 			});
 

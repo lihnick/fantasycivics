@@ -278,6 +278,64 @@ var Database = {
 				}
 			}).catch(reject);
 		});
+	},
+
+	getMatch: (params) => {
+		if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+		else if(!params.leagueid){
+			throw new Error('Must specify {leagueid}.');
+		}
+		else if(!params.on){
+			throw new Error('Must specify {on}.');
+		}
+
+		return new Promise((resolve, reject) => {
+			var res = {
+				leagueid: params.leagueid,
+				userid: params.userid,
+				on: params.on,
+				start: false,
+				end: false,
+				home: false,
+				away: false
+			}
+			var foundDate = false;
+			var foundUser = false;
+			var ref = db.ref('leagues/' + params.leagueid + '/schedule');
+			ref.once('value', (snapshot) => {
+				var schedule = snapshot.val();
+				for(var week in schedule){
+					var games = schedule[week];
+					var sampleGame = games[0];
+					if(params.on < sampleGame.end && params.on > sampleGame.start){
+						foundDate = true;
+						for(var gid in games){
+							var game = games[gid];
+							if(game.home === params.userid || game.away === params.userid){
+								foundUser = true;
+								res.start = game.start;
+								res.end = game.end;
+								res.home = game.home;
+								res.away = game.away;
+								break;
+							}
+						}
+						break;
+					}
+				}
+				if(foundDate && foundUser){
+					resolve(res);
+				}
+				else if(!foundUser){
+					reject('Could not find a match for user {userid: ' + params.userid + '} in league {leagueid: ' + params.leagueid + '}.');
+				}
+				else if(!foundDate){
+					reject('There are no matches on {' + new Date(params.on) + '} in league {leagueid: ' + params.leagueid + '}.');
+				}
+			})
+		});
 	}
 
 }
