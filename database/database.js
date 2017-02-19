@@ -61,6 +61,16 @@ var Database = {
 	},
 
 	getLeague: (params) => {
+		if(!params.leagueid){
+			throw new Error('Must specify {leagueid}.');
+		}
+		else if(!params.from){
+			throw new Error('Must specify {from}.');
+		}
+		else if(!params.to){
+			throw new Error('Must specify {to}.');
+		}
+		
 		return new Promise((resolve, reject) => {
 			new Promise((resolveLeague, rejectLeague) => {
 				var ref = db.ref('leagues/' + params.leagueid);
@@ -130,6 +140,38 @@ var Database = {
 					}
 					resolve(response);
 				}).catch(reject);
+			}).catch(reject);
+		});
+	},
+
+	getRoster: (params) => {
+		if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+		else if(!params.leagueid){
+			throw new Error('Must specify {leagueid}.');
+		}
+		else if(!params.from){
+			throw new Error('Must specify {from}.');
+		}
+		else if(!params.to){
+			throw new Error('Must specify {to}.');
+		}
+
+		return new Promise((resolve, reject) => {
+			Database.getLeague(params).then((league) => {
+				var playerMap = league.rosters[params.userid];
+				if(!playerMap){
+					reject('Not roster for user {userid: ' + params.userid + '} found in league {leagueid: ' + params.leagueid + '}.');
+				}
+				var res = {
+					userid: params.userid,
+					leagueid: params.leagueid,
+					from: params.from,
+					to: params.to,
+					players: playerMap
+				}
+				resolve(res);
 			}).catch(reject);
 		});
 	}
