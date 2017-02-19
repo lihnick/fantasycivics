@@ -163,10 +163,12 @@
 				weeks: 4
 			}
 
+			var l2 = '-KdIiWEUj7_toD3MKMO_';
+			var l2 = '-KdJnBQC6hc7OF9FguyQ';
 
 			// Testing Get League Response
 			Database.getLeague({
-				leagueid: '-KdIiWEUj7_toD3MKMO_',
+				leagueid: l2,
 				from: new Date('2/12/2017').getTime(),
 				to: Date.now()
 			}).then((league) => {
@@ -181,12 +183,22 @@
 				console.error(err);
 			});
 
+			Database.getUserLeagues({
+				userid: 'testuser0002'
+			}).then((res) => {
+				console.log('Test Get User Leagues Response');
+				console.log(res);
+			}).catch((err) => {
+				console.log('Test Get User Leagues Response');
+				console.error(err);
+			});
+
 			/*Database.createLeague({
-				name: 'First League',
-				start: new Date('2/1/2017').getTime(),
-				end: new Date('2/20/2017').getTime(),
-				users: ['testuser0001', 'testuser0002', 'testuser0003'],
-				weeks: 6
+				name: 'Old League',
+				start: new Date('1/7/2017').getTime(),
+				end: new Date('2/3/2017').getTime(),
+				users: ['testuser0001', 'testuser0002', 'testuser0006'],
+				weeks: 3
 			}).then((response) => {
 				console.log('Testing Create League');
 				console.log(response);

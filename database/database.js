@@ -43,6 +43,35 @@ var Database = {
 		});
 	},
 
+	getUserLeagues: (params) => {
+		if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+
+		return new Promise((resolve, reject) => {
+			var res = {
+				userid: params.userid,
+				leagues: {}
+			}
+			var ref = db.ref('leagues');
+			ref.once('value', (snapshot) => {
+				var leagueMap = snapshot.val();
+				for(var lid in leagueMap){
+					var league = leagueMap[lid];
+					if(params.userid in league.users){
+						res.leagues[lid] = {
+							name: league.name,
+							start: league.start,
+							end: league.end,
+							users: league.users
+						}
+					}
+				}
+				resolve(res);
+			}).catch(reject);
+		});
+	},
+
 	createLeague: (params) => {
 		return new Promise((resolve, reject) => {
 			getBotMap().then((botMap) => {
