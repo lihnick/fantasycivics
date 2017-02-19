@@ -204,31 +204,49 @@ var Database = {
 				starter: false,
 				scores: {}
 			}
-			var promises = [];
-			for(var dataset in Scoring.DATASETS){
-				var p = Scoring.queryDataset(dataset, {
-					'$where': Scoring.buildDateQuery('creation_date', params.from, params.to),
-					'ward': playerData.ward
-				});
-				p.playerid = params.playerid;
-				p.type = 'score';
-				p.dataset = dataset;
-				promises.push(p);
-			}
-			Promise.all(promises).then((packets) => {
-				for(var s = 0; s < packets.length; s++){
-					var data = packets[s];
-					var meta = promises[s];
-					if(meta.type === 'score'){
-						res.name = PLAYER_MAP[meta.playerid].name;
-						res.ward = PLAYER_MAP[meta.playerid].ward;
-						var dups = data.filter((issue) => { return issue.status == 'Open - Dup' });
-						var completed = data.filter((issue) => { return issue.status === 'Completed' });
-						res.scores[meta.dataset] = completed.length - dups.length;
+			res.name = PLAYER_MAP[meta.playerid].name;
+			res.ward = PLAYER_MAP[meta.playerid].ward;
+			Database.getLeague(parems).then((league) => {
+				var onRoster = false;
+				for(var uid in league.rosters){
+					for(var pid in league.rosters[uid]){
+						if(pid === params.playerid){
+							res.owner = uid;
+							res.starter = league.rosters[uid][pid].starter;
+							res.scores = league.rosters[uid][pid].scores;
+							onRoster = true;
+						}
 					}
 				}
-			}).then(() => {
-				resolve(res);
+				if(!onRoster){
+					var promises = [];
+					for(var dataset in Scoring.DATASETS){
+						var p = Scoring.queryDataset(dataset, {
+							'$where': Scoring.buildDateQuery('creation_date', params.from, params.to),
+							'ward': playerData.ward
+						});
+						p.playerid = params.playerid;
+						p.type = 'score';
+						p.dataset = dataset;
+						promises.push(p);
+					}
+					Promise.all(promises).then((packets) => {
+						for(var s = 0; s < packets.length; s++){
+							var data = packets[s];
+							var meta = promises[s];
+							if(meta.type === 'score'){
+								var dups = data.filter((issue) => { return issue.status == 'Open - Dup' });
+								var completed = data.filter((issue) => { return issue.status === 'Completed' });
+								res.scores[meta.dataset] = completed.length - dups.length;
+							}
+						}
+					}).then(() => {
+						resolve(res);
+					}).catch(reject);
+				}
+				else{
+					resolve(res);
+				}
 			}).catch(reject);
 		});
 	}
