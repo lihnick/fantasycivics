@@ -32,8 +32,13 @@ var Database = {
 		return new Promise((resolve, reject) => {
 			var ref = db.ref('users/' + uid);
 			ref.once('value', (snapshot) => {
-				var userData = snapshot.val();
-				resolve(userData);
+				if(!snapshot.exists()){
+					reject('User {userid: ' + uid + '} not found.');
+				}
+				else{
+					var userData = snapshot.val();
+					resolve(userData);
+				}
 			});
 		});
 	},
@@ -60,9 +65,14 @@ var Database = {
 			new Promise((resolveLeague, rejectLeague) => {
 				var ref = db.ref('leagues/' + params.leagueid);
 				ref.once('value', (snapshot) => {
-					var leagueData = snapshot.val();
-					leagueData.leagueid = params.leagueid;
-					resolveLeague(leagueData);
+					if(!snapshot.exists()){
+						reject('League {leagueid: ' + params.leagueid + '} not found.');
+					}
+					else{
+						var leagueData = snapshot.val();
+						leagueData.leagueid = params.leagueid;
+						resolveLeague(leagueData);
+					}
 				}).catch(rejectLeague);
 			}).then((league) => {
 				var rosters = league.rosters;
@@ -93,7 +103,6 @@ var Database = {
 						var data = packets[s];
 						var meta = promises[s];
 						if(meta.type === 'user'){
-							console.log(league.users, data)
 							league.users[meta.uid].name = data.name;
 						}
 						else if(meta.type === 'score'){

@@ -88,9 +88,15 @@
 			}
 
 			function renderSchedule(schedule, league, userMap){
+				var dateFormat = 'M/D h:mm A';
 				var div = document.createElement('div');
 				var h2 = document.createElement('h2');
 					h2.innerText = 'League Schedule for ' + league.name;
+				var p = document.createElement('p');
+					p.innerText += 'Season Starts: ' + moment(league.start).format(dateFormat) + '\n'
+					p.innerText += 'Season Ends: ' + moment(league.end).format(dateFormat) + '\n'
+				var matchDuration = moment.duration(moment(league.end).diff(league.start));
+					p.innerText += 'Match Length: ' + (matchDuration.asDays() / league.schedule.length).toFixed(2) + ' days\n'
 				var table = document.createElement('table');
 				var hdr = '';
 					hdr += '<tr>'
@@ -112,14 +118,15 @@
 					row += '<td>' + away.name + '</td>'
 					row += '<td> @ </td>'
 					row += '<td>' + home.name + '</td>'
-					row += '<td>' + moment(games[h].start).format('M/D h:mm A') + '</td>'
-					row += '<td>' + moment(games[h].end).format('M/D h:mm A') + '</td>'
+					row += '<td>' + moment(games[h].start).format(dateFormat) + '</td>'
+					row += '<td>' + moment(games[h].end).format(dateFormat) + '</td>'
 					row += '<tr>'
 					hdr += row;
 				}
 				}
 				table.innerHTML = hdr;
 				div.appendChild(h2);
+				div.appendChild(p);
 				div.appendChild(table);
 				document.body.appendChild(div);
 			}
@@ -151,16 +158,16 @@
 
 			// Testing Get League Response
 			Database.getLeague({
-				leagueid: '-KdEABT6mOvW_ayE5p2Z',
+				leagueid: '-KdIiWEUj7_toD3MKMO_',
 				from: new Date('2/12/2017').getTime(),
 				to: Date.now()
 			}).then((league) => {
 				console.log('Test Get League Response');
 				console.log(league);
+				renderSchedule(league.schedule, league, league.users);
 				for(var uid in league.rosters){
 					renderRosters(league.rosters[uid], uid, league.users);
 				}
-				renderSchedule(league.schedule, league, league.users);
 			}).catch((err) => {
 				console.log('Test Get League Response');
 				console.error(err);
@@ -168,10 +175,10 @@
 
 			/*Database.createLeague({
 				name: 'First League',
-				start: new Date('1/7/2017').getTime(),
-				end: new Date('1/14/2017').getTime(),
+				start: new Date('2/1/2017').getTime(),
+				end: new Date('2/20/2017').getTime(),
 				users: ['testuser0001', 'testuser0002', 'testuser0003'],
-				weeks: 4
+				weeks: 6
 			}).then((response) => {
 				console.log('Testing Create League');
 				console.log(response);
