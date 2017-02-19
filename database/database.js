@@ -5,7 +5,7 @@ var config = {
 	storageBucket: "fantasycivics.appspot.com",
 	messagingSenderId: "245596715039"
 };
-DatabaseFirebase = firebase.initializeApp(config, 'Fantasy Civics Database');
+var DatabaseFirebase = firebase.initializeApp(config, 'Fantasy Civics Database');
 
 var db = DatabaseFirebase.database();
 
@@ -27,6 +27,8 @@ function getBotMap(){
 }
 
 var Database = {
+
+	Auth: DatabaseAuth(DatabaseFirebase),
 	
 	getUser: (uid) => {
 		return new Promise((resolve, reject) => {
