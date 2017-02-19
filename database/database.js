@@ -121,6 +121,69 @@ var Database = {
 		});
 	},
 
+	createLeagueInvitation: (params) => {
+		if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+		if(!params.name){
+			params.name = 'Untitled League';
+		}
+
+		return new Promise((resolve, reject) => {
+			var ref = db.ref('invitations');
+			ref.push({
+				league: {
+					name: params.name,
+					creator: params.userid
+				}
+			}).then((node) => {
+				Database.acceptLeagueInvitation({
+					userid: params.userid,
+					inviteid: node.key
+				}).then((res) => {
+					resolve(res);
+				}).catch(reject);
+			}).catch(reject);
+		});
+	},
+
+	acceptLeagueInvitation: (params) => {
+		if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+		if(!params.inviteid){
+			throw new Error('Must specify {inviteid}.');
+		}
+		
+		return new Promise((resolve, reject) => {
+			var members = db.ref('invitations/' + params.inviteid + '/members');
+			members.push({
+				userid: params.userid,
+				accepted: Date.now()
+			}).then(() => {
+				resolve({
+					success: true,
+					inviteid: params.inviteid
+				});
+			}).catch(reject);
+		});
+	},
+
+	getLeagueInvitations: (params) => {
+		if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+
+		return new Promise((resolve, reject) => {
+			var ref = db.ref('invitations');
+			var query = ref.orderByChild('league/creator').startAt(params.userid).endAt(params.userid);
+			query.once('value', (snapshot) => {
+				var res = snapshot.val();
+				resolve(res);
+			}).catch(reject);
+		});
+	},
+
 	createLeague: (params) => {
 		return new Promise((resolve, reject) => {
 			getBotMap().then((botMap) => {
