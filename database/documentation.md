@@ -222,3 +222,99 @@ Promise bearing data or error.
 	...
 }
 ```
+
+## Leagues
+
+### Database.createLeague()
+Create a new league.
+
+**Parameters**
+```
+{
+	// Required
+	name: 'Test League',	
+	start: 1483250400000,
+	end: 1485928800000,
+	users: ['testuser0001', 'testuser0002', 'testuser0003'],
+	// Optional
+	weeks: 6
+}
+```
+
+* Parameter `weeks` indicates the number of matches for each user to play in a season. If ommitted, default value is 3.
+* If the number of users is odd, a random bot user from the database will be selected to even out the schedules.
+
+**Response**
+Promise bearing data or error.
+```
+{
+	success: true,
+	leagueid: 'leagueid0001'
+}
+```
+
+### Database.getLeague()
+Get an existing league.
+
+**Parameters**
+```
+{
+	leagueid: 'leagueid0001',	
+	from: 1483250400000,
+	to: 1485928800000
+}
+```
+
+* Parameters `from` and `to` are the range to consider when reporting player scores.
+
+**Response**
+Promise bearing data or error.
+```
+{
+	leagueid: 'leagueid0001',
+	name: 'Test League',
+	start: 1483250400000,
+	end: 1485928800000,
+	from: 1483250400000,
+	to: 1485928800000,
+	users: {
+		testuser0001: {
+			wins: 0,
+			losses: 0,
+			team: 'Test Team'
+		}
+		...
+	},
+	rosters: {
+		testuser0001: {
+			playerid0001: {
+				name: 'Test Player',
+				playerid: 'playerid0001',
+				ward: 51,
+				starter: true,
+				scores: {
+					'potholes': 23,
+					'graffiti': -2
+					...
+				}
+			}
+			...
+		}
+		...
+	},
+	schedule: [
+		[
+			{
+				home: 'testuser0001',
+				away: 'testuser0002',
+				from: 1483250400000,
+				to: 1485928800000
+			}
+			...
+		]
+		...
+	]
+}
+```
+
+* Each "week" (set of matches) is contained in a list. The `schedule` property of the response is a list of these lists.
