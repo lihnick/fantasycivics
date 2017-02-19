@@ -231,7 +231,7 @@ getPlayer({
 getMatch({
 	leagueid: 'leagueid0008',
 	userid: 'userid0001',
-	date: timestamp // Date during the match
+	on: timestamp // Date during the match
 })
 
 {

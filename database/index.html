@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Fantasy Civics</title>
+		<!--<link rel="icon" type="img/png" href="style/favicon.png" style="width:30px;">-->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
+		<style>
+
+			table td {
+				padding-right: 10px;
+			}
+
+			.center {
+				text-align: center;
+			}
+
+			td.center {
+				width: 90px;
+			}
+
+			td.player-name {
+				width: 180px;
+			}
+
+		</style>
+	</head>
+
+	<body>
+
+		<h1>Database Testing Suite</h1>
+
+		<script type="text/javascript" src="../assets/promise.min.js"></script>
+		<script type="text/javascript" src="../assets/moment.min.js"></script>
+		<script type="text/javascript" src="../assets/jquery-3.1.1.min.js"></script>
+		<script type="text/javascript" src="../lib/util.js"></script>
+
+		<!-- Five Internal Libraries  Required for Database Usage -->
+		<script type="text/javascript" src="./player.js"></script>
+		<script type="text/javascript" src="./league.js"></script>
+		<script type="text/javascript" src="./scoring.js"></script>
+		<script type="text/javascript" src="./auth.js"></script>
+		<script type="text/javascript" src="./database.js"></script>
+
+		<script type="text/javascript" src="./test-views.js"></script>
+		
+		<script type="text/javascript">
+
+			var l1 = '-KdIiWEUj7_toD3MKMO_';
+			var l2 = '-KdJnBQC6hc7OF9FguyQ';
+
+			var Database = InitDatabase();
+
+			// Testing Get League Response
+			Database.getLeague({
+				leagueid: l1,
+				from: new Date('2/12/2017').getTime(),
+				to: Date.now()
+			}).then((league) => {
+				console.log('Test Get League Response');
+				console.log(league);
+				renderSchedule(league.schedule, league, league.users);
+				for(var uid in league.rosters){
+					renderRosters(league.rosters[uid], uid, league.users);
+				}
+			}).catch((err) => {
+				console.log('Test Get League Response');
+				console.error(err);
+			});
+
+			Database.getUserLeagues({
+				userid: 'testuser0002'
+			}).then((res) => {
+				console.log('Test Get User Leagues Response');
+				console.log(res);
+			}).catch((err) => {
+				console.log('Test Get User Leagues Response');
+				console.error(err);
+			});
+
+			Database.getMatch({
+				userid: 'testuser0002',
+				leagueid: l1,
+				on: Date.now()
+			}).then((res) => {
+				console.log('Test Get Match Response');
+				console.log(res);
+			}).catch((err) => {
+				console.log('Test Get Match Response');
+				console.error(err);
+			});
+
+			// Comment out after testing once: changes persist
+			/*Database.movePlayer({
+				leagueid: l1,
+				userid: 'testuser0002',
+				sit: 'playerid0020',
+				start: 'playerid0031'
+			}).then((res) => {
+				console.log('Test Move Player Request');
+				console.log(res);
+			}).catch((err) => {
+				console.log('Test Move Player Request');
+				console.error(err);
+			});*/
+
+			// Comment out after testing once: changes persist
+			/*Database.createLeague({
+				name: 'Old League',
+				start: new Date('1/7/2017').getTime(),
+				end: new Date('2/3/2017').getTime(),
+				users: ['testuser0001', 'testuser0002', 'testuser0006'],
+				weeks: 3
+			}).then((response) => {
+				console.log('Testing Create League');
+				console.log(response);
+			}).catch((err) => {
+				console.log('Testing Create League');
+				console.error(err);
+			});*/
+
+		</script>
+	
+	</body>
+
+</html>
