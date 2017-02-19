@@ -61,8 +61,16 @@
 					hdr += '<td>Status</td>'
 					hdr += '</tr>';
 				var total = 0;
-				for(var pid in roster){
-				var player = roster[pid];
+				var rosterList = Object.keys(roster).map((pid) => {
+					roster[pid].playerid = pid;
+					return roster[pid];
+				}).sort((a, b) => {
+					var as = a.starter ? 1 : 0;
+					var bs = b.starter ? 1 : 0;
+					return bs - as;
+				});
+				for(var p = 0; p < rosterList.length; p++){
+				var player = rosterList[p];
 				var score = 0;
 				var row = '';
 					row += '<tr>'
