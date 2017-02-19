@@ -420,7 +420,7 @@ Transaction will fail with descriptive errors if any of the following are true:
 * Player to sit is already benched
 * Player to start is already starting
 
-*Note:* _In the future, a process to restrict when users can modify their rosters should be implemented, possibly relative to time in the current match._
+**Note:** _In the future, a process to restrict when users can modify their rosters should be implemented, possibly relative to time in the current match._
 
 ### Database.acquirePlayer()
 
@@ -472,5 +472,6 @@ Promise bearing data or error.
 
 * Properties `start` and `end` represent the start and ending times of the match.
 
-*Note:* _In the future, a process to restrict when users can modify their rosters should be implemented, possibly relative to time in the current match._
-*Note:* _The process to determine who wins a past match and save that result are still under development._
+**Note:** _In the future, a process to restrict when users can modify their rosters should be implemented, possibly relative to time in the current match._
+
+**Note:** _The process to determine who wins a past match and save that result are still under development._
