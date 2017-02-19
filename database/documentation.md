@@ -357,6 +357,7 @@ Promise bearing data or error.
 		...
 	}
 }
+```
 
 ### Database.getPlayer()
 Get a player and their scoring data for a given league.
@@ -389,6 +390,7 @@ Promise bearing data or error.
 		...
 	}
 }
+```
 
 ### Database.movePlayer()
 Switch a starting player with a benched player on the roster of the given user.
@@ -409,6 +411,7 @@ Promise bearing data or error.
 {
 	success: true
 }
+```
 
 Transaction will fail with descriptive errors if any of the following are true:
 
