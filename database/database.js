@@ -29,17 +29,58 @@ function getBotMap(){
 var Database = {
 
 	Auth: DatabaseAuth(DatabaseFirebase),
-	
-	getUser: (uid) => {
+
+	updateUser: (params) => {
+		if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+
 		return new Promise((resolve, reject) => {
-			var ref = db.ref('users/' + uid);
+			var ref = db.ref('users/' + params.userid);
+			ref.once('value', (snapshot) => {
+				if(snapshot.exists()){
+					var userData = snapshot.val();
+					var newData = {
+						name: params.name || userData.name,
+						image: params.image || userData.image,
+						email: params.email || userData.image
+					}
+					ref.set(newData).then(() => {
+						resolve({
+							success: true
+						});
+					});
+				}
+				else{
+					ref.set(params).then(() => {
+						resolve({
+							success: true
+						});
+					});
+				}
+			}).catch(reject);
+		});
+	},
+	
+	getUser: (params) => {
+		if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+
+		return new Promise((resolve, reject) => {
+			var ref = db.ref('users/' + params.userid);
 			ref.once('value', (snapshot) => {
 				if(!snapshot.exists()){
-					reject('User {userid: ' + uid + '} not found.');
+					reject('User {userid: ' + params.userid + '} not found.');
 				}
 				else{
 					var userData = snapshot.val();
-					resolve(userData);
+					resolve({
+						userid: params.userid,
+						name: userData.name || false,
+						email: userData.email || false,
+						image: userData.image || false
+					});
 				}
 			});
 		});
@@ -120,7 +161,9 @@ var Database = {
 				var userPromises = [];
 				var promises = [];
 				for(var uid in rosters){
-					var q = Database.getUser(uid);
+					var q = Database.getUser({
+						userid: uid
+					});
 					q.uid = uid;
 					q.type = 'user';
 					promises.push(q);
