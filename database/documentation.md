@@ -318,3 +318,101 @@ Promise bearing data or error.
 ```
 
 * Each "week" (set of matches) is contained in a list. The `schedule` property of the response is a list of these lists.
+
+## Players
+
+### Database.getRoster()
+Get all players and their scoring data from a roster in a given league for a given user.
+
+**Parameters**
+```
+{
+	userid: 'testuser0001',
+	leagueid: 'leagueid0001',
+	from: 1483250400000,
+	to: 1485928800000
+}
+```
+
+**Response**
+Promise bearing data or error.
+```
+{
+	userid: 'testuser0001',
+	leagueid: 'leagueid0001',
+	from: 1483250400000,
+	to: 1485928800000,
+	players: {
+		playerid0001: {
+			name: 'Test Player',
+			playerid: 'playerid0001',
+			ward: 51,
+			starter: true,
+			scores: {
+				'potholes': 23,
+				'graffiti': -2
+				...
+			}
+		}
+		...
+	}
+}
+
+### Database.getPlayer()
+Get a player and their scoring data for a given league.
+
+**Parameters**
+```
+{
+	playerid: 'playerid0001',
+	leagueid: 'leagueid0001',
+	from: 1483250400000,
+	to: 1485928800000
+}
+```
+
+**Response**
+Promise bearing data or error.
+```
+{
+	playerid: 'playerid0001',
+	leagueid: 'leagueid0001',
+	from: 1483250400000,
+	to: 1485928800000,
+	owner: 'testuser0001', // or false if not on rosters in the league
+	name: 'Test Player',
+	ward: 51,
+	starter: true,
+	scores: {
+		'potholes': 23,
+		'graffiti': -2
+		...
+	}
+}
+
+### Database.movePlayer()
+Switch a starting player with a benched player on the roster of the given user.
+
+**Parameters**
+```
+{
+	userid: 'testuser0001',
+	leagueid: 'leagueid0001',
+	sit: 'playerid0001',
+	start: 'playerid0002'
+}
+```
+
+**Response**
+Promise bearing data or error.
+```
+{
+	success: true
+}
+
+Transaction will fail with descriptive errors if any of the following are true:
+
+* Given user is not in the given league
+* Either player is not on the roster
+* Player to sit is already benched
+* Player to start is already starting

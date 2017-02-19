@@ -491,7 +491,7 @@ var Database = {
 					players[params.start].starter = true;
 					ref.set(players).then(() => {
 						resolve({
-							success: true,
+							success: true
 						});
 					});
 				}
