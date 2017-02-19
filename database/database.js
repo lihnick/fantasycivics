@@ -336,6 +336,52 @@ var Database = {
 				}
 			})
 		});
+	},
+
+	movePlayer: (params) => {
+		if(!params.leagueid){
+			throw new Error('Must specify {leagueid}.');
+		}
+		else if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+		else if(!params.sit){
+			throw new Error('Must specify {sit}.');
+		}
+		else if(!params.start){
+			throw new Error('Must specify {start}.');
+		}
+
+		return new Promise((resolve, reject) => {
+			var ref = db.ref('leagues/' + params.leagueid + '/rosters/' + params.userid);
+			ref.once('value', (snapshot) => {
+				var players = snapshot.val();
+				if(!players){
+					reject('No roster for user {userid: ' + params.userid + '} in league {leagueid: ' + params.leagueid + '}');
+				}
+				else if(!(params.sit in players)){
+					reject('Player {sit:playerid: ' + params.sit + '} is not on the roster');
+				}
+				else if(!(params.start in players)){
+					reject('Player {start:playerid: ' + params.start + '} is not on the roster');	
+				}
+				else if(players[params.sit].starter === false){
+					reject('Cannot sit player {playerid: ' + params.sit + '}, already benched.');
+				}
+				else if(players[params.start].starter === true){
+					reject('Cannot start player {playerid: ' + params.start + '}, already starting.');
+				}
+				else{
+					players[params.sit].starter = false;
+					players[params.start].starter = true;
+					ref.set(players).then(() => {
+						resolve({
+							success: true,
+						});
+					});
+				}
+			}).catch(reject);
+		});		
 	}
 
 }

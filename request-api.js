@@ -56,6 +56,8 @@ acceptTrade({
 // Move Player (Sit/Start)
 
 movePlayer({
+	leagueid: 'leagueid0008',
+	userid: 'userid0021',
 	sit: 'playerid0032',
 	start: 'playerid0070'
 });
@@ -67,6 +69,8 @@ movePlayer({
 // Acquire Player (Add/Drop)
 
 acquirePlayer({
+	leagueid: 'leagueid0008',
+	userid: 'userid0021',
 	add: 'playerid1700',
 	drop: 'playerid0032'
 });
