@@ -25,10 +25,10 @@ The database object currently supports the methods below. Most, if not all, meth
 ### Database.Auth.signInUser()
 Launch Google Authentication popup to sign in user. Pop-ups may be blocked by your window.
 
-** Parameters **
+**Parameters**
 `void`
 
-** Response **
+**Response**
 Promise bearing data or error.
 ```
 {
@@ -42,19 +42,19 @@ Promise bearing data or error.
 ### Database.Auth.signOutUser()
 Sign out user.
 
-** Parameters **
+**Parameters**
 `void`
 
-** Response **
+**Response**
 Promise representing success or bearing error.
 
 ### Database.Auth.getCurrentUser
 Get data for the user who is currently authenticated, if any.
 
-** Parameters **
+**Parameters**
 `void`
 
-** Response **
+**Response**
 Promise bearing data or error.
 ```
 {
