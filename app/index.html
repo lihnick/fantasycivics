@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Requests</title>
+
+		<script type="text/javascript" src="../assets/vue.js"></script>
+		<script type="text/javascript" src="../assets/promise.min.js"></script>
+	</head>
+	<body>
+		
+		<h1>Requests</h1>
+
+		<!-- Start write requests -->
+
+		<h2>Create Leagues</h2>
+		<div id="newLeague">
+			<h3>League Name: {{ name }}</h3>
+			<input v-model="name" type="text" placeholder="League Name"><br>
+			<input v-model="invite" v-on:keyup.enter="inviteUsers" placeholder="Invite User"><br>
+			<button v-on:click="inviteUsers" :disabled="(!invite)? true : false">Invite</button>
+			<button v-on:click="createLeague" :disabled="(!name)? true : false">Create League</button>
+			<ul>
+				<li is="invite-list" v-for="(user, index) in users" v-bind:invite="user" v-on:pop="users.splice(index, 1)"></li>
+			</ul>
+		</div>
+
+		<!-- End write requests -->
+
+		<!-- Start read requests -->
+
+		<h2>User Login</h2>
+		<form>
+			<input type="button" value="Google Authentication" onclick="Application().userLogin()">
+		</form>
+
+
+		<!-- End read requests -->
+
+		<!-- script -->
+		<script type="text/javascript" src="app.js"></script>
+		<script type="text/javascript" src="main.js"></script>
+		<script type="text/javascript" src="../database/player.js"></script>
+		<script type="text/javascript" src="../database/database.js"></script>
+		<script type="text/javascript" src="../database/league.js"></script>
+	</body>
+</html>
