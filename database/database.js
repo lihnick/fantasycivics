@@ -406,13 +406,13 @@ var Database = {
 			}
 			else{
 				Database.getLeague(params).then((league) => {
-					getPlayerCallback(inLeague);
+					getPlayerCallback(league);
 				}).catch(reject);
 			}
 		});
 	},
 
-	getAllPlayers: (params) => {
+	getAllPlayers: (params, inLeague) => {
 		if(!params.leagueid){
 			console.warn('No {leagueid} specified.');
 		}
@@ -425,7 +425,8 @@ var Database = {
 
 		return new Promise((resolve, reject) => {
 			var res = {};
-			Database.getLeague(params).then((league) => {
+
+			var getAllPlayersCallback = (league) => {
 				for(var uid in league.rosters){
 					for(var rpid in league.rosters[uid]){
 						var rplayer = league.rosters[uid][rpid];
@@ -464,7 +465,20 @@ var Database = {
 					}
 					resolve(res);
 				});
-			}).catch(reject);
+			}
+			
+			/*
+			 * Sneaky trick to minimize promise depth
+			 * See getPlayer() for more
+			 */
+			if(inLeague && inLeague.leagueid === params.leagueid){
+				getAllPlayersCallback(inLeague);
+			}
+			else{
+				Database.getLeague(params).then((league) => {
+					getAllPlayersCallback(league);
+				}).catch(reject);
+			}
 		});
 	},
 
