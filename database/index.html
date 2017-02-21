@@ -63,6 +63,18 @@
 				for(var uid in league.rosters){
 					renderRosters(league.rosters[uid], uid, league.users);
 				}
+				Database.getAllPlayers({
+					leagueid: league.leagueid,
+					from: league.from,
+					to: league.to
+				}).then((allPlayers) => {
+					console.log('Test Get All Players Response');
+					console.log(allPlayers);
+					renderPlayerScores(allPlayers, league);
+				}).catch((err2) => {
+					console.log('Test Get All Players Response');
+					console.error(err2);
+				});
 			}).catch((err) => {
 				console.log('Test Get League Response');
 				console.error(err);
