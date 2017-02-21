@@ -262,6 +262,7 @@ var Database = {
 						else if(meta.type === 'score'){
 							rosters[meta.uid][meta.pid].name = PLAYER_MAP[meta.pid].name;
 							rosters[meta.uid][meta.pid].ward = PLAYER_MAP[meta.pid].ward;
+							rosters[meta.uid][meta.pid].owner = meta.uid;
 							if(!rosters[meta.uid][meta.pid].scores){
 								rosters[meta.uid][meta.pid].scores = {};
 							}
@@ -320,7 +321,7 @@ var Database = {
 		});
 	},
 
-	getPlayer: (params) => {
+	getPlayer: (params, inLeague) => {
 		if(!params.playerid){
 			throw new Error('Must specify {playerid}.');
 		}
@@ -350,7 +351,8 @@ var Database = {
 				starter: false,
 				scores: {}
 			}
-			Database.getLeague(params).then((league) => {
+
+			var getPlayerCallback = (league) => {
 				var onRoster = false;
 				for(var uid in league.rosters){
 					for(var pid in league.rosters[uid]){
@@ -359,6 +361,7 @@ var Database = {
 							res.starter = league.rosters[uid][pid].starter;
 							res.scores = league.rosters[uid][pid].scores;
 							onRoster = true;
+							break;
 						}
 					}
 				}
@@ -391,6 +394,76 @@ var Database = {
 				else{
 					resolve(res);
 				}
+			}
+
+			/*
+			 * Sneaky trick to minimize promise depth of repeated getPlayer() calls
+			 * Pass in a properly structured league and use that instead of another getLeague() response
+			 * Designed for getAllPlayers() calls
+			 */
+			if(inLeague && inLeague.leagueid === params.leagueid){
+				getPlayerCallback(inLeague);
+			}
+			else{
+				Database.getLeague(params).then((league) => {
+					getPlayerCallback(inLeague);
+				}).catch(reject);
+			}
+		});
+	},
+
+	getAllPlayers: (params) => {
+		if(!params.leagueid){
+			console.warn('No {leagueid} specified.');
+		}
+		else if(!params.from){
+			throw new Error('Must specify {from}.');
+		}
+		else if(!params.to){
+			throw new Error('Must specify {to}.');
+		}
+
+		return new Promise((resolve, reject) => {
+			var res = {};
+			Database.getLeague(params).then((league) => {
+				for(var uid in league.rosters){
+					for(var rpid in league.rosters[uid]){
+						var rplayer = league.rosters[uid][rpid];
+						res[rpid] = {
+							name: rplayer.name,
+							playerid: rpid,
+							ward: rplayer.ward,
+							starter: rplayer.starter,
+							owner: uid,
+							scores: rplayer.scores
+						}
+					}
+				}
+				var freeAgentPromises = [];
+				for(var pid in PLAYER_MAP){
+					if(!(pid in res)){
+						freeAgentPromises.push(Database.getPlayer({
+							playerid: pid,
+							leagueid: params.leagueid,
+							from: params.from,
+							to: params.to
+						}, league));
+					}
+				}
+				Promise.all(freeAgentPromises).then((freeAgents) => {
+					for(var f = 0; f < freeAgents.length; f++){
+						var agent = freeAgents[f];
+						res[agent.playerid] = {
+							name: agent.name,
+							playerid: agent.playerid,
+							ward: agent.ward,
+							starter: agent.starter,
+							owner: agent.owner,
+							scores: agent.scores
+						}
+					}
+					resolve(res);
+				});
 			}).catch(reject);
 		});
 	},
