@@ -89,7 +89,7 @@ Promise bearing data or error.
 ```
 {
 	success: true,
-	newUser: true, // Whether or not updated user is a new user
+	newUser: true // Whether or not updated user is a new user
 }
 ```
 
@@ -115,7 +115,7 @@ Promise bearing data or error.
 ```
 
 ### Database.getUserLeagues()
-Get available user information.
+Get information about the leagues a given user is part of.
 
 **Parameters**
 ```
@@ -292,6 +292,7 @@ Promise bearing data or error.
 				playerid: 'playerid0001',
 				ward: 51,
 				starter: true,
+				owner: 'testuser0001',
 				scores: {
 					'potholes': 23,
 					'graffiti': -2
