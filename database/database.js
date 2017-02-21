@@ -68,6 +68,27 @@ var Database = {
 			}).catch(reject);
 		});
 	},
+
+	setTeamName: (params) => {
+		if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+		else if(!params.leagueid){
+			throw new Error('Must specify {leagueid}.');
+		}
+		else if(!params.team){
+			throw new Error('Must specify {team}.');
+		}
+
+		return new Promise((resolve, reject) => {
+			var ref = db.ref('leagues/' + params.leagueid + '/users/' + params.userid + '/team');
+			ref.set(params.team).then(() => {
+				resolve({
+					success: true
+				});
+			}).catch(reject);
+		});
+	},
 	
 	getUser: (params) => {
 		if(!params.userid){
