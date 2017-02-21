@@ -148,6 +148,26 @@ Promise bearing data or error.
 }
 ```
 
+### Database.setTeamName()
+Set the team name for a given user in a given league.
+
+**Parameters**
+```
+{
+	userid: 'testuser0001',
+	leagueid: 'leagueid0001',
+	team: 'My New Team Name'
+}
+```
+
+**Response**
+Promise bearing data or error.
+```
+{
+	success: true
+}
+```
+
 ## Invitations
 
 ### Database.createLeagueInvitation()
