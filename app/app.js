@@ -1,8 +1,18 @@
 
 // Global Variables
+var Verbose = true;
 var USER = {};
 var Database = InitDatabase();
 var test;
+
+var log = console.log;
+var debug = (item) => {
+	if (Verbose) {
+		console.log(item);
+		test = item;
+	}
+}
+if (!Verbose) console.log("Debugging has been turned off.");
 
 // App APIs
 function Application() {
@@ -33,13 +43,9 @@ function Application() {
 					invite: ''
 				}, 
 				methods: {
-					debug: () => {
-						console.log(APP);
-						test = APP;
-					},
 					inviteUsers: () => {
 						var tmp = APP['newLeague'];
-						test = APP;
+						debug(APP);
 						if (tmp.invite) {
 							tmp.users.push(tmp.invite);
 							tmp.invite = "";
@@ -47,7 +53,7 @@ function Application() {
 							alert("No Inputs");
 						}
 					},
-					createLeague: () => {
+					finalizeLeague: () => {
 						var tmp = APP['newLeague'];
 						if (tmp.name && tmp.users.length > 0) {
 							var result = {
@@ -56,8 +62,8 @@ function Application() {
 								end: tmp.end,
 								users: tmp.users
 							}
-							console.log("Starting Game (Without the current user, current user info is retrieved from userLogin())");
-							console.log(result);
+							log("Starting Game (Without the current user, current user info is retrieved from userLogin())");
+							debug(result);
 						} else {
 							alert("Invalid Game");
 						}
@@ -74,14 +80,14 @@ function Application() {
 					onSelect: function() { // debugging purposes
 						var start = new Date();
 						var end = $(this).datepicker('getDate');
-						console.log(start + " -- " + end);
-						console.log(start.getTime() + " (Floored: " + Util.floorTimestamp(start.getTime()) + ") -- " + end.getTime());
-						console.log(start.toLocaleDateString() + " -- " + end.toLocaleDateString());
+						log(start + " -- " + end);
+						log(start.getTime() + " (Floored: " + Util.floorTimestamp(start.getTime()) + ") -- " + end.getTime());
+						log(start.toLocaleDateString() + " -- " + end.toLocaleDateString());
 
 						if ((Math.floor(( end - start ) / 86400000) + 1) < 1) 
-							console.log("Invalid Date: " +  (Math.floor(( end - start ) / 86400000) + 1) + " days in duration.");
+							log("Invalid Date: " +  (Math.floor(( end - start ) / 86400000) + 1) + " days in duration.");
 						else
-							console.log("Duration: " + (Math.floor(( end - start ) / 86400000) + 1) + " days.");
+							log("Duration: " + (Math.floor(( end - start ) / 86400000) + 1) + " days.");
 						APP['newLeague'].range = $(this).datepicker('getDate');
 					}
 				});
@@ -90,18 +96,35 @@ function Application() {
 		},
 
 		// Read Functions
+		// Check local storage for users that are logged in from previous sessions 
+		checkUser: () => {
+			// At minimum userid is required to identify a user
+			if (localStorage.userid === undefined) {
+				log("No user logged in.");
+				return false;
+			}
+			else {
+				USER.userid = localStorage.userid;
+				USER.name = localStorage.name;
+				USER.image = localStorage.image;
+				USER.email = localStorage.email;
+				debug(USER);
+				return true;
+			}
+		},
 
 		// userLogin should use google authentication to get the user's id
 		userLogin: () => {
 			Database.Auth.signInUser().then(function(result) {
-				console.log(result);
+				log(result);
+				localStorage.userid = result.userid;
+				localStorage.name = result.name;
+				localStorage.image = result.image;
+				localStorage.email = result.email;
+				window.location.href = "app.html";
 			}, function(err) {
 				alert(err);
 			});
-			//USER['userid'] = "userid0001";
-			//console.log("Logged in as user: " + USER['userid']);
-			// optional function call, to chain the process
-			//Application().getUser();
 		},
 
 		// Once the userLogin is called, call this function to get user info based on user id

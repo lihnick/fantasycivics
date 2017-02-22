@@ -4,23 +4,37 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Requests</title>
 
+		<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"> <!-- For datepickers -->
 
 		<script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
 		<script type="text/javascript" src="../assets/vue.js"></script>
 		<script type="text/javascript" src="../assets/promise.min.js"></script>
 		<script type="text/javascript" src="../assets/moment.min.js"></script>
 		<script type="text/javascript" src="../assets/jquery-3.1.1.min.js"></script>
+		<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> <!-- For datepickers -->
 	</head>
 	<body>
 		<!-- Header -->
-		
 		<h1>Fantasy Civics</h1>
-		<p>Insert splash page, and fancy stuff</p>
 
 		<!-- Contents -->
-		<h2>Login</h2>
-		<div>
-			<input type="button" value="Google Authentication" onclick="Application().userLogin()">
+
+		<h2>Create Leagues</h2>
+		<div id="newLeague">
+			<h3>League Name: {{ name }}</h3>
+			<input v-model="name" type="text" placeholder="League Name">
+			<input v-model="invite" v-on:keyup.enter="inviteUsers" placeholder="Invite User"><br>
+
+			<div id="datepicker">
+				<input id="displayDate" type="text" size="45" disabled>
+			</div>
+			<!-- <div id="displayDate"></div> -->
+
+			<button v-on:click="inviteUsers" :disabled="(!invite)? true : false">Invite</button>
+			<button v-on:click="finalizeLeague" :disabled="(!name || !range)? true : false">Create League</button>
+			<ul>
+				<li is="invite-list" v-for="(user, index) in users" v-bind:invite="user" v-on:pop="users.splice(index, 1)"></li>
+			</ul>
 		</div>
 
 		<!-- Footer -->
@@ -37,6 +51,8 @@
 		<script type="text/javascript">
 			// Instantiate app
 			var app = Application();
+
+			app.createLeague();
 		</script>
 	</body>
 </html>
