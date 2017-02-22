@@ -338,9 +338,65 @@ Promise bearing data or error.
 }
 ```
 
+### Database.getLeague()
+Get the meta data of an existing league, no player scores.
+
+**Parameters**
+```
+{
+	leagueid: 'leagueid0001'
+}
+```
+
+**Response**
+Promise bearing data or error.
+```
+{
+	leagueid: 'leagueid0001',
+	name: 'Test League',
+	start: 1483250400000,
+	end: 1485928800000,
+	users: {
+		testuser0001: {
+			wins: 0,
+			losses: 0,
+			team: 'Test Team'
+		}
+		...
+	},
+	rosters: {
+		testuser0001: {
+			playerid0001: {
+				name: 'Test Player',
+				playerid: 'playerid0001',
+				ward: 51,
+				starter: true,
+				owner: 'testuser0001'
+			}
+			...
+		}
+		...
+	},
+	schedule: [
+		[
+			{
+				home: 'testuser0001',
+				away: 'testuser0002',
+				start: 1483250400000,
+				end: 1485928800000
+			}
+			...
+		]
+		...
+	]
+}
+```
+
 * Each "week" (set of matches) is contained in a list. The `schedule` property of the response is a list of these lists.
 
 ## Players
+
+**Note:** _In the future, a process to restrict when users can modify their rosters should be implemented, possibly relative to time in the current match._
 
 ### Database.getRoster()
 Get all players and their scoring data from a roster in a given league for a given user.
@@ -427,7 +483,7 @@ Get a player and their scoring data for a given league.
 }
 ```
 
-* If you already have the `league` object for the given league, you can accelerate this query like so: `Database.getAllPlayers({...}, league)`.
+* If you already have the `league` object for the given league, you can accelerate this query like so: `Database.getAllPlayers({...}, league)`. This is meant for internal optimization, application should either not use this or highlight it as a risk to be monitored.
 
 **Response**
 Promise bearing data or error.
@@ -480,11 +536,32 @@ Transaction will fail with descriptive errors if any of the following are true:
 * Player to sit is already benched
 * Player to start is already starting
 
-**Note:** _In the future, a process to restrict when users can modify their rosters should be implemented, possibly relative to time in the current match._
-
 ### Database.acquirePlayer()
+Switch a player on the roster of the given user with a free agent who is not on any rosters. Added player will take the status (Starting vs Benched) of the dropped player.
 
-Coming soon...
+**Parameters**
+```
+{
+	userid: 'testuser0001',
+	leagueid: 'leagueid0001',
+	add: 'playerid0021',
+	drop: 'playerid0002'
+}
+```
+
+**Response**
+Promise bearing data or error.
+```
+{
+	success: true
+}
+```
+
+Transaction will fail with descriptive errors if any of the following are true:
+
+* Given user is not in the given league
+* Player to drop is not on the roster of the given user
+* Player to add is on the roster of another user in the league
 
 ### Database.getTrades()
 
@@ -531,7 +608,5 @@ Promise bearing data or error.
 ```
 
 * Properties `start` and `end` represent the start and ending times of the match.
-
-**Note:** _In the future, a process to restrict when users can modify their rosters should be implemented, possibly relative to time in the current match._
 
 **Note:** _The process to determine who wins a past match and save that result are still under development._
