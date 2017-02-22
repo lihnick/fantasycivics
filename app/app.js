@@ -1,9 +1,10 @@
 
 // Global Variables
 var Verbose = true;
-var USER = {};
-var Database = InitDatabase();
-var test;
+var USER = {}; // stores data related to the user that's logged in
+// Database as a global variable during development mode
+var Database = InitDatabase(); // Moved to private variables, when in production mode
+var test; // each time debug is called, the parameter is updated to test, for debugging
 
 var log = console.log;
 var debug = (item) => {
@@ -19,7 +20,15 @@ function Application() {
 
 	// Private Variables
 	//		These variables are function scoped
-	var APP = {};
+	var APP = {}; // stores infomation related to Vue.js
+	var Constants = {
+		logoutRedirect: 'index.html',
+		loginRedirect: 'app.html',
+		userIdTag: 'userid',
+		userEmailTag: 'email',
+		userImageTag: 'image',
+		userNameTag: 'name'
+	};
 
 	// Public Variables
 	return {
@@ -106,43 +115,55 @@ function Application() {
 				return false;
 			}
 			else {
-				USER.userid = localStorage.userid;
-				USER.name = localStorage.name;
-				USER.image = localStorage.image;
-				USER.email = localStorage.email;
-				debug(USER);
-				document.getElementById("name").innerHTML = USER.name;
-				document.getElementById("email").innerHTML = USER.email;
-				document.getElementById("image").src = USER.image;
+				USER.userid = localStorage[Constants.userIdTag];
+				USER.name = localStorage[Constants.userNameTag];
+				USER.email = localStorage[Constants.userEmailTag];
+				USER.image = localStorage[Constants.userImageTag];
+
+				//document.getElementById(Constants.userIdTag).innerHTML = USER.userid;
+				document.getElementById(Constants.userNameTag).innerHTML = USER.name;
+				document.getElementById(Constants.userEmailTag).innerHTML = USER.email;
+				document.getElementById(Constants.userImageTag).src = USER.image;
+				
+				// getCurrentUser() will be reset once another page loads
+				// Database.Auth.getCurrentUser().then(function(result) {
+				// 	log("users should be the same");
+				// 	debug(result);
+				// 	debug(USER);
+				// }, function(err) {
+				// 	alert("Database cannot authenticate user");
+				// });
+
 				return true;
 			}
 
 		},
 
 		userLogout: () => {
-			localStorage.removeItem("userid");
-			localStorage.removeItem("name");
-			localStorage.removeItem("email");
-			localStorage.removeItem("image");
-			window.location.href = "index.html";
+			localStorage.removeItem(Constants.userIdTag);
+			localStorage.removeItem(Constants.userNameTag);
+			localStorage.removeItem(Constants.userEmailTag);
+			localStorage.removeItem(Constants.userImageTag);
+			Database.Auth.signOutUser(); // not sure if this is needed, but just in case
+			window.location.href = Constants.logoutRedirect;
 		},
 
 		// userLogin should use google authentication to get the user's id
 		userLogin: () => {
 			Database.Auth.signInUser().then(function(result) {
 				log(result);
-				localStorage.userid = result.userid;
-				localStorage.name = result.name;
-				localStorage.image = result.image;
-				localStorage.email = result.email;
-				window.location.href = "app.html";
+				localStorage[Constants.userIdTag] = result.userid;
+				localStorage[Constants.userNameTag] = result.name;
+				localStorage[Constants.userEmailTag] = result.image;
+				localStorage[Constants.userImageTag] = result.email;
+				window.location.href = Constants.loginRedirect;
 			}, function(err) {
 				alert(err);
 			});
 		},
 
 		getUserLeagues: () => {
-
+			
 		},
 
 		getLeague: () => {
