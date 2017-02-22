@@ -1,8 +1,8 @@
-function renderRosters(roster, uid, userMap){
+function renderRosters(roster, uid, league){
 	var div = document.createElement('div');
 	var h2 = document.createElement('h2');
-	var entry = userMap[uid];
-		h2.innerText = 'Roster for ' + entry.name;
+	var entry = league.users[uid];
+		h2.innerText = 'Roster for ' + entry.team;
 	var table = document.createElement('table');
 	var scoreHeaders = Object.keys(Database.Scoring.DATASETS);
 	var scoreFill = '';
@@ -134,7 +134,10 @@ function renderPlayerScores(roster, league, sortFn){
 	var scoreSort = (a, b) => {
 		return sumScores(b.scores) - sumScores(a.scores);
 	}
-	var defaultSort = scoreSort;
+	var wardSort = (a, b) => {
+		return a.ward - b.ward;
+	}
+	var defaultSort = wardSort;
 	var sorter = sortFn || defaultSort;
 
 	var rosterList = Object.keys(roster).map((pid) => {
