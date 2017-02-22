@@ -684,36 +684,6 @@ var Database = {
 			}).catch(reject);
 		});
 
-	},
-
-	unsafeSetRoster: (params) => {
-		if(!params.leagueid){
-			throw new Error('Must specify {leagueid}.');
-		}
-		else if(!params.userid){
-			throw new Error('Must specify {userid}.');
-		}
-		else if(!params.roster){
-			throw new Error('Must specify {roster}.');
-		}
-
-		var newRoster = {};
-		for(var pid in params.roster){
-			var start = params.roster[pid];
-			newRoster[pid] = {
-				starter: start || false
-			}
-		}
-
-		return new Promise((resolve, reject) => {
-			var ref = db.ref('leagues/' + params.leagueid + '/rosters/' + params.userid);
-			ref.set(newRoster).then(() => {
-				resolve({
-					success: true
-				});
-			}).catch(reject);
-		});
-
 	}
 
 }
