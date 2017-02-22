@@ -96,8 +96,10 @@ function Application() {
 		},
 
 		// Read Functions
+
+
 		// Check local storage for users that are logged in from previous sessions 
-		checkUser: () => {
+		getUser: () => {
 			// At minimum userid is required to identify a user
 			if (localStorage.userid === undefined) {
 				log("No user logged in.");
@@ -109,8 +111,20 @@ function Application() {
 				USER.image = localStorage.image;
 				USER.email = localStorage.email;
 				debug(USER);
+				document.getElementById("name").innerHTML = USER.name;
+				document.getElementById("email").innerHTML = USER.email;
+				document.getElementById("image").src = USER.image;
 				return true;
 			}
+
+		},
+
+		userLogout: () => {
+			localStorage.removeItem("userid");
+			localStorage.removeItem("name");
+			localStorage.removeItem("email");
+			localStorage.removeItem("image");
+			window.location.href = "index.html";
 		},
 
 		// userLogin should use google authentication to get the user's id
@@ -124,16 +138,6 @@ function Application() {
 				window.location.href = "app.html";
 			}, function(err) {
 				alert(err);
-			});
-		},
-
-		// Once the userLogin is called, call this function to get user info based on user id
-		getUser: () => {
-			Database.getUser(USER['userid']).then(function(result) {
-				USER['name'] = result.name;
-				console.log(USER);
-			}, function(err) {
-				console.log(err);
 			});
 		},
 
