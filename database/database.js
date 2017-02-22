@@ -609,7 +609,7 @@ var Database = {
 					reject('No roster for user {userid: ' + params.userid + '} in league {leagueid: ' + params.leagueid + '}');
 				}
 				else if(!(params.sit in players)){
-					reject('Player {sit:playerid: ' + params.sit + '} is not on the roster');
+					reject('Player {sit:playerid: ' + params.sit + '} is not on the roster.');
 				}
 				else if(!(params.start in players)){
 					reject('Player {start:playerid: ' + params.start + '} is not on the roster');	
@@ -647,12 +647,41 @@ var Database = {
 			throw new Error('Must specify {drop}.');
 		}
 
-		getLeague()
-
 		return new Promise((resolve, reject) => {
-
-
-
+			Database.getLeagueData(params).then((league) => {
+				var playerToDropIsOwned = false;
+				var playerToAddIsFree = true;
+				for(var uid in league.rosters){
+					for(var pid in league.rosters[uid]){
+						if(params.userid === uid && params.drop === pid){
+							playerToDropIsOwned = true;
+						}
+						if(params.add === pid){
+							playerToAddIsFree = false;
+						}
+					}
+				}
+				if(!playerToDropIsOwned){
+					reject('Player {drop:playerid: ' + params.drop + '} to drop is not on your roster, cannot drop.');
+				}
+				else if(!playerToAddIsFree){
+					reject('Player {add:playerid: ' + params.add + '} to add is on another roster, cannot add.');	
+				}
+				else if(playerToDropIsOwned && playerToAddIsFree){
+					var status = league.rosters[params.userid][params.drop].starter;
+					league.rosters[params.userid][params.add] = {
+						starter: status
+					}
+					delete league.rosters[params.userid][params.drop];
+					var newRoster = league.rosters[params.userid];
+					var ref = db.ref('leagues/' + params.leagueid + '/rosters/' + params.userid);
+					ref.set(newRoster).then(() => {
+						resolve({
+							success: true
+						});
+					}).catch(reject);
+				}
+			}).catch(reject);
 		});
 
 	},
