@@ -321,7 +321,20 @@ var Database = {
 					reject('League {leagueid: ' + params.leagueid + '} not found.');
 				}
 				else{
+					var rosters = {};
 					var league = snapshot.val();
+					for(var uid in league.rosters){
+						rosters[uid] = {};
+						for(var pid in league.rosters[uid]){
+							rosters[uid][pid] = {
+								name: PLAYER_MAP[pid].name,
+								playerid: pid,
+								ward: PLAYER_MAP[pid].ward,
+								starter: league.rosters[uid][pid].starter,
+								owner: uid
+							}
+						}
+					}
 					var response = {
 						leagueid: params.leagueid,
 						name: league.name,
@@ -329,7 +342,7 @@ var Database = {
 						end: league.end,												
 						schedule: league.schedule,
 						users: league.users,
-						rosters: league.rosters
+						rosters: rosters
 					}
 					resolve(response);
 				}

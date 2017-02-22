@@ -338,6 +338,60 @@ Promise bearing data or error.
 }
 ```
 
+### Database.getLeague()
+Get the meta data of an existing league, no player scores.
+
+**Parameters**
+```
+{
+	leagueid: 'leagueid0001'
+}
+```
+
+**Response**
+Promise bearing data or error.
+```
+{
+	leagueid: 'leagueid0001',
+	name: 'Test League',
+	start: 1483250400000,
+	end: 1485928800000,
+	users: {
+		testuser0001: {
+			wins: 0,
+			losses: 0,
+			team: 'Test Team'
+		}
+		...
+	},
+	rosters: {
+		testuser0001: {
+			playerid0001: {
+				name: 'Test Player',
+				playerid: 'playerid0001',
+				ward: 51,
+				starter: true,
+				owner: 'testuser0001'
+			}
+			...
+		}
+		...
+	},
+	schedule: [
+		[
+			{
+				home: 'testuser0001',
+				away: 'testuser0002',
+				start: 1483250400000,
+				end: 1485928800000
+			}
+			...
+		]
+		...
+	]
+}
+```
+
 * Each "week" (set of matches) is contained in a list. The `schedule` property of the response is a list of these lists.
 
 ## Players
@@ -427,7 +481,7 @@ Get a player and their scoring data for a given league.
 }
 ```
 
-* If you already have the `league` object for the given league, you can accelerate this query like so: `Database.getAllPlayers({...}, league)`.
+* If you already have the `league` object for the given league, you can accelerate this query like so: `Database.getAllPlayers({...}, league)`. This is meant for internal optimization, application should either not use this or highlight it as a risk to be monitored.
 
 **Response**
 Promise bearing data or error.
