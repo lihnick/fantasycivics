@@ -89,7 +89,7 @@ Promise bearing data or error.
 ```
 {
 	success: true,
-	newUser: true, // Whether or not updated user is a new user
+	newUser: true // Whether or not updated user is a new user
 }
 ```
 
@@ -115,7 +115,7 @@ Promise bearing data or error.
 ```
 
 ### Database.getUserLeagues()
-Get available user information.
+Get information about the leagues a given user is part of.
 
 **Parameters**
 ```
@@ -145,6 +145,26 @@ Promise bearing data or error.
 		}
 		...
 	}
+}
+```
+
+### Database.setTeamName()
+Set the team name for a given user in a given league.
+
+**Parameters**
+```
+{
+	userid: 'testuser0001',
+	leagueid: 'leagueid0001',
+	team: 'My New Team Name'
+}
+```
+
+**Response**
+Promise bearing data or error.
+```
+{
+	success: true
 }
 ```
 
@@ -292,6 +312,7 @@ Promise bearing data or error.
 				playerid: 'playerid0001',
 				ward: 51,
 				starter: true,
+				owner: 'testuser0001',
 				scores: {
 					'potholes': 23,
 					'graffiti': -2
@@ -372,6 +393,8 @@ Get a player and their scoring data for a given league.
 }
 ```
 
+* If you already have the `league` object for the given league, you can accelerate this query like so: `Database.getAllPlayers({...}, league)`.
+
 **Response**
 Promise bearing data or error.
 ```
@@ -389,6 +412,43 @@ Promise bearing data or error.
 		'graffiti': -2
 		...
 	}
+}
+```
+
+### Database.getAllPlayers()
+Get a player and their scoring data for a given league.
+
+**Parameters**
+```
+{
+	leagueid: 'leagueid0001',
+	from: 1483250400000,
+	to: 1485928800000
+}
+```
+
+* If you already have the `league` object for the given league, you can accelerate this query like so: `Database.getAllPlayers({...}, league)`.
+
+**Response**
+Promise bearing data or error.
+```
+{
+	playerid0001: {
+		playerid: 'playerid0001',
+		leagueid: 'leagueid0001',
+		from: 1483250400000,
+		to: 1485928800000,
+		owner: 'testuser0001', // or false if not on rosters in the league
+		name: 'Test Player',
+		ward: 51,
+		starter: true,
+		scores: {
+			'potholes': 23,
+			'graffiti': -2
+			...
+		}
+	}
+	...
 }
 ```
 

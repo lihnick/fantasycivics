@@ -1,8 +1,8 @@
-function renderRosters(roster, uid, userMap){
+function renderRosters(roster, uid, league){
 	var div = document.createElement('div');
 	var h2 = document.createElement('h2');
-	var entry = userMap[uid];
-		h2.innerText = 'Roster for ' + entry.name;
+	var entry = league.users[uid];
+		h2.innerText = 'Roster for ' + entry.team;
 	var table = document.createElement('table');
 	var scoreHeaders = Object.keys(Database.Scoring.DATASETS);
 	var scoreFill = '';
@@ -92,6 +92,80 @@ function renderSchedule(schedule, league, userMap){
 	table.innerHTML = hdr;
 	div.appendChild(h2);
 	div.appendChild(p);
+	div.appendChild(table);
+	document.body.appendChild(div);
+}
+
+function renderPlayerScores(roster, league, sortFn){
+	var dateFormat = 'dddd, M/D/YYYY';
+
+	var div = document.createElement('div');
+	var h2 = document.createElement('h2');
+		h2.innerText = 'All Players: ' + league.name;
+	var para = document.createElement('p');
+		para.innerText = 'Scores from ' + moment(league.from).format(dateFormat) + ' to ' + moment(league.to).format(dateFormat) + ':';
+	
+	var table = document.createElement('table');
+	var scoreHeaders = Object.keys(Database.Scoring.DATASETS);
+	var hdr = '';
+		hdr += '<tr>'
+		hdr += '<td class="player-name">Player</td>'
+		hdr += '<td class="center">Ward</td>'
+	for(var h = 0; h < scoreHeaders.length; h++){
+		hdr += '<td class="center">' + Database.Scoring.DATASET_NAMES[scoreHeaders[h]] + '</td>'
+	}
+		hdr += '<td class="center">Score</td>'
+		hdr += '<td>Team</td>'
+		hdr += '<td>Status</td>'
+		hdr += '</tr>'
+
+	var sumScores = (scoreMap) => {
+		var outSum = 0;
+		for(var dt in scoreMap){
+			outSum += scoreMap[dt];
+		}
+		return outSum;
+	}
+	var starterSort = (a, b) => {
+		var as = a.starter ? 1 : 0;
+		var bs = b.starter ? 1 : 0;
+		return bs - as;
+	}
+	var scoreSort = (a, b) => {
+		return sumScores(b.scores) - sumScores(a.scores);
+	}
+	var wardSort = (a, b) => {
+		return a.ward - b.ward;
+	}
+	var defaultSort = wardSort;
+	var sorter = sortFn || defaultSort;
+
+	var rosterList = Object.keys(roster).map((pid) => {
+		roster[pid].playerid = pid;
+		return roster[pid];
+	}).sort(sorter);
+
+	for(var p = 0; p < rosterList.length; p++){
+	var player = rosterList[p];
+	var score = 0;
+	var row = '';
+		row += '<tr>'
+		row += '<td>' + player.name + '</td>'
+		row += '<td class="center">' + player.ward + '</td>'
+	for(var h = 0; h < scoreHeaders.length; h++){
+		row += '<td class="center">' + player.scores[scoreHeaders[h]] + '</td>'
+		score += player.scores[scoreHeaders[h]]
+	}
+		row += '<td class="center">' + score + '</td>'
+		row += '<td>' + (player.owner ? league.users[player.owner].team : 'None') + '</td>'
+		row += '<td>' + (player.owner ? (player.starter ? 'Starting' : 'Benched') : 'Free Agent') + '</td>'
+		row += '</tr>';
+		hdr += row;
+	}
+
+	table.innerHTML = hdr;
+	div.appendChild(h2);
+	div.appendChild(para);
 	div.appendChild(table);
 	document.body.appendChild(div);
 }

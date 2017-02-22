@@ -20,7 +20,8 @@ function DatabaseAuth(FirebaseInstance){
 		signInUser: () => {
 			return new Promise((resolve, reject) => {
 				var provider = new firebase.auth.GoogleAuthProvider();
-				FirebaseInstance.auth().signInWithPopup(provider).then((result) => {
+				FirebaseInstance.auth().signInWithPopup(provider).then((data) => {
+					var result = data.user;
 					resolve({
 						userid: result.uid,
 						name: result.displayName,
