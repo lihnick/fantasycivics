@@ -287,9 +287,8 @@ var Database = {
 							if(!rosters[meta.uid][meta.pid].scores){
 								rosters[meta.uid][meta.pid].scores = {};
 							}
-							var dups = data.filter((issue) => { return issue.status == 'Open - Dup' });
-							var completed = data.filter((issue) => { return issue.status === 'Completed' });
-							rosters[meta.uid][meta.pid].scores[meta.dataset] = completed.length - dups.length;
+							var score = Scoring.scoreData(data, params.from, params.to);
+							rosters[meta.uid][meta.pid].scores[meta.dataset] = score;
 						}
 					}
 				}).then(() => {
@@ -306,6 +305,47 @@ var Database = {
 					}
 					resolve(response);
 				}).catch(reject);
+			}).catch(reject);
+		});
+	},
+
+	getLeagueData: (params) => {
+		if(!params.leagueid){
+			throw new Error('Must specify {leagueid}.');
+		}
+		
+		return new Promise((resolve, reject) => {
+			var ref = db.ref('leagues/' + params.leagueid);
+			ref.once('value', (snapshot) => {
+				if(!snapshot.exists()){
+					reject('League {leagueid: ' + params.leagueid + '} not found.');
+				}
+				else{
+					var rosters = {};
+					var league = snapshot.val();
+					for(var uid in league.rosters){
+						rosters[uid] = {};
+						for(var pid in league.rosters[uid]){
+							rosters[uid][pid] = {
+								name: PLAYER_MAP[pid].name,
+								playerid: pid,
+								ward: PLAYER_MAP[pid].ward,
+								starter: league.rosters[uid][pid].starter,
+								owner: uid
+							}
+						}
+					}
+					var response = {
+						leagueid: params.leagueid,
+						name: league.name,
+						start: league.start,
+						end: league.end,												
+						schedule: league.schedule,
+						users: league.users,
+						rosters: rosters
+					}
+					resolve(response);
+				}
 			}).catch(reject);
 		});
 	},
@@ -403,9 +443,8 @@ var Database = {
 							var data = packets[s];
 							var meta = promises[s];
 							if(meta.type === 'score'){
-								var dups = data.filter((issue) => { return issue.status == 'Open - Dup' });
-								var completed = data.filter((issue) => { return issue.status === 'Completed' });
-								res.scores[meta.dataset] = completed.length - dups.length;
+								var score = Scoring.scoreData(data, params.from, params.to);
+								res.scores[meta.dataset] = score;
 							}
 						}
 					}).then(() => {
@@ -583,7 +622,7 @@ var Database = {
 					reject('No roster for user {userid: ' + params.userid + '} in league {leagueid: ' + params.leagueid + '}');
 				}
 				else if(!(params.sit in players)){
-					reject('Player {sit:playerid: ' + params.sit + '} is not on the roster');
+					reject('Player {sit:playerid: ' + params.sit + '} is not on the roster.');
 				}
 				else if(!(params.start in players)){
 					reject('Player {start:playerid: ' + params.start + '} is not on the roster');	
@@ -607,31 +646,59 @@ var Database = {
 		});		
 	},
 
-	unsafeSetRoster: (params) => {
+	acquirePlayer: (params) => {
 		if(!params.leagueid){
 			throw new Error('Must specify {leagueid}.');
 		}
 		else if(!params.userid){
 			throw new Error('Must specify {userid}.');
 		}
-		else if(!params.roster){
-			throw new Error('Must specify {roster}.');
+		else if(!params.add){
+			throw new Error('Must specify {add}.');
 		}
-
-		var newRoster = {};
-		for(var pid in params.roster){
-			var start = params.roster[pid];
-			newRoster[pid] = {
-				starter: start || false
-			}
+		else if(!params.drop){
+			throw new Error('Must specify {drop}.');
 		}
 
 		return new Promise((resolve, reject) => {
-			var ref = db.ref('leagues/' + params.leagueid + '/rosters/' + params.userid);
-			ref.set(newRoster).then(() => {
-				resolve({
-					success: true
-				});
+			Database.getLeagueData(params).then((league) => {
+				if(!(params.userid in league.rosters)){
+					reject('No roster for user {userid: ' + params.userid + '} in league {leagueid: ' + params.leagueid + '}');
+				}
+
+				var playerToDropIsOwned = false;
+				var playerToAddIsFree = true;
+				for(var uid in league.rosters){
+					for(var pid in league.rosters[uid]){
+						if(params.userid === uid && params.drop === pid){
+							playerToDropIsOwned = true;
+						}
+						if(params.add === pid){
+							playerToAddIsFree = false;
+						}
+					}
+				}
+				
+				if(!playerToDropIsOwned){
+					reject('Player {drop:playerid: ' + params.drop + '} to drop is not on your roster, cannot drop.');
+				}
+				else if(!playerToAddIsFree){
+					reject('Player {add:playerid: ' + params.add + '} to add is on another roster, cannot add.');	
+				}
+				else if(playerToDropIsOwned && playerToAddIsFree){
+					var status = league.rosters[params.userid][params.drop].starter;
+					league.rosters[params.userid][params.add] = {
+						starter: status
+					}
+					delete league.rosters[params.userid][params.drop];
+					var newRoster = league.rosters[params.userid];
+					var ref = db.ref('leagues/' + params.leagueid + '/rosters/' + params.userid);
+					ref.set(newRoster).then(() => {
+						resolve({
+							success: true
+						});
+					}).catch(reject);
+				}
 			}).catch(reject);
 		});
 

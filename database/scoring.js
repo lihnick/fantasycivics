@@ -60,6 +60,21 @@ var Scoring = {
 				//reject(e);
 			}
 		});
+	},
+
+	scoreData: (data, from, to) => {
+		var open = data.filter((issue) => { return issue.status == 'Open' });
+		var completed = data.filter((issue) => {
+			var comp = issue.status === 'Completed';
+			var inRange = false;
+			var compOn = issue.completion_date;
+			if(compOn){
+				var compTime = new Date(compOn).getTime();
+				inRange = (compTime < to);
+			}
+			return comp && inRange;
+		});
+		return completed.length - open.length;
 	}
 
 }
