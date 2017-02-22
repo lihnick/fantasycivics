@@ -309,6 +309,34 @@ var Database = {
 		});
 	},
 
+	getLeagueData: (params) => {
+		if(!params.leagueid){
+			throw new Error('Must specify {leagueid}.');
+		}
+		
+		return new Promise((resolve, reject) => {
+			var ref = db.ref('leagues/' + params.leagueid);
+			ref.once('value', (snapshot) => {
+				if(!snapshot.exists()){
+					reject('League {leagueid: ' + params.leagueid + '} not found.');
+				}
+				else{
+					var league = snapshot.val();
+					var response = {
+						leagueid: params.leagueid,
+						name: league.name,
+						start: league.start,
+						end: league.end,												
+						schedule: league.schedule,
+						users: league.users,
+						rosters: league.rosters
+					}
+					resolve(response);
+				}
+			}).catch(reject);
+		});
+	},
+
 	getRoster: (params) => {
 		if(!params.userid){
 			throw new Error('Must specify {userid}.');
@@ -603,6 +631,30 @@ var Database = {
 				}
 			}).catch(reject);
 		});		
+	},
+
+	acquirePlayer: (params) => {
+		if(!params.leagueid){
+			throw new Error('Must specify {leagueid}.');
+		}
+		else if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+		else if(!params.add){
+			throw new Error('Must specify {add}.');
+		}
+		else if(!params.drop){
+			throw new Error('Must specify {drop}.');
+		}
+
+		getLeague()
+
+		return new Promise((resolve, reject) => {
+
+
+
+		});
+
 	},
 
 	unsafeSetRoster: (params) => {
