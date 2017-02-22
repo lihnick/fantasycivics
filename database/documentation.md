@@ -396,6 +396,8 @@ Promise bearing data or error.
 
 ## Players
 
+**Note:** _In the future, a process to restrict when users can modify their rosters should be implemented, possibly relative to time in the current match._
+
 ### Database.getRoster()
 Get all players and their scoring data from a roster in a given league for a given user.
 
@@ -534,11 +536,32 @@ Transaction will fail with descriptive errors if any of the following are true:
 * Player to sit is already benched
 * Player to start is already starting
 
-**Note:** _In the future, a process to restrict when users can modify their rosters should be implemented, possibly relative to time in the current match._
-
 ### Database.acquirePlayer()
+Switch a player on the roster of the given user with a free agent who is not on any rosters. Added player will take the status (Starting vs Benched) of the dropped player.
 
-Coming soon...
+**Parameters**
+```
+{
+	userid: 'testuser0001',
+	leagueid: 'leagueid0001',
+	add: 'playerid0021',
+	drop: 'playerid0002'
+}
+```
+
+**Response**
+Promise bearing data or error.
+```
+{
+	success: true
+}
+```
+
+Transaction will fail with descriptive errors if any of the following are true:
+
+* Given user is not in the given league
+* Player to drop is not on the roster of the given user
+* Player to add is on the roster of another user in the league
 
 ### Database.getTrades()
 
@@ -585,7 +608,5 @@ Promise bearing data or error.
 ```
 
 * Properties `start` and `end` represent the start and ending times of the match.
-
-**Note:** _In the future, a process to restrict when users can modify their rosters should be implemented, possibly relative to time in the current match._
 
 **Note:** _The process to determine who wins a past match and save that result are still under development._

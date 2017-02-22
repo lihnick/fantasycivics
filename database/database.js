@@ -662,6 +662,10 @@ var Database = {
 
 		return new Promise((resolve, reject) => {
 			Database.getLeagueData(params).then((league) => {
+				if(!(params.userid in league.rosters)){
+					reject('No roster for user {userid: ' + params.userid + '} in league {leagueid: ' + params.leagueid + '}');
+				}
+
 				var playerToDropIsOwned = false;
 				var playerToAddIsFree = true;
 				for(var uid in league.rosters){
@@ -674,6 +678,7 @@ var Database = {
 						}
 					}
 				}
+				
 				if(!playerToDropIsOwned){
 					reject('Player {drop:playerid: ' + params.drop + '} to drop is not on your roster, cannot drop.');
 				}
