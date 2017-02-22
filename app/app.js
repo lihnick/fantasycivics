@@ -1,6 +1,7 @@
 
 // Global Variables
 var USER = {};
+var Database = InitDatabase();
 var test;
 
 // App APIs
@@ -92,10 +93,15 @@ function Application() {
 
 		// userLogin should use google authentication to get the user's id
 		userLogin: () => {
-			USER['userid'] = "userid0001";
-			console.log("Logged in as user: " + USER['userid']);
+			Database.Auth.signInUser().then(function(result) {
+				console.log(result);
+			}, function(err) {
+				alert(err);
+			});
+			//USER['userid'] = "userid0001";
+			//console.log("Logged in as user: " + USER['userid']);
 			// optional function call, to chain the process
-			Application().getUser();
+			//Application().getUser();
 		},
 
 		// Once the userLogin is called, call this function to get user info based on user id
