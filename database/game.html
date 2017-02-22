@@ -48,18 +48,19 @@
 
 			var l1 = '-KdIiWEUj7_toD3MKMO_';
 			var l2 = '-KdJnBQC6hc7OF9FguyQ';
+			var test = '-KdYWQQsWkAVuLiIoAwN';
 
 			var Database = InitDatabase();
 
 			// Testing Get League Response
 			Database.getLeague({
-				leagueid: l1,
-				from: new Date('2/12/2017').getTime(),
-				to: Date.now()
+				leagueid: test,
+				from: new Date('1/14/2017').getTime(),
+				to: new Date('1/21/2017').getTime()
 			}).then((league) => {
 				console.log('Test Get League Response');
 				console.log(league);
-				renderSchedule(league.schedule, league, league.users);
+				//renderSchedule(league.schedule, league, league.users);
 				for(var uid in league.rosters){
 					renderRosters(league.rosters[uid], uid, league);
 				}
@@ -80,7 +81,7 @@
 				console.error(err);
 			});
 
-			Database.getUserLeagues({
+			/*Database.getUserLeagues({
 				userid: 'testuser0002'
 			}).then((res) => {
 				console.log('Test Get User Leagues Response');
@@ -100,7 +101,7 @@
 			}).catch((err) => {
 				console.log('Test Get Match Response');
 				console.error(err);
-			});
+			});*/
 
 			// Comment out after testing once: changes persist
 			/*Database.movePlayer({
@@ -118,10 +119,10 @@
 
 			// Comment out after testing once: changes persist
 			/*Database.createLeague({
-				name: 'Old League',
-				start: new Date('1/7/2017').getTime(),
-				end: new Date('2/3/2017').getTime(),
-				users: ['testuser0001', 'testuser0002', 'testuser0006'],
+				name: 'ChiHackNight Test League',
+				start: new Date('1/1/2017').getTime(),
+				end: new Date('1/23/2017').getTime(),
+				users: ['testuser0001', 'testuser0002', 'testuser0003'],
 				weeks: 3
 			}).then((response) => {
 				console.log('Testing Create League');
