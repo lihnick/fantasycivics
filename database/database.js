@@ -287,9 +287,8 @@ var Database = {
 							if(!rosters[meta.uid][meta.pid].scores){
 								rosters[meta.uid][meta.pid].scores = {};
 							}
-							var dups = data.filter((issue) => { return issue.status == 'Open - Dup' });
-							var completed = data.filter((issue) => { return issue.status === 'Completed' });
-							rosters[meta.uid][meta.pid].scores[meta.dataset] = completed.length - dups.length;
+							var score = Scoring.scoreData(data, params.from, params.to);
+							rosters[meta.uid][meta.pid].scores[meta.dataset] = score;
 						}
 					}
 				}).then(() => {
@@ -403,9 +402,8 @@ var Database = {
 							var data = packets[s];
 							var meta = promises[s];
 							if(meta.type === 'score'){
-								var dups = data.filter((issue) => { return issue.status == 'Open - Dup' });
-								var completed = data.filter((issue) => { return issue.status === 'Completed' });
-								res.scores[meta.dataset] = completed.length - dups.length;
+								var score = Scoring.scoreData(data, params.from, params.to);
+								res.scores[meta.dataset] = score;
 							}
 						}
 					}).then(() => {
