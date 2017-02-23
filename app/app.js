@@ -120,7 +120,7 @@ function Application() {
 				USER.email = localStorage[Constants.userEmailTag];
 				USER.image = localStorage[Constants.userImageTag];
 
-				//document.getElementById(Constants.userIdTag).innerHTML = USER.userid;
+				document.getElementById(Constants.userIdTag).innerHTML = USER.userid;
 				document.getElementById(Constants.userNameTag).innerHTML = USER.name;
 				document.getElementById(Constants.userEmailTag).innerHTML = USER.email;
 				document.getElementById(Constants.userImageTag).src = USER.image;
@@ -163,7 +163,58 @@ function Application() {
 		},
 
 		getUserLeagues: () => {
-			
+			//Database.getUserLeagues({userid: USER.userid}).then(function(result) {
+			Database.getUserLeagues({userid: "testuser0001"}).then(function(result) {
+				log(result);
+
+				var tmp = Object.keys(result.leagues);
+				var leagues = [];
+				for (idx in tmp) {
+					var usr = Object.keys(result.leagues[tmp[idx]].users);
+					var usrLst = [];
+					for (i in usr) {
+						usrLst.push({
+							userid: usr[i],
+							team: result.leagues[tmp[idx]].users[usr[i]].team,
+							losses: result.leagues[tmp[idx]].users[usr[i]].losses,
+							wins: result.leagues[tmp[idx]].users[usr[i]].wins
+						});
+					}
+					leagues.push({
+						leagueid: tmp[idx],
+						name: result.leagues[tmp[idx]].name,
+						start: result.leagues[tmp[idx]].start,
+						end: result.leagues[tmp[idx]].end,
+						users: usrLst
+					});
+				}
+				log(leagues);
+				USER.userLeagues = leagues;
+			}, function(err) {
+				log(err);
+			});
+		},
+
+		displayLeagues: () => {
+
+
+			Vue.component('league-list', {
+				props: [''],
+				template: '<li>{{ leagues.idx }}<button v-on:click="$emit(\'info\')">info</button></li>'
+			});
+
+			APP['displayLeagues'] = new Vue({
+				el: '#displayLeagues',
+				data: {
+					leagueids: Object.Keys(USER.userLeagues),
+					leagues: USER.userLeagues
+				},
+				methods: {
+					info: () => {
+						console.log("test");
+					}
+				}
+			});
 		},
 
 		getLeague: () => {
