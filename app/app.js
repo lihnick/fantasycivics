@@ -199,19 +199,20 @@ function Application() {
 
 
 			Vue.component('league-list', {
-				props: [''],
-				template: '<li>{{ leagues.idx }}<button v-on:click="$emit(\'info\')">info</button></li>'
+				props: ['idx'],
+				template: '<li>{{ idx.name }} | {{ idx.start }} to {{ idx.end }}<button v-on:click="$emit(\'info\')">info</button></li>'
 			});
 
 			APP['displayLeagues'] = new Vue({
 				el: '#displayLeagues',
 				data: {
-					leagueids: Object.Keys(USER.userLeagues),
+					leagueids: Object.keys(USER.userLeagues),
 					leagues: USER.userLeagues
 				},
 				methods: {
-					info: () => {
-						console.log("test");
+					getIdx: (idx) => {
+						log(idx);
+						log(USER.userLeagues[idx].users);
 					}
 				}
 			});

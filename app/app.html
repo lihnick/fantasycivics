@@ -52,7 +52,7 @@
 		<h2>Current Leagues</h2>
 		<div id="displayLeagues">
 			<ul>
-				<li is="league-list" v-for="(idx, index) in leagueids" v-bind:ids="idx" v-on:info="console.log(index)"></li>
+				<li is="league-list" v-for="(league, index) in leagues" v-bind:idx="league" v-on:info="getIdx(index)"></li>
 				<!-- <li is="league-list" v-for="(league, index) in leagues" v-bind:list="league" v-on:info="console.log(index)"></li> -->
 			</ul>
 			
