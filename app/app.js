@@ -240,7 +240,7 @@ function Application() {
 
 			Vue.component('player-list', {
 				props: ['lineup'],
-				template: '<tr><td> {{ lineup.name }} </td> <td>{{ lineup.scores.graffiti }}</td> <td>{{ lineup.scores.pot_holes }}</td> <td>{{ lineup.scores.street_lights }}</td> <td>{{ lineup.scores.graffiti + lineup.scores.pot_holes + lineup.scores.street_lights }}</td> <td>{{ (lineup.starter)? \'Starting\' : \'Benched\' }}</td> <td><button v-on:click="$emit(\'toggle\')">Toggle</button></td></tr>'
+				template: '<tr><td> {{ lineup.name }} </td> <td>{{ lineup.scores.graffiti }}</td> <td>{{ lineup.scores.pot_holes }}</td> <td>{{ lineup.scores.street_lights }}</td> <td>{{ lineup.scores.graffiti + lineup.scores.pot_holes + lineup.scores.street_lights }}</td> <td>{{ (lineup.starter)? \'Starter\' : \'Benched\' }}</td> <td><button v-on:click="$emit(\'toggle\')">Toggle</button></td><td>{{ lineup.pending }}</td></tr>'
 			});
 
 			Database.getRoster(tmp).then(function(result) {
@@ -262,6 +262,7 @@ function Application() {
 						starter: result.players[id].starter,
 						ward: result.players[id].ward,
 						scores: result.players[id].scores,
+						pending: ""
 					});
 				});
 				log(USER['roster']);
@@ -272,10 +273,28 @@ function Application() {
 					el: '#userPlayers',
 					data: {
 						players: workingPlayers,
-						op: []
+						toggle: {}
 					},
 					methods: {
+						togglePlayer: (idx) => {
+							var tmp = APP['userPlayers'];
+							log(idx + " – " + tmp.players[idx].playerid);
+							var update = (tmp.players[idx].starter)? "Benching" : "Starting";
+							if (tmp.toggle[tmp.players[idx].playerid]) { // toggle operation already done
+								tmp.players[idx].pending = "";
+								delete tmp.toggle[tmp.players[idx].playerid];
+							}
+							else {
+								tmp.toggle[tmp.players[idx].playerid] = update;
+								tmp.players[idx].pending = update;
+							}
+						},
+						updateLineup: () => {
 
+						},
+						updateRoster: () => {
+							
+						}
 					}
 				});
 
@@ -291,6 +310,11 @@ function Application() {
 				from: 1483250400000,
 				to: 1485928800000
 			}
+
+			Vue.component('player-list', {
+				props: ['lineup'],
+				template: '<tr><td> {{ lineup.name }} </td> <td>{{ lineup.scores.graffiti }}</td> <td>{{ lineup.scores.pot_holes }}</td> <td>{{ lineup.scores.street_lights }}</td> <td>{{ lineup.scores.graffiti + lineup.scores.pot_holes + lineup.scores.street_lights }}</td> <td>{{ (lineup.starter)? \'Starting\' : \'Benched\' }}</td> <td><button v-on:click="$emit(\'toggle\')">Toggle</button></td></tr>'
+			});
 
 			Database.getAllPlayers(tmp).then(function(result) {
 				log(result);
