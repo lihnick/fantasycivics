@@ -238,13 +238,12 @@ function Application() {
 				to: 1485928800000
 			}
 
-			Vue.component('player-list', {
-				props: ['lineup'],
-				template: '<tr><td> {{ lineup.name }} </td> <td>{{ lineup.scores.graffiti }}</td> <td>{{ lineup.scores.pot_holes }}</td> <td>{{ lineup.scores.street_lights }}</td> <td>{{ lineup.scores.graffiti + lineup.scores.pot_holes + lineup.scores.street_lights }}</td> <td>{{ (lineup.starter)? \'Starter\' : \'Benched\' }}</td> <td><button v-on:click="$emit(\'toggle\')">Toggle</button></td><td>{{ lineup.pending }}</td></tr>'
+			Vue.component('roster-list', {
+				props: ['row'],
+				template: '<tr><td> {{ row.name }} </td> <td>{{ row.scores.graffiti }}</td> <td>{{ row.scores.pot_holes }}</td> <td>{{ row.scores.street_lights }}</td> <td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td> <td>{{ (row.starter)? \'Starter\' : \'Benched\' }}</td> <td><button v-on:click="$emit(\'toggle\')">Toggle</button></td><td>{{ row.pending }}</td></tr>'
 			});
 
 			Database.getRoster(tmp).then(function(result) {
-				log(result);
 				test = result;
 				var playerList = [];
 				USER['roster'] = {
@@ -267,20 +266,20 @@ function Application() {
 				});
 				log(USER['roster']);
 
-				var workingPlayers = jQuery.extend(true, {}, USER['roster']['players']);
+				var workingRoster = jQuery.extend(true, {}, USER['roster']['players']);
 
-				APP['userPlayers'] = new Vue({
-					el: '#userPlayers',
+				APP['userRoster'] = new Vue({
+					el: '#userRoster',
 					data: {
-						players: workingPlayers,
-						aggregator: Object.keys(workingPlayers).map(function(id) {
-							return workingPlayers[id].scores.graffiti + workingPlayers[id].scores.pot_holes + workingPlayers[id].scores.street_lights;
+						players: workingRoster,
+						aggregator: Object.keys(workingRoster).map(function(id) {
+							return workingRoster[id].scores.graffiti + workingRoster[id].scores.pot_holes + workingRoster[id].scores.street_lights;
 						}).reduce((a, b) => a + b, 0),
 						toggle: {}
 					},
 					methods: {
 						togglePlayer: (idx) => {
-							var tmp = APP['userPlayers'];
+							var tmp = APP['userRoster'];
 							test = tmp;
 							log(idx + " - " + tmp.players[idx].playerid);
 							var update = (tmp.players[idx].starter)? "Benching" : "Starting";
@@ -295,13 +294,13 @@ function Application() {
 						},
 
 						updateLineup: () => {
-							var tmp = APP['userPlayers'];
+							var tmp = APP['userRoster'];
 							tmp.validateLineup();
 							
 						},
 
 						validateLineup: () => {
-							var tmp = APP['userPlayers'];
+							var tmp = APP['userRoster'];
 							log(tmp.toggle);
 							var benching = [];
 							var starting = [];
@@ -315,7 +314,7 @@ function Application() {
 						},
 
 						revertChange: () => {
-							var tmp = APP['userPlayers'];
+							var tmp = APP['userRoster'];
 							tmp.players = jQuery.extend(true, {}, USER['roster']['players']);
 							tmp.toggle = {};
 						}
@@ -336,17 +335,29 @@ function Application() {
 			}
 
 			Vue.component('player-list', {
-				props: ['lineup'],
-				template: '<tr><td> {{ lineup.name }} </td> <td>{{ lineup.scores.graffiti }}</td> <td>{{ lineup.scores.pot_holes }}</td> <td>{{ lineup.scores.street_lights }}</td> <td>{{ lineup.scores.graffiti + lineup.scores.pot_holes + lineup.scores.street_lights }}</td> <td>{{ (lineup.starter)? \'Starting\' : \'Benched\' }}</td> <td><button v-on:click="$emit(\'toggle\')">Toggle</button></td></tr>'
+				props: ['row'],
+				template: ''
 			});
 
 			Database.getAllPlayers(tmp).then(function(result) {
-				log(result);
 				USER['allPlayers'] = [];
 				Object.keys(result).sort().map(function(id) {
 					USER['allPlayers'].push(result[id]);
 				});
 				log(USER.allPlayers);
+
+				var workingPlayers = jQuery.extend(true, {}, USER['allPlayers']['players']);
+
+				APP['allPlayers'] = new Vue({
+					el: '#allPlayers',
+					data: {
+
+					},
+					methods: {
+
+					}
+				});
+
 			}, function(err) {
 
 			});
