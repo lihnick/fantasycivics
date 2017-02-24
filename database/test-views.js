@@ -201,8 +201,7 @@ var scoreFromMap = (map) => {
 function renderBoxScore(match, home, away, league){
 	var div = document.createElement('div');
 	var h2 = document.createElement('h2');
-		var wkNo = 2;
-		h2.innerText = 'Week ' + wkNo + ' Matchup';
+		h2.innerText = 'Week ' + match.week + ' Matchup';
 	var rows = [];
 	var homeRoster = Object.keys(home.players).map((pid) => { return home.players[pid]; }).sort(rosterSort);
 	var awayRoster = Object.keys(away.players).map((pid) => { return away.players[pid]; }).sort(rosterSort);

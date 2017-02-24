@@ -603,10 +603,12 @@ Promise bearing data or error.
 		home: 'testuser0001',
 		away: 'testuser0002',
 		start: 1483250400000,
-		end: 1485928800000
+		end: 1485928800000,
+		week: 2
 	}
 ```
 
 * Properties `start` and `end` represent the start and ending times of the match.
+* Property `week` indicates the week in the season the match is part of.
 
 **Note:** _The process to determine who wins a past match and save that result are still under development._

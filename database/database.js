@@ -581,6 +581,7 @@ var Database = {
 								res.end = game.end;
 								res.home = game.home;
 								res.away = game.away;
+								res.week = (parseInt(week, 10) + 1);
 								break;
 							}
 						}
