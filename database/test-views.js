@@ -175,7 +175,10 @@ function createDOMTable(headers, rows){
 		return '<tr>' + list.map((val) => { return '<td>' + val + '</td>'}).join('') + '</tr>';
 	}
 	var table = document.createElement('table');
-	var html = listToRow(headers);
+	var html = '';
+	if(headers){
+		html += listToRow(headers);
+	}
 	for(var r = 0; r < rows.length; r++){
 		html += listToRow(rows[r]);
 	}
@@ -183,14 +186,39 @@ function createDOMTable(headers, rows){
 	return table;
 }
 
+var rosterSort = (a, b) => {
+	var as = a.starter ? 1 : 0;
+	var bs = b.starter ? 1 : 0;
+	return bs - as;
+}
+
+var scoreFromMap = (map) => {
+	var score = 0;
+	Object.keys(map).map((key) => { score += map[key]; return 0; })
+	return score;
+}
+
 function renderBoxScore(match, home, away, league){
 	var div = document.createElement('div');
 	var h2 = document.createElement('h2');
 		h2.innerText = 'All Players: ' + league.name;
-	var headers = [];
+	var headers = ['Player', 'Score', ' - ', 'Score', 'Player'];
 	var rows = [];
-	var table = createDOMTable(headers, rows);
+	var homeRoster = Object.keys(home.players).map((pid) => { return home.players[pid]; }).sort(rosterSort);
+	var awayRoster = Object.keys(away.players).map((pid) => { return away.players[pid]; }).sort(rosterSort);
+	for(var j = 0; j < homeRoster.length; j++){
+		var homePlayer = homeRoster[j];
+		var awayPlayer = awayRoster[j];
+		rows.push([
+			homePlayer.name,
+			scoreFromMap(homePlayer.scores),
+			' - ',
+			scoreFromMap(awayPlayer.scores),
+			awayPlayer.name
+		]);
+	}
+	var playerTable = createDOMTable(headers, rows);
 	div.appendChild(h2);
-	div.appendChild(table);
+	div.appendChild(playerTable);
 	document.body.appendChild(div);	
 }
