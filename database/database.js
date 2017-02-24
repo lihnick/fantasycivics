@@ -37,6 +37,12 @@ var Database = {
 
 	LOCK_ROSTERS_AFTER: (6 / 7), // Locks rosters 6/7 of the way through the match
 
+	getLockTime: (match) => {
+		var duration = match.end - match.start;
+		var lockTime = match.start + (Database.LOCK_ROSTERS_AFTER * duration);
+		return lockTime;
+	},
+
 	updateUser: (params) => {
 		if(!params.userid){
 			throw new Error('Must specify {userid}.');
@@ -600,6 +606,29 @@ var Database = {
 					reject('There are no matches on {' + new Date(params.on) + '} in league {leagueid: ' + params.leagueid + '}.');
 				}
 			})
+		});
+	},
+
+	isLocked: (params) => {
+		if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+		else if(!params.leagueid){
+			throw new Error('Must specify {leagueid}.');
+		}
+		else if(!params.on){
+			throw new Error('Must specify {on}.');
+		}
+
+		return new Promise((resolve, reject) => {
+			Database.getMatch(params).then((match) => {
+				var lockTime = Database.getLockTime(match);
+				var res = params.on > lockTime;
+				resolve({
+					locked: res,
+					match: match
+				});
+			}).catch(reject);
 		});
 	},
 

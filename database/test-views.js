@@ -70,6 +70,7 @@ function renderSchedule(schedule, league, userMap){
 		hdr += '<td></td>'
 		hdr += '<td>Home</td>'
 		hdr += '<td>Start</td>'
+		hdr += '<td>Lock</td>'
 		hdr += '<td>End</td>'
 		hdr += '</tr>';
 	for(var w = 0; w < schedule.length; w++){
@@ -84,6 +85,7 @@ function renderSchedule(schedule, league, userMap){
 		row += '<td> @ </td>'
 		row += '<td>' + home.name + '</td>'
 		row += '<td>' + moment(games[h].start).format(dateFormat) + '</td>'
+		row += '<td>' + moment(Database.getLockTime(games[h])).format(dateFormat) + '</td>'
 		row += '<td>' + moment(games[h].end).format(dateFormat) + '</td>'
 		row += '<tr>'
 		hdr += row;
