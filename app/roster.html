@@ -22,10 +22,7 @@
 				</tr>
 				<tr is="roster-list" v-for="(player, index) in players" v-bind:row="player" v-on:toggle="togglePlayer(index)"></tr>
 				<tr>
-					<td></td>
-					<td></td>
-					<td></td>
-					<td></td>
+					<td></td><td></td><td></td><td></td>
 					<td>{{ aggregator }}</td>
 					<td></td><td></td><td></td>
 				</tr>
@@ -33,11 +30,13 @@
 			<button v-on:click="updateLineup">Update Lineup</button>
 			<button v-on:click="updateRoster">Update Roster</button>
 			<button v-on:click="revertChange">Revert Change</button>
+			<button v-on:click="checkUpdates">Check Updates</button>
 		</div>
 
 		<div id="allPlayers">
 			<table>
 				<th>Alderman</th><th>Graffiti</th><th>Pot Holes</th><th>Street Lights</th><th>Score</th><th>League</th><th>Actions</th><th>Pending</th>
+				<tr is="player-list" v-for="(player, index) in players" v-bind:row="player" v-on:toggle="togglePlayer(index)"></tr>
 			</table>
 		</div>
 

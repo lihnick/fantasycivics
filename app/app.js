@@ -317,6 +317,12 @@ function Application() {
 							var tmp = APP['userRoster'];
 							tmp.players = jQuery.extend(true, {}, USER['roster']['players']);
 							tmp.toggle = {};
+						},
+
+						checkUpdates: () => {
+							log("checking for updates");
+							Application().getRoster();
+							Application().getAllPlayers();
 						}
 					}
 				});
@@ -336,7 +342,25 @@ function Application() {
 
 			Vue.component('player-list', {
 				props: ['row'],
-				template: ''
+				template: '<tr>\
+					<td> {{ row.name }} </td>\
+					<td>{{ row.scores.graffiti }}</td>\
+					<td>{{ row.scores.pot_holes }}</td>\
+					<td>{{ row.scores.street_lights }}</td>\
+					<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
+					<td>{{ (!row.owner)? \'None\' : row.owner }}</td>\
+					<td><div>\
+						<button v-on:click="$emit(\'toggle\')" :disabled="(!row.owner)? false : true">Swap</button></td><td>{{ row.pending }}\
+						<div>\
+							<a>person 1</a>\
+							<a>person 2</a>\
+							<a>person 3</a>\
+							<a>person 4</a>\
+							<a>person 5</a>\
+						</div>\
+					</div></td>\
+					<td></td>\
+				</tr>'
 			});
 
 			Database.getAllPlayers(tmp).then(function(result) {
@@ -346,12 +370,13 @@ function Application() {
 				});
 				log(USER.allPlayers);
 
-				var workingPlayers = jQuery.extend(true, {}, USER['allPlayers']['players']);
+				var workingPlayers = jQuery.extend(true, {}, USER['allPlayers']);
+
 
 				APP['allPlayers'] = new Vue({
 					el: '#allPlayers',
 					data: {
-
+						players: workingPlayers
 					},
 					methods: {
 

@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<!-- saved from url=(0037)http://localhost:8080/app/roster.html -->
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+	<title>Roster</title>
+</head>
+<body>
+	<h1>Roster</h1>
+	<a href="#">Home</a>
+	<a href="#">App</a>
+	<a href="#">Roster</a>
+	<div id="userRoster">
+		<table>
+			<tbody>
+				<tr>
+					<th>Alderman</th>
+					<th>Graffiti</th>
+					<th>Pot Holes</th>
+					<th>Street Lights</th>
+					<th>Score</th>
+					<th>lineup</th>
+					<th>Actions</th>
+					<th>Pending</th>
+				</tr>
+				<tr>
+					<td> Gregory Mitchell </td>
+					<td>15</td>
+					<td>52</td>
+					<td>29</td>
+					<td>96</td>
+					<td>Starter</td>
+					<td><button>Toggle</button></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Marty Quinn </td>
+					<td>126</td>
+					<td>123</td>
+					<td>10</td>
+					<td>259</td>
+					<td>Benched</td>
+					<td><button>Toggle</button></td>
+					<td>Starting</td>
+				</tr>
+				<tr>
+					<td> Touni Foulkes </td>
+					<td>100</td>
+					<td>57</td>
+					<td>8</td>
+					<td>165</td>
+					<td>Starter</td>
+					<td><button>Toggle</button></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> David Moore </td>
+					<td>81</td>
+					<td>101</td>
+					<td>13</td>
+					<td>195</td>
+					<td>Starter</td>
+					<td><button>Toggle</button></td>
+					<td>Benching</td>
+				</tr>
+				<tr>
+					<td> Gilbert Villegas </td>
+					<td>119</td>
+					<td>50</td>
+					<td>19</td>
+					<td>188</td>
+					<td>Benched</td>
+					<td><button>Toggle</button></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td>903</td>
+					<td></td>
+					<td></td>
+					<td></td>
+				</tr>
+			</tbody>
+		</table>
+		<button>Update Lineup</button> <button>Update Roster</button> <button>Revert Change</button> <button>Check Updates</button>
+	</div>
+	<div id="allPlayers">
+		<table>
+			<tbody>
+				<tr>
+					<th>Alderman</th>
+					<th>Graffiti</th>
+					<th>Pot Holes</th>
+					<th>Street Lights</th>
+					<th>Score</th>
+					<th>League</th>
+					<th>Actions</th>
+					<th>Pending</th>
+				</tr>
+				<tr>
+					<td> Joe Moreno </td>
+					<td>572</td>
+					<td>89</td>
+					<td>18</td>
+					<td>679</td>
+					<td>testuser0002</td>
+					<td>
+						<div><button disabled="disabled">Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Brian Hopkins </td>
+					<td>156</td>
+					<td>116</td>
+					<td>16</td>
+					<td>288</td>
+					<td>testuser0004</td>
+					<td>
+						<div><button disabled="disabled">Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Pat Dowell </td>
+					<td>22</td>
+					<td>120</td>
+					<td>29</td>
+					<td>171</td>
+					<td>testuser0002</td>
+					<td>
+						<div><button disabled="disabled">Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Sophia King </td>
+					<td>31</td>
+					<td>73</td>
+					<td>14</td>
+					<td>118</td>
+					<td>testuser0002</td>
+					<td>
+						<div><button disabled="disabled">Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Leslie Hairston </td>
+					<td>3</td>
+					<td>94</td>
+					<td>14</td>
+					<td>111</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Roderick Sawyer </td>
+					<td>13</td>
+					<td>173</td>
+					<td>8</td>
+					<td>194</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Gregory Mitchell </td>
+					<td>15</td>
+					<td>52</td>
+					<td>29</td>
+					<td>96</td>
+					<td>testuser0001</td>
+					<td>
+						<div><button disabled="disabled">Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Michelle Harris </td>
+					<td>3</td>
+					<td>28</td>
+					<td>66</td>
+					<td>97</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Anthony Beale </td>
+					<td>13</td>
+					<td>109</td>
+					<td>59</td>
+					<td>181</td>
+					<td>testuser0004</td>
+					<td>
+						<div><button disabled="disabled">Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Susan Sadlowski Garza </td>
+					<td>192</td>
+					<td>123</td>
+					<td>33</td>
+					<td>348</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Patrick Thompson </td>
+					<td>149</td>
+					<td>84</td>
+					<td>35</td>
+					<td>268</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> George A. Cardenas </td>
+					<td>726</td>
+					<td>124</td>
+					<td>4</td>
+					<td>854</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Marty Quinn </td>
+					<td>126</td>
+					<td>123</td>
+					<td>10</td>
+					<td>259</td>
+					<td>testuser0001</td>
+					<td>
+						<div><button disabled="disabled">Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Ed Burke </td>
+					<td>489</td>
+					<td>44</td>
+					<td>1</td>
+					<td>534</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Raymond Lopez </td>
+					<td>238</td>
+					<td>65</td>
+					<td>5</td>
+					<td>308</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Touni Foulkes </td>
+					<td>100</td>
+					<td>57</td>
+					<td>8</td>
+					<td>165</td>
+					<td>testuser0001</td>
+					<td>
+						<div><button disabled="disabled">Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> David Moore </td>
+					<td>81</td>
+					<td>101</td>
+					<td>13</td>
+					<td>195</td>
+					<td>testuser0001</td>
+					<td>
+						<div><button disabled="disabled">Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Derrick Curtis </td>
+					<td>185</td>
+					<td>152</td>
+					<td>19</td>
+					<td>356</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Matthew O'Shea </td>
+					<td>32</td>
+					<td>104</td>
+					<td>48</td>
+					<td>184</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Willie B. Cochran </td>
+					<td>36</td>
+					<td>68</td>
+					<td>28</td>
+					<td>132</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Howard Brookins Jr. </td>
+					<td>5</td>
+					<td>55</td>
+					<td>31</td>
+					<td>91</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Ricardo Munoz </td>
+					<td>288</td>
+					<td>100</td>
+					<td>0</td>
+					<td>388</td>
+					<td>testuser0004</td>
+					<td>
+						<div><button disabled="disabled">Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Michael Zalewski </td>
+					<td>625</td>
+					<td>122</td>
+					<td>14</td>
+					<td>761</td>
+					<td>testuser0004</td>
+					<td>
+						<div><button disabled="disabled">Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Michael Scott Jr. </td>
+					<td>103</td>
+					<td>79</td>
+					<td>12</td>
+					<td>194</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Daniel Solis </td>
+					<td>278</td>
+					<td>138</td>
+					<td>18</td>
+					<td>434</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Roberto Malonado </td>
+					<td>334</td>
+					<td>87</td>
+					<td>0</td>
+					<td>421</td>
+					<td>testuser0004</td>
+					<td>
+						<div><button disabled="disabled">Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Walter Burnett Jr. </td>
+					<td>199</td>
+					<td>107</td>
+					<td>10</td>
+					<td>316</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Jason Ervin </td>
+					<td>89</td>
+					<td>147</td>
+					<td>10</td>
+					<td>246</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Chris Taliaferro </td>
+					<td>76</td>
+					<td>90</td>
+					<td>10</td>
+					<td>176</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Ariel E. Reboyras </td>
+					<td>287</td>
+					<td>26</td>
+					<td>25</td>
+					<td>338</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Milly Santiago </td>
+					<td>111</td>
+					<td>19</td>
+					<td>17</td>
+					<td>147</td>
+					<td>testuser0002</td>
+					<td>
+						<div><button disabled="disabled">Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Scott Waguespack </td>
+					<td>320</td>
+					<td>130</td>
+					<td>32</td>
+					<td>482</td>
+					<td>testuser0003</td>
+					<td>
+						<div><button disabled="disabled">Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Deborah Mell </td>
+					<td>390</td>
+					<td>35</td>
+					<td>34</td>
+					<td>459</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Carrie Austin </td>
+					<td>3</td>
+					<td>61</td>
+					<td>46</td>
+					<td>110</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Carlos Ramirez-Rosa </td>
+					<td>360</td>
+					<td>29</td>
+					<td>11</td>
+					<td>400</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Gilbert Villegas </td>
+					<td>119</td>
+					<td>50</td>
+					<td>19</td>
+					<td>188</td>
+					<td>testuser0001</td>
+					<td>
+						<div><button disabled="disabled">Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Emma Mitts </td>
+					<td>22</td>
+					<td>82</td>
+					<td>1</td>
+					<td>105</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Nicholas Sposato </td>
+					<td>57</td>
+					<td>59</td>
+					<td>36</td>
+					<td>152</td>
+					<td>testuser0003</td>
+					<td>
+						<div><button disabled="disabled">Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Margaret Laurino </td>
+					<td>219</td>
+					<td>74</td>
+					<td>32</td>
+					<td>325</td>
+					<td>testuser0003</td>
+					<td>
+						<div><button disabled="disabled">Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Patrick J. O'Connor </td>
+					<td>122</td>
+					<td>77</td>
+					<td>30</td>
+					<td>229</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Anthony Napolitano </td>
+					<td>12</td>
+					<td>60</td>
+					<td>40</td>
+					<td>112</td>
+					<td>testuser0003</td>
+					<td>
+						<div><button disabled="disabled">Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Brendan Reilly </td>
+					<td>172</td>
+					<td>132</td>
+					<td>11</td>
+					<td>315</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Michele Smith </td>
+					<td>106</td>
+					<td>93</td>
+					<td>15</td>
+					<td>214</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Thomas M. Tunney </td>
+					<td>120</td>
+					<td>51</td>
+					<td>30</td>
+					<td>201</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> John Arena </td>
+					<td>203</td>
+					<td>40</td>
+					<td>38</td>
+					<td>281</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> James Cappleman </td>
+					<td>57</td>
+					<td>40</td>
+					<td>21</td>
+					<td>118</td>
+					<td>testuser0003</td>
+					<td>
+						<div><button disabled="disabled">Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Ameya Pawar </td>
+					<td>477</td>
+					<td>59</td>
+					<td>30</td>
+					<td>566</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Harry Osterman </td>
+					<td>128</td>
+					<td>34</td>
+					<td>19</td>
+					<td>181</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Joseph A. Moore </td>
+					<td>187</td>
+					<td>7</td>
+					<td>19</td>
+					<td>213</td>
+					<td>testuser0002</td>
+					<td>
+						<div><button disabled="disabled">Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td> Debra Silverstein </td>
+					<td>101</td>
+					<td>31</td>
+					<td>28</td>
+					<td>160</td>
+					<td>None</td>
+					<td>
+						<div><button>Swap</button></div>
+					</td>
+					<td>
+						<div><a>person 1</a> <a>person 2</a> <a>person 3</a> <a>person 4</a> <a>person 5</a></div>
+					</td>
+					<td></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>
