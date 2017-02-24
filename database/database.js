@@ -626,6 +626,7 @@ var Database = {
 				var res = params.on > lockTime;
 				resolve({
 					locked: res,
+					lockTime: lockTime,
 					match: match
 				});
 			}).catch(reject);
