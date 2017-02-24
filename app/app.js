@@ -349,8 +349,9 @@ function Application() {
 					<td>{{ row.scores.street_lights }}</td>\
 					<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
 					<td>{{ (!row.owner)? \'None\' : row.owner }}</td>\
-					<td><div>\
-						<button v-on:click="$emit(\'toggle\')" :disabled="(!row.owner)? false : true">Swap</button></td><td>{{ row.pending }}\
+					<td>\
+					<div>\
+						<button v-on:click="$emit(\'toggle\')" :disabled="(!row.owner)? false : true">Swap</button>\
 						<div>\
 							<a>person 1</a>\
 							<a>person 2</a>\
@@ -358,8 +359,9 @@ function Application() {
 							<a>person 4</a>\
 							<a>person 5</a>\
 						</div>\
-					</div></td>\
-					<td></td>\
+					</div>\
+					</td>\
+					<td>{{ row.pending }}</td>\
 				</tr>'
 			});
 
