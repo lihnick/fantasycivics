@@ -15,6 +15,15 @@
 		<a href="app.html">App</a>
 		<a href="#">Roster</a>
 
+		<div id="userPlayers">
+			
+			<table>
+				<tr>
+					<th>Alderman</th><th>Graffiti</th><th>Pot Holes</th><th>Street Lights</th><th>Score</th><th>Status</th><th>Actions</th><th>Pending</th>
+				</tr>
+				<tr is="player-list" v-for="(player, index) in players" v-bind:lineup="player" v-on:drop="dropPlayer(index)" v-on:toggle="togglePlayer(index)"></tr>
+			</table>
+		</div>
 
 		<!-- script -->
 

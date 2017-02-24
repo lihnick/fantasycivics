@@ -238,6 +238,11 @@ function Application() {
 				to: 1485928800000
 			}
 
+			Vue.component('player-list', {
+				props: ['lineup'],
+				template: '<tr><td> {{ lineup.name }} </td> <td>{{ lineup.scores.graffiti }}</td> <td>{{ lineup.scores.pot_holes }}</td> <td>{{ lineup.scores.street_lights }}</td> <td>{{ lineup.scores.graffiti + lineup.scores.pot_holes + lineup.scores.street_lights }}</td> <td>{{ (lineup.starter)? \'Starting\' : \'Benched\' }}</td> <td><button v-on:click="$emit(\'toggle\')">Toggle</button></td></tr>'
+			});
+
 			Database.getRoster(tmp).then(function(result) {
 				log(result);
 				test = result;
@@ -260,6 +265,20 @@ function Application() {
 					});
 				});
 				log(USER['roster']);
+
+				var workingPlayers = jQuery.extend(true, {}, USER['roster']['players']);
+
+				APP['userPlayers'] = new Vue({
+					el: '#userPlayers',
+					data: {
+						players: workingPlayers,
+						op: []
+					},
+					methods: {
+
+					}
+				});
+
 			}, function(err) {
 				log(err);
 			});
@@ -276,7 +295,7 @@ function Application() {
 			Database.getAllPlayers(tmp).then(function(result) {
 				log(result);
 				USER['allPlayers'] = [];
-				Object.keys(result).map(function(id) {
+				Object.keys(result).sort().map(function(id) {
 					USER['allPlayers'].push(result[id]);
 				});
 				log(USER.allPlayers);
