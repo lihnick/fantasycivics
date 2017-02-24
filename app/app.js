@@ -230,11 +230,12 @@ function Application() {
 
 		// Gets the user's roster based on a selected league
 		getRoster: () => {
+			log("Get Roster is currently using a temporary user and league, update when create league, invite users, etc. functions are done.");
 			var tmp = {
-			    userid: 'testuser0001',
-			    leagueid: '-KdIiWEUj7_toD3MKMO_',
-			    from: 1483250400000,
-			    to: 1485928800000
+				userid: 'testuser0001',
+				leagueid: '-KdIiWEUj7_toD3MKMO_',
+				from: 1483250400000,
+				to: 1485928800000
 			}
 
 			Database.getRoster(tmp).then(function(result) {
@@ -261,6 +262,26 @@ function Application() {
 				log(USER['roster']);
 			}, function(err) {
 				log(err);
+			});
+		},
+
+		getAllPlayers: () => {
+			log("Get Roster is currently using a temporary user and league, update when create league, invite users, etc. functions are done.");
+			var tmp = {
+				leagueid: '-KdIiWEUj7_toD3MKMO_',
+				from: 1483250400000,
+				to: 1485928800000
+			}
+
+			Database.getAllPlayers(tmp).then(function(result) {
+				log(result);
+				USER['allPlayers'] = [];
+				Object.keys(result).map(function(id) {
+					USER['allPlayers'].push(result[id]);
+				});
+				log(USER.allPlayers);
+			}, function(err) {
+
 			});
 		}
 
