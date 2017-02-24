@@ -70,6 +70,7 @@ function renderSchedule(schedule, league, userMap){
 		hdr += '<td></td>'
 		hdr += '<td>Home</td>'
 		hdr += '<td>Start</td>'
+		hdr += '<td>Lock</td>'
 		hdr += '<td>End</td>'
 		hdr += '</tr>';
 	for(var w = 0; w < schedule.length; w++){
@@ -84,6 +85,7 @@ function renderSchedule(schedule, league, userMap){
 		row += '<td> @ </td>'
 		row += '<td>' + home.name + '</td>'
 		row += '<td>' + moment(games[h].start).format(dateFormat) + '</td>'
+		row += '<td>' + moment(Database.getLockTime(games[h])).format(dateFormat) + '</td>'
 		row += '<td>' + moment(games[h].end).format(dateFormat) + '</td>'
 		row += '<tr>'
 		hdr += row;
@@ -168,4 +170,102 @@ function renderPlayerScores(roster, league, sortFn){
 	div.appendChild(para);
 	div.appendChild(table);
 	document.body.appendChild(div);
+}
+
+function createDOMTable(headers, rows){
+	function listToRow(list){
+		return '<tr>' + list.map((val) => { return '<td>' + val + '</td>'}).join('') + '</tr>';
+	}
+	var table = document.createElement('table');
+	var html = '';
+	if(headers){
+		html += listToRow(headers);
+	}
+	for(var r = 0; r < rows.length; r++){
+		html += listToRow(rows[r]);
+	}
+	table.innerHTML = html;
+	return table;
+}
+
+var rosterSort = (a, b) => {
+	var as = a.starter ? 1 : 0;
+	var bs = b.starter ? 1 : 0;
+	return bs - as;
+}
+
+var scoreFromMap = (map) => {
+	var score = 0;
+	Object.keys(map).map((key) => { score += map[key]; return 0; })
+	return score;
+}
+
+function renderBoxScore(match, home, away, league){
+	var div = document.createElement('div');
+	var h2 = document.createElement('h2');
+		h2.innerText = 'Week ' + match.week + ' Matchup';
+	var rows = [];
+	var homeRoster = Object.keys(home.players).map((pid) => { return home.players[pid]; }).sort(rosterSort);
+	var awayRoster = Object.keys(away.players).map((pid) => { return away.players[pid]; }).sort(rosterSort);
+	var scores = {
+		home: {
+			lineup: 0,
+			bench: 0
+		},
+		away: {
+			lineup: 0,
+			bench: 0
+		}
+	}
+	var startingLineup = true;
+			rows.push([league.users[match.home].team, '', '', league.users[match.away].team, '']);
+			rows.push(['Player', 'Score', ' - ', 'Score', 'Player']);
+			rows.push(['Starting Lineup', '', '', 'Starting Lineup', '']);
+	for(var j = 0; j < homeRoster.length; j++){
+		var homePlayer = homeRoster[j];
+		var awayPlayer = awayRoster[j];
+		if(!homePlayer.starter && startingLineup){
+			startingLineup = false;
+			rows.push([
+				'',
+				scores.home.lineup,
+				'',
+				'',
+				scores.away.lineup
+			]);
+			rows.push([
+				'Bench',
+				'',
+				'',
+				'Bench',
+				''
+			]);
+		}
+		rows.push([
+			homePlayer.name,
+			scoreFromMap(homePlayer.scores),
+			' - ',
+			awayPlayer.name,
+			scoreFromMap(awayPlayer.scores)
+		]);
+		if(startingLineup){
+			scores.home.lineup += scoreFromMap(homePlayer.scores);
+			scores.away.lineup += scoreFromMap(awayPlayer.scores);
+		}
+		else{
+			scores.home.bench += scoreFromMap(homePlayer.scores);
+			scores.away.bench += scoreFromMap(awayPlayer.scores);
+		}
+	}
+			rows.push([
+				'',
+				scores.home.bench,
+				'',
+				'',
+				scores.away.bench
+			]);
+	var playerTable = createDOMTable(false, rows);
+	div.appendChild(h2);
+	div.appendChild(playerTable);
+	document.body.appendChild(div);	
 }

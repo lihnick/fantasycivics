@@ -508,6 +508,39 @@ Promise bearing data or error.
 }
 ```
 
+### Database.isLocked()
+Determine whether or not the given user in the given league can edit their roster. This function is used internally with all methods that affect user rosters and will reject the transaction if the roster is locked.
+
+**Parameters**
+```
+{
+	userid: 'testuser0001',
+	leagueid: 'leagueid0001',
+	on: Date.now()
+}
+```
+
+**Response**
+Promise bearing data or error.
+```
+	{
+		locked: true,
+		lockTime: 1483220400000,
+		match: {
+			userid: 'testuser0001',
+			leagueid: 'leagueid0001',
+			on: 1483250400000,
+			home: 'testuser0001',
+			away: 'testuser0002',
+			start: 1483250400000,
+			end: 1485928800000,
+			week: 2
+		}
+	}
+```
+
+* Property `lockTime` in the response is the timestamp at which the roster locks for the current match. It is returned regardless of whether or not the roster is locked. Example use case: if the application wants to let the user know when their roster will lock, or how much time they have left to make changes.
+
 ### Database.movePlayer()
 Switch a starting player with a benched player on the roster of the given user.
 
@@ -603,10 +636,12 @@ Promise bearing data or error.
 		home: 'testuser0001',
 		away: 'testuser0002',
 		start: 1483250400000,
-		end: 1485928800000
+		end: 1485928800000,
+		week: 2
 	}
 ```
 
 * Properties `start` and `end` represent the start and ending times of the match.
+* Property `week` indicates the week in the season the match is part of.
 
 **Note:** _The process to determine who wins a past match and save that result are still under development._
