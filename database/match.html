@@ -56,17 +56,37 @@
 			var toDate = new Date('2/7/2017').getTime()
 			var onDate = new Date('2/5/2017').getTime()
 
-			Database.getMatch({
-				userid: 'testuser0002',
-				leagueid: l1,
-				on: onDate
-			}).then((match) => {
-				console.log('Test Get Match Response');
-				console.log(res);
-			}).catch((err) => {
-				console.log('Test Get Match Response');
-				console.error(err);
-			});
+			function loadMatch(league){
+				Database.getMatch({
+					userid: 'testuser0002',
+					leagueid: l1,
+					on: onDate
+				}).then((match) => {
+					console.log('Test Get Match Response');
+					console.log(match);
+					Promise.all([
+						Database.getRoster({
+							userid: match.home,
+							leagueid: l1,
+							from: match.start,
+							to: match.end
+						}),
+						Database.getRoster({
+							userid: match.away,
+							leagueid: l1,
+							from: match.start,
+							to: match.end
+						})
+					]).then((participants) => {
+						var homeUser = participants[0];
+						var awayUser = participants[1];
+						renderBoxScore(match, homeUser, awayUser, league)
+					});
+				}).catch((err) => {
+					console.log('Test Get Match Response');
+					console.error(err);
+				});
+			}
 
 			Database.getLeague({
 				leagueid: l1,
@@ -75,6 +95,8 @@
 			}).then((league) => {
 				console.log('Test Get League Response');
 				console.log(league);
+				loadMatch(league);
+				//
 				renderSchedule(league.schedule, league, league.users);
 				for(var uid in league.rosters){
 					renderRosters(league.rosters[uid], uid, league);

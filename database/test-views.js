@@ -169,3 +169,28 @@ function renderPlayerScores(roster, league, sortFn){
 	div.appendChild(table);
 	document.body.appendChild(div);
 }
+
+function createDOMTable(headers, rows){
+	function listToRow(list){
+		return '<tr>' + list.map((val) => { return '<td>' + val + '</td>'}).join('') + '</tr>';
+	}
+	var table = document.createElement('table');
+	var html = listToRow(headers);
+	for(var r = 0; r < rows.length; r++){
+		html += listToRow(rows[r]);
+	}
+	table.innerHTML = html;
+	return table;
+}
+
+function renderBoxScore(match, home, away, league){
+	var div = document.createElement('div');
+	var h2 = document.createElement('h2');
+		h2.innerText = 'All Players: ' + league.name;
+	var headers = [];
+	var rows = [];
+	var table = createDOMTable(headers, rows);
+	div.appendChild(h2);
+	div.appendChild(table);
+	document.body.appendChild(div);	
+}
