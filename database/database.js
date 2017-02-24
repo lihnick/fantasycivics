@@ -35,6 +35,8 @@ var Database = {
 	Auth: DatabaseAuth(DatabaseFirebase),
 	Scoring: Scoring,
 
+	LOCK_ROSTERS_AFTER: (6 / 7), // Locks rosters 6/7 of the way through the match
+
 	updateUser: (params) => {
 		if(!params.userid){
 			throw new Error('Must specify {userid}.');
