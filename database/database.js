@@ -35,7 +35,7 @@ var Database = {
 	Auth: DatabaseAuth(DatabaseFirebase),
 	Scoring: Scoring,
 
-	LOCK_ROSTERS_AFTER: (6 / 7), // Locks rosters 6/7 of the way through the match
+	LOCK_ROSTERS_AFTER: (5 / 7), // Locks rosters 6/7 of the way through the match
 
 	getLockTime: (match) => {
 		var duration = match.end - match.start;
@@ -646,7 +646,7 @@ var Database = {
 			throw new Error('Must specify {start}.');
 		}
 
-		return new Promise((resolve, reject) => {
+		var movePlayerCallback = (resolve, reject) => {
 			var ref = db.ref('leagues/' + params.leagueid + '/rosters/' + params.userid);
 			ref.once('value', (snapshot) => {
 				var players = snapshot.val();
@@ -675,6 +675,21 @@ var Database = {
 					});
 				}
 			}).catch(reject);
+		}
+
+		return new Promise((resolve, reject) => {
+			Database.isLocked({
+				userid: params.userid,
+				leagueid: params.leagueid,
+				on: Date.now()
+			}).then((res) => {
+				if(res.locked){
+					reject('Roster locked for remainder of the match.');
+				}
+				else{
+					movePlayerCallback(resolve, reject);
+				}
+			});
 		});		
 	},
 
@@ -692,7 +707,7 @@ var Database = {
 			throw new Error('Must specify {drop}.');
 		}
 
-		return new Promise((resolve, reject) => {
+		var acquirePlayerCallback = (resolve, reject) => {
 			Database.getLeagueData(params).then((league) => {
 				if(!(params.userid in league.rosters)){
 					reject('No roster for user {userid: ' + params.userid + '} in league {leagueid: ' + params.leagueid + '}');
@@ -732,6 +747,21 @@ var Database = {
 					}).catch(reject);
 				}
 			}).catch(reject);
+		}
+
+		return new Promise((resolve, reject) => {
+			Database.isLocked({
+				userid: params.userid,
+				leagueid: params.leagueid,
+				on: Date.now()
+			}).then((res) => {
+				if(res.locked){
+					reject('Roster locked for remainder of the match.');
+				}
+				else{
+					movePlayerCallback(resolve, reject);
+				}
+			});
 		});
 
 	}
