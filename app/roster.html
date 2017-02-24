@@ -18,7 +18,7 @@
 		<div id="userRoster">
 			<table>
 				<tr>
-					<th>Alderman</th><th>Graffiti</th><th>Pot Holes</th><th>Street Lights</th><th>Score</th><th>lineup</th><th>Actions</th><th>Pending</th>
+					<th>Players</th><th>Graffiti</th><th>Pot Holes</th><th>Street Lights</th><th>Score</th><th>lineup</th><th>Actions</th><th>Pending</th>
 				</tr>
 				<tr is="roster-list" v-for="(player, index) in players" v-bind:row="player" v-on:toggle="togglePlayer(index)"></tr>
 				<tr>
