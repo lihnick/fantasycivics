@@ -106,6 +106,14 @@ function Application() {
 
 		// Read Functions
 
+		// displays user info in html elements
+		displayUser: () => {
+			document.getElementById(Constants.userIdTag).innerHTML = USER.userid;
+			document.getElementById(Constants.userNameTag).innerHTML = USER.name;
+			document.getElementById(Constants.userEmailTag).innerHTML = USER.email;
+			document.getElementById(Constants.userImageTag).src = USER.image;
+		},
+
 
 		// Check local storage for users that are logged in from previous sessions 
 		getUser: () => {
@@ -120,11 +128,6 @@ function Application() {
 				USER.email = localStorage[Constants.userEmailTag];
 				USER.image = localStorage[Constants.userImageTag];
 
-				document.getElementById(Constants.userIdTag).innerHTML = USER.userid;
-				document.getElementById(Constants.userNameTag).innerHTML = USER.name;
-				document.getElementById(Constants.userEmailTag).innerHTML = USER.email;
-				document.getElementById(Constants.userImageTag).src = USER.image;
-				
 				// getCurrentUser() will be reset once another page loads
 				// Database.Auth.getCurrentUser().then(function(result) {
 				// 	log("users should be the same");
@@ -136,7 +139,6 @@ function Application() {
 
 				return true;
 			}
-
 		},
 
 		userLogout: () => {
@@ -154,8 +156,8 @@ function Application() {
 				log(result);
 				localStorage[Constants.userIdTag] = result.userid;
 				localStorage[Constants.userNameTag] = result.name;
-				localStorage[Constants.userEmailTag] = result.image;
-				localStorage[Constants.userImageTag] = result.email;
+				localStorage[Constants.userEmailTag] = result.email;
+				localStorage[Constants.userImageTag] = result.image;
 				window.location.href = Constants.loginRedirect;
 			}, function(err) {
 				alert(err);
@@ -223,6 +225,42 @@ function Application() {
 				console.log(result);
 			}, function(err) {
 				console.log(err);
+			});
+		},
+
+		// Gets the user's roster based on a selected league
+		getRoster: () => {
+			var tmp = {
+			    userid: 'testuser0001',
+			    leagueid: '-KdIiWEUj7_toD3MKMO_',
+			    from: 1483250400000,
+			    to: 1485928800000
+			}
+
+			Database.getRoster(tmp).then(function(result) {
+				log(result);
+				test = result;
+				var playerList = [];
+				USER['roster'] = {
+					userid: result.userid,
+					leagueid: result.leagueid,
+					from: result.from,
+					to: result.to,
+					players: playerList
+				};
+				Object.keys(result.players).map(function(id) {
+					playerList.push({
+						playerid: id,
+						name: result.players[id].name,
+						owner: result.players[id].owner,
+						starter: result.players[id].starter,
+						ward: result.players[id].ward,
+						scores: result.players[id].scores,
+					});
+				});
+				log(USER['roster']);
+			}, function(err) {
+				log(err);
 			});
 		}
 
