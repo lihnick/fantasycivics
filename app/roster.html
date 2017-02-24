@@ -21,9 +21,18 @@
 					<th>Alderman</th><th>Graffiti</th><th>Pot Holes</th><th>Street Lights</th><th>Score</th><th>lineup</th><th>Actions</th><th>Pending</th>
 				</tr>
 				<tr is="player-list" v-for="(player, index) in players" v-bind:lineup="player" v-on:toggle="togglePlayer(index)"></tr>
+				<tr>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td>{{ aggregator }}</td>
+					<td></td><td></td><td></td>
+				</tr>
 			</table>
 			<button v-on:click="updateLineup">Update Lineup</button>
 			<button v-on:click="updateRoster">Update Roster</button>
+			<button v-on:click="revertChange">Revert Change</button>
 		</div>
 
 		<div id="allPlayers">

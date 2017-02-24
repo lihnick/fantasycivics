@@ -273,12 +273,16 @@ function Application() {
 					el: '#userPlayers',
 					data: {
 						players: workingPlayers,
+						aggregator: Object.keys(workingPlayers).map(function(id) {
+							return workingPlayers[id].scores.graffiti + workingPlayers[id].scores.pot_holes + workingPlayers[id].scores.street_lights;
+						}).reduce((a, b) => a + b, 0),
 						toggle: {}
 					},
 					methods: {
 						togglePlayer: (idx) => {
 							var tmp = APP['userPlayers'];
-							log(idx + " – " + tmp.players[idx].playerid);
+							test = tmp;
+							log(idx + " - " + tmp.players[idx].playerid);
 							var update = (tmp.players[idx].starter)? "Benching" : "Starting";
 							if (tmp.toggle[tmp.players[idx].playerid]) { // toggle operation already done
 								tmp.players[idx].pending = "";
@@ -289,11 +293,31 @@ function Application() {
 								tmp.players[idx].pending = update;
 							}
 						},
+
 						updateLineup: () => {
+							var tmp = APP['userPlayers'];
+							tmp.validateLineup();
+							
+						},
+
+						validateLineup: () => {
+							var tmp = APP['userPlayers'];
+							log(tmp.toggle);
+							var benching = [];
+							var starting = [];
+							Object.keys(tmp.toggle).map(function(idx) {
+								console.log(tmp.toggle[idx]);
+							});
+						},
+
+						updateRoster: () => {
 
 						},
-						updateRoster: () => {
-							
+
+						revertChange: () => {
+							var tmp = APP['userPlayers'];
+							tmp.players = jQuery.extend(true, {}, USER['roster']['players']);
+							tmp.toggle = {};
 						}
 					}
 				});
