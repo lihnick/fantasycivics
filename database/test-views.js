@@ -201,23 +201,69 @@ var scoreFromMap = (map) => {
 function renderBoxScore(match, home, away, league){
 	var div = document.createElement('div');
 	var h2 = document.createElement('h2');
-		h2.innerText = 'All Players: ' + league.name;
-	var headers = ['Player', 'Score', ' - ', 'Score', 'Player'];
+		var wkNo = 2;
+		h2.innerText = 'Week ' + wkNo + ' Matchup';
 	var rows = [];
 	var homeRoster = Object.keys(home.players).map((pid) => { return home.players[pid]; }).sort(rosterSort);
 	var awayRoster = Object.keys(away.players).map((pid) => { return away.players[pid]; }).sort(rosterSort);
+	var scores = {
+		home: {
+			lineup: 0,
+			bench: 0
+		},
+		away: {
+			lineup: 0,
+			bench: 0
+		}
+	}
+	var startingLineup = true;
+			rows.push([league.users[match.home].team, '', '', league.users[match.away].team, '']);
+			rows.push(['Player', 'Score', ' - ', 'Score', 'Player']);
+			rows.push(['Starting Lineup', '', '', 'Starting Lineup', '']);
 	for(var j = 0; j < homeRoster.length; j++){
 		var homePlayer = homeRoster[j];
 		var awayPlayer = awayRoster[j];
+		if(!homePlayer.starter && startingLineup){
+			startingLineup = false;
+			rows.push([
+				'',
+				scores.home.lineup,
+				'',
+				'',
+				scores.away.lineup
+			]);
+			rows.push([
+				'Bench',
+				'',
+				'',
+				'Bench',
+				''
+			]);
+		}
 		rows.push([
 			homePlayer.name,
 			scoreFromMap(homePlayer.scores),
 			' - ',
-			scoreFromMap(awayPlayer.scores),
-			awayPlayer.name
+			awayPlayer.name,
+			scoreFromMap(awayPlayer.scores)
 		]);
+		if(startingLineup){
+			scores.home.lineup += scoreFromMap(homePlayer.scores);
+			scores.away.lineup += scoreFromMap(awayPlayer.scores);
+		}
+		else{
+			scores.home.bench += scoreFromMap(homePlayer.scores);
+			scores.away.bench += scoreFromMap(awayPlayer.scores);
+		}
 	}
-	var playerTable = createDOMTable(headers, rows);
+			rows.push([
+				'',
+				scores.home.bench,
+				'',
+				'',
+				scores.away.bench
+			]);
+	var playerTable = createDOMTable(false, rows);
 	div.appendChild(h2);
 	div.appendChild(playerTable);
 	document.body.appendChild(div);	

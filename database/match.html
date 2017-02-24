@@ -99,9 +99,9 @@
 				console.log(league);
 				loadMatch(league);
 				//
-				//renderSchedule(league.schedule, league, league.users);
+				renderSchedule(league.schedule, league, league.users);
 				for(var uid in league.rosters){
-					//renderRosters(league.rosters[uid], uid, league);
+					renderRosters(league.rosters[uid], uid, league);
 				}
 				Database.getAllPlayers({
 					leagueid: league.leagueid,
@@ -109,7 +109,7 @@
 					to: league.to
 				}).then((allPlayers) => {
 					console.log('Test Get All Players Response');
-					//renderPlayerScores(allPlayers, league);
+					renderPlayerScores(allPlayers, league);
 				}).catch((err2) => {
 					console.log('Test Get All Players Response');
 					console.error(err2);
