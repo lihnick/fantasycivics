@@ -35,6 +35,14 @@ var Database = {
 	Auth: DatabaseAuth(DatabaseFirebase),
 	Scoring: Scoring,
 
+	LOCK_ROSTERS_AFTER: (5 / 7), // Locks rosters 6/7 of the way through the match
+
+	getLockTime: (match) => {
+		var duration = match.end - match.start;
+		var lockTime = match.start + (Database.LOCK_ROSTERS_AFTER * duration);
+		return lockTime;
+	},
+
 	updateUser: (params) => {
 		if(!params.userid){
 			throw new Error('Must specify {userid}.');
@@ -581,6 +589,7 @@ var Database = {
 								res.end = game.end;
 								res.home = game.home;
 								res.away = game.away;
+								res.week = (parseInt(week, 10) + 1);
 								break;
 							}
 						}
@@ -600,6 +609,30 @@ var Database = {
 		});
 	},
 
+	isLocked: (params) => {
+		if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+		else if(!params.leagueid){
+			throw new Error('Must specify {leagueid}.');
+		}
+		else if(!params.on){
+			throw new Error('Must specify {on}.');
+		}
+
+		return new Promise((resolve, reject) => {
+			Database.getMatch(params).then((match) => {
+				var lockTime = Database.getLockTime(match);
+				var res = params.on > lockTime;
+				resolve({
+					locked: res,
+					lockTime: lockTime,
+					match: match
+				});
+			}).catch(reject);
+		});
+	},
+
 	movePlayer: (params) => {
 		if(!params.leagueid){
 			throw new Error('Must specify {leagueid}.');
@@ -614,7 +647,7 @@ var Database = {
 			throw new Error('Must specify {start}.');
 		}
 
-		return new Promise((resolve, reject) => {
+		var movePlayerCallback = (resolve, reject) => {
 			var ref = db.ref('leagues/' + params.leagueid + '/rosters/' + params.userid);
 			ref.once('value', (snapshot) => {
 				var players = snapshot.val();
@@ -643,6 +676,21 @@ var Database = {
 					});
 				}
 			}).catch(reject);
+		}
+
+		return new Promise((resolve, reject) => {
+			Database.isLocked({
+				userid: params.userid,
+				leagueid: params.leagueid,
+				on: Date.now()
+			}).then((res) => {
+				if(res.locked){
+					reject('Roster locked for remainder of the match.');
+				}
+				else{
+					movePlayerCallback(resolve, reject);
+				}
+			});
 		});		
 	},
 
@@ -660,7 +708,7 @@ var Database = {
 			throw new Error('Must specify {drop}.');
 		}
 
-		return new Promise((resolve, reject) => {
+		var acquirePlayerCallback = (resolve, reject) => {
 			Database.getLeagueData(params).then((league) => {
 				if(!(params.userid in league.rosters)){
 					reject('No roster for user {userid: ' + params.userid + '} in league {leagueid: ' + params.leagueid + '}');
@@ -700,6 +748,21 @@ var Database = {
 					}).catch(reject);
 				}
 			}).catch(reject);
+		}
+
+		return new Promise((resolve, reject) => {
+			Database.isLocked({
+				userid: params.userid,
+				leagueid: params.leagueid,
+				on: Date.now()
+			}).then((res) => {
+				if(res.locked){
+					reject('Roster locked for remainder of the match.');
+				}
+				else{
+					movePlayerCallback(resolve, reject);
+				}
+			});
 		});
 
 	}

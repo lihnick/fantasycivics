@@ -22,6 +22,9 @@ var League = {
 			newUsers.push(botid);
 			res = newUsers;
 		}
+		else{
+			res = users;
+		}
 		return res;
 	},
 
@@ -113,7 +116,13 @@ var League = {
 	 */
 	generateRosters: (users, players) => {
 		var rosterMap = {};
-		if(users.length < 1){
+		if(!users){
+			throw new Error('No userids provided.');
+		}
+		if(!players){
+			throw new Error('No players provided.');
+		}
+		else if(users.length < 1){
 			throw new Error('List of userids is empty.');
 		}
 		else if(users.length % 2 !== 0){
