@@ -272,6 +272,7 @@ function Application() {
 					el: '#userRoster',
 					data: {
 						players: workingRoster,
+						// update aggregator, reference scoring.js
 						aggregator: Object.keys(workingRoster).map(function(id) {
 							return workingRoster[id].scores.graffiti + workingRoster[id].scores.pot_holes + workingRoster[id].scores.street_lights;
 						}).reduce((a, b) => a + b, 0),
@@ -373,14 +374,16 @@ function Application() {
 				log(USER.allPlayers);
 
 				var workingPlayers = jQuery.extend(true, {}, USER['allPlayers']);
-
+				var userRosters = USER['allPlayers'].filter(function(item) {
+					if (item.owner == "testuser0001") return item;
+				});
 
 				APP['allPlayers'] = new Vue({
 					el: '#allPlayers',
 					data: {
 						players: workingPlayers,
 						swap: {},
-						rosters: USER['roster']['players']
+						rosters: userRosters
 					},
 					methods: {
 						getRoster: () => {
