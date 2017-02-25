@@ -240,7 +240,16 @@ function Application() {
 
 			Vue.component('roster-list', {
 				props: ['row'],
-				template: '<tr><td> {{ row.name }} </td> <td>{{ row.scores.graffiti }}</td> <td>{{ row.scores.pot_holes }}</td> <td>{{ row.scores.street_lights }}</td> <td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td> <td>{{ (row.starter)? \'Starter\' : \'Benched\' }}</td> <td><button v-on:click="$emit(\'toggle\')">Toggle</button></td><td>{{ row.pending }}</td></tr>'
+				template: '<tr>\
+					<td> {{ row.name }} </td>\
+					<td>{{ row.scores.graffiti }}</td>\
+					<td>{{ row.scores.pot_holes }}</td>\
+					<td>{{ row.scores.street_lights }}</td>\
+					<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
+					<td>{{ (row.starter)? \'Starter\' : \'Benched\' }}</td>\
+					<td><button v-on:click="$emit(\'toggle\')">Toggle</button></td>\
+					<td>{{ row.pending }}</td>\
+				</tr>'
 			});
 
 			Database.getRoster(tmp).then(function(result) {
@@ -352,18 +361,24 @@ function Application() {
 					<td>{{ (!row.owner)? \'None\' : row.owner }}</td>\
 					<td>\
 					<div>\
-						<button v-on:click="$emit(\'toggle\')" :disabled="(!row.owner)? false : true">Swap</button>\
+						<button :disabled="(!row.owner)? false : true">Swap</button>\
 						<div>\
-							<a>{{ swap[0].name }}</a>\
-							<a>{{ swap[1].name }}</a>\
-							<a>{{ swap[2].name }}</a>\
-							<a>{{ swap[3].name }}</a>\
-							<a>{{ swap[4].name }}</a>\
+							<a v-on:click="aquirePlayer(row, swap[0])">{{ swap[0].name }}</a>\
+							<a v-on:click="aquirePlayer(row, swap[1])">{{ swap[1].name }}</a>\
+							<a v-on:click="aquirePlayer(row, swap[2])">{{ swap[2].name }}</a>\
+							<a v-on:click="aquirePlayer(row, swap[3])">{{ swap[3].name }}</a>\
+							<a v-on:click="aquirePlayer(row, swap[4])">{{ swap[4].name }}</a>\
 						</div>\
 					</div>\
 					</td>\
 					<td>{{ row.pending }}</td>\
-				</tr>'
+				</tr>',
+				methods: {
+					aquirePlayer: (want, have) => {
+						console.log(want);
+						console.log(have);
+					}
+				}
 			});
 
 			Database.getAllPlayers(tmp).then(function(result) {
@@ -384,11 +399,6 @@ function Application() {
 						players: workingPlayers,
 						swap: {},
 						rosters: userRosters
-					},
-					methods: {
-						getRoster: () => {
-							return "test";
-						}
 					}
 				});
 
