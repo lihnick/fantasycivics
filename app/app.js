@@ -240,19 +240,6 @@ function Application() {
 				to: 1485928800000
 			}
 
-			APP['roster-list'] = Vue.component('roster-list', {
-				props: ['row'],
-				template: '<tr>\
-					<td>{{ row.name }}</td>\
-					<td>{{ row.scores.graffiti }}</td>\
-					<td>{{ row.scores.pot_holes }}</td>\
-					<td>{{ row.scores.street_lights }}</td>\
-					<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
-					<td>{{ (row.starter)? \'Starter\' : \'Benched\' }}</td>\
-					<td><button v-on:click="$emit(\'toggle\')">Toggle</button></td>\
-					<td>{{ row.pending }}</td>\
-				</tr>'
-			});
 
 			Database.getRoster(tmpdata).then(function(rosterData) {
 				test = rosterData;
@@ -279,6 +266,34 @@ function Application() {
 				log(USER['roster']);
 
 				var workingRoster = jQuery.extend(true, {}, USER['roster']['players']);
+
+
+				APP['roster-list'] = Vue.component('roster-list', {
+					props: ['row', 'swap'],
+					template: '<tr>\
+						<td>{{ row.name }}</td>\
+						<td>{{ row.scores.graffiti }}</td>\
+						<td>{{ row.scores.pot_holes }}</td>\
+						<td>{{ row.scores.street_lights }}</td>\
+						<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
+						<td>{{ (row.starter)? \'Starter\' : \'Benched\' }}</td>\
+						<td><div>\
+							<button v-on:click="$emit(\'toggle\')">Toggle</button>\
+							<div>\
+								<a v-for="(menu, idx) in swap" v-if="row.starter != menu.starter" v-on:click="swapPlayers(menu, row)">{{ menu.name }}</a>\
+							</div>\
+						</div></td>\
+						<td>{{ row.pending }}</td>\
+					</tr>',
+					methods: {
+						swapPlayers: (p1, p2) => {
+							log(p1);
+							log(p2);
+						}
+					}
+				});
+
+
 
 				APP['userRoster'] = new Vue({
 					el: '#userRoster',
