@@ -279,11 +279,17 @@ function Application() {
 						<td><div>\
 							<button v-on:click="$emit(\'toggle\')">Toggle</button>\
 							<div>\
-								<a v-for="(menu, idx) in swap" v-if="row.starter != menu.starter">{{ menu.name }}</a>\
+								<a v-for="(menu, idx) in swap" v-if="row.starter != menu.starter" v-on:click="swapPlayers(menu, row)">{{ menu.name }}</a>\
 							</div>\
 						</div></td>\
 						<td>{{ row.pending }}</td>\
-					</tr>'
+					</tr>',
+					methods: {
+						swapPlayers: (p1, p2) => {
+							log(p1);
+							log(p2);
+						}
+					}
 				});
 
 
