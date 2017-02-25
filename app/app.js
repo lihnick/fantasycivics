@@ -24,6 +24,8 @@ function Application() {
 	var Constants = {
 		logoutRedirect: 'index.html',
 		loginRedirect: 'app.html',
+		pendingBench: 'Benching',
+		pendingStart: 'starting',
 		userIdTag: 'userid',
 		userEmailTag: 'email',
 		userImageTag: 'image',
@@ -241,7 +243,7 @@ function Application() {
 			Vue.component('roster-list', {
 				props: ['row'],
 				template: '<tr>\
-					<td> {{ row.name }} </td>\
+					<td>{{ row.name }}</td>\
 					<td>{{ row.scores.graffiti }}</td>\
 					<td>{{ row.scores.pot_holes }}</td>\
 					<td>{{ row.scores.street_lights }}</td>\
@@ -292,7 +294,7 @@ function Application() {
 							var tmp = APP['userRoster'];
 							test = tmp;
 							log(idx + " - " + tmp.players[idx].playerid);
-							var update = (tmp.players[idx].starter)? "Benching" : "Starting";
+							var update = (tmp.players[idx].starter)? Constants.pendingBench : Constants.pendingStart;
 							if (tmp.toggle[tmp.players[idx].playerid]) { // toggle operation already done
 								tmp.players[idx].pending = "";
 								delete tmp.toggle[tmp.players[idx].playerid];
@@ -305,18 +307,37 @@ function Application() {
 
 						updateLineup: () => {
 							var tmp = APP['userRoster'];
-							tmp.validateLineup();
-							
+							var move = {};
+							console.log(move);
+							tmp.validateLineup(move);
+							console.log(move);
 						},
 
-						validateLineup: () => {
+						validateLineup: (move) => {
 							var tmp = APP['userRoster'];
-							log(tmp.toggle);
+							//log(tmp.toggle);
 							var benching = [];
 							var starting = [];
 							Object.keys(tmp.toggle).map(function(idx) {
+								if (tmp.toggle[idx] == Constants.pendingStart) {
+									starting.push(idx);
+								}
+								else if (tmp.toggle[idx] == Constants.pendingBench) {
+									benching.push(idx);
+								}
+								log(idx);
 								console.log(tmp.toggle[idx]);
+								console.log("benching: " + benching.length + " -  starting: " + starting.length);
 							});
+							if (benching.length != starting.length) {
+								alert("Invalid movement of players");
+								return false;
+							} else {
+								for (var i = 0; i < benching.length; i++) {
+									
+								}
+								return true;
+							}
 						},
 
 						updateRoster: () => {
