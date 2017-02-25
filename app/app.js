@@ -318,6 +318,7 @@ function Application() {
 											p1.starter = p2.starter;
 											p2.starter = !p2.starter;
 											p1.pending = p2.pending = "";
+											USER['roster']['players'] = tmp.players; // temporary fix
 											USER['workingRoster'] = null;
 										}
 									}).catch(function(err) {
@@ -339,40 +340,11 @@ function Application() {
 							}
 						},
 
-						validateLineup: (move) => {
-							var tmp = APP['userRoster'];
-							//log(tmp.toggle);
-							var benching = [];
-							var starting = [];
-							Object.keys(tmp.toggle).map(function(idx) {
-								if (tmp.toggle[idx] == Constants.pendingStart) {
-									starting.push(idx);
-								}
-								else if (tmp.toggle[idx] == Constants.pendingBench) {
-									benching.push(idx);
-								}
-								log(idx);
-								console.log(tmp.toggle[idx]);
-								console.log("benching: " + benching.length + " -  starting: " + starting.length);
-							});
-							if (benching.length != starting.length) {
-								return false;
-							} else {
-								for (var i = 0; i < benching.length; i++) {
-									move.push({
-										sit: benching[i],
-										start: starting[i]
-									})
-								}
-								return true;
-							}
-						},
-
 						revertChange: () => {
 							var tmp = APP['userRoster'];
+							log('reverting change');
 							tmp.players = jQuery.extend(true, {}, USER['roster']['players']);
-							tmp.toggle = {};
-							tmp.move = [];
+							USER['workingRoster'] = null;
 						},
 
 						checkUpdates: () => {
