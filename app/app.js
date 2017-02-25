@@ -20,12 +20,14 @@ function Application() {
 
 	// Private Variables
 	//		These variables are function scoped
-	var APP = {}; // stores infomation related to Vue.js
 	var Constants = {
 		logoutRedirect: 'index.html',
 		loginRedirect: 'app.html',
+		pending: 'Pending',
 		pendingBench: 'Benching',
 		pendingStart: 'starting',
+		pendingAquire: 'Aquiring',
+		pendingDrop: 'Dropping',
 		userIdTag: 'userid',
 		userEmailTag: 'email',
 		userImageTag: 'image',
@@ -43,7 +45,7 @@ function Application() {
 				template: '<li>{{ invite }}<button v-on:click="$emit(\'pop\')">X</button></li>'
 			});
 
-			APP['newLeague'] = new Vue({
+			USER['_newLeague'] = new Vue({
 				el: '#newLeague',
 				data: {
 					name: "",
@@ -55,8 +57,8 @@ function Application() {
 				}, 
 				methods: {
 					inviteUsers: () => {
-						var tmp = APP['newLeague'];
-						debug(APP);
+						var tmp = USER['_newLeague'];
+						debug(USER);
 						if (tmp.invite) {
 							tmp.users.push(tmp.invite);
 							tmp.invite = "";
@@ -65,7 +67,7 @@ function Application() {
 						}
 					},
 					finalizeLeague: () => {
-						var tmp = APP['newLeague'];
+						var tmp = USER['_newLeague'];
 						if (tmp.name && tmp.users.length > 0) {
 							var result = {
 								name: tmp.name,
@@ -99,7 +101,7 @@ function Application() {
 							log("Invalid Date: " +  (Math.floor(( end - start ) / 86400000) + 1) + " days in duration.");
 						else
 							log("Duration: " + (Math.floor(( end - start ) / 86400000) + 1) + " days.");
-						APP['newLeague'].range = $(this).datepicker('getDate');
+						USER['_newLeague'].range = $(this).datepicker('getDate');
 					}
 				});
 			});
@@ -207,7 +209,7 @@ function Application() {
 				template: '<li>{{ idx.name }} | {{ idx.start }} to {{ idx.end }}<button v-on:click="$emit(\'info\')">info</button></li>'
 			});
 
-			APP['displayLeagues'] = new Vue({
+			USER['_displayLeagues'] = new Vue({
 				el: '#displayLeagues',
 				data: {
 					leagueids: Object.keys(USER.userLeagues),
@@ -240,7 +242,7 @@ function Application() {
 				to: 1485928800000
 			}
 
-			APP['roster-list'] = Vue.component('roster-list', {
+			USER['_roster-list'] = Vue.component('roster-list', {
 				props: ['row'],
 				template: '<tr>\
 					<td>{{ row.name }}</td>\
@@ -280,7 +282,7 @@ function Application() {
 
 				var workingRoster = jQuery.extend(true, {}, USER['roster']['players']);
 
-				APP['userRoster'] = new Vue({
+				USER['_userRoster'] = new Vue({
 					el: '#userRoster',
 					data: {
 						players: workingRoster,
@@ -292,7 +294,7 @@ function Application() {
 					},
 					methods: {
 						togglePlayer: (idx) => { 
-							var tmp = APP['userRoster'];
+							var tmp = USER['_userRoster'];
 
 							if (USER['workingRoster']) {
 								// makes sure the selected is not the same, if so undo select
@@ -335,13 +337,13 @@ function Application() {
 							}
 							// adds pending update to the UI
 							else {
-								tmp.players[idx].pending = (tmp.players[idx].starter)? Constants.pendingBench : Constants.pendingStart;
+								tmp.players[idx].pending = Constants.pending;
 								USER['workingRoster'] = tmp.players[idx];
 							}
 						},
 
 						revertChange: () => {
-							var tmp = APP['userRoster'];
+							var tmp = USER['_userRoster'];
 							log('reverting change');
 							tmp.players = jQuery.extend(true, {}, USER['roster']['players']);
 							USER['workingRoster'] = null;
@@ -362,14 +364,14 @@ function Application() {
 
 		getAllPlayers: () => {
 			log("Get Roster is currently using a temporary user and league, update when create league, invite users, etc. functions are done.");
-			var tmp = {
+			var tmpdata = {
 				leagueid: '-KdIiWEUj7_toD3MKMO_',
 				from: 1483250400000,
 				to: 1485928800000
 			}
 
-			Vue.component('player-list', {
-				props: ['row', 'swap'],
+			USER['_player-list'] = Vue.component('player-list', {
+				props: ['row'],
 				template: '<tr>\
 					<td> {{ row.name }} </td>\
 					<td>{{ row.scores.graffiti }}</td>\
@@ -377,32 +379,24 @@ function Application() {
 					<td>{{ row.scores.street_lights }}</td>\
 					<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
 					<td>{{ (!row.owner)? \'None\' : row.owner }}</td>\
-					<td>\
-					<div>\
-						<button :disabled="(!row.owner)? false : true">Swap</button>\
-						<div>\
-							<a v-on:click="aquirePlayer(row, swap[0])">{{ swap[0].name }}</a>\
-							<a v-on:click="aquirePlayer(row, swap[1])">{{ swap[1].name }}</a>\
-							<a v-on:click="aquirePlayer(row, swap[2])">{{ swap[2].name }}</a>\
-							<a v-on:click="aquirePlayer(row, swap[3])">{{ swap[3].name }}</a>\
-							<a v-on:click="aquirePlayer(row, swap[4])">{{ swap[4].name }}</a>\
-						</div>\
-					</div>\
-					</td>\
+					<td><button v-on:click="$emit(\'aquire\')" :disabled="(!row.owner)? false : true">Aquire</button></td>\
 					<td>{{ row.pending }}</td>\
-				</tr>',
-				methods: {
-					aquirePlayer: (want, have) => {
-						console.log(want);
-						console.log(have);
-					}
-				}
+				</tr>'
 			});
 
-			Database.getAllPlayers(tmp).then(function(result) {
+			Database.getAllPlayers(tmpdata).then(function(result) {
 				USER['allPlayers'] = [];
+				log(result);
 				Object.keys(result).sort().map(function(id) {
-					USER['allPlayers'].push(result[id]);
+					USER['allPlayers'].push({
+						name: result[id].name,
+						owner: result[id].owner,
+						playerid: result[id].playerid,
+						scores: result[id].scores,
+						starter: result[id].starter,
+						ward: result[id].ward,
+						pending: ""
+					});
 				});
 				log(USER.allPlayers);
 
@@ -411,12 +405,32 @@ function Application() {
 					if (item.owner == "testuser0001") return item;
 				});
 
-				APP['allPlayers'] = new Vue({
+				USER['_allPlayers'] = new Vue({
 					el: '#allPlayers',
 					data: {
 						players: workingPlayers,
-						swap: {},
 						rosters: userRosters
+					},
+					methods: {
+						aquirePlayer: (idx) => {
+							var tmp = USER['_allPlayers'];
+
+							if (USER['workingRoster']) {
+								// makes sure the selected is not the same, if so undo select
+								if (USER['workingRoster'].playerid == tmp.players[idx].playerid) {
+									tmp.players[idx].pending = "";
+									USER['workingRoster'] = null;
+								}
+								else if (USER['workingRoster'].owner ==  "testuser0001" && tmp.players[idx].owner == false) {
+
+								}
+
+							}
+							else {
+								tmp.players[idx].pending = Constants.pendingAquire;
+								USER['workingRoster'] = tmp.players[idx];
+							}
+						}
 					}
 				});
 
