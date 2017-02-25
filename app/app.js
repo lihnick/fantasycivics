@@ -26,7 +26,7 @@ function Application() {
 		pending: 'Pending',
 		pendingBench: 'Benching',
 		pendingStart: 'starting',
-		pendingAquire: 'Aquiring',
+		pendingAcquire: 'Acquiring',
 		pendingDrop: 'Dropping',
 		userIdTag: 'userid',
 		userEmailTag: 'email',
@@ -302,6 +302,30 @@ function Application() {
 									tmp.players[idx].pending = "";
 									USER['workingRoster'] = null;
 								} 
+								else if (USER['workingRoster'].owner == false && tmp.players[idx].owner == tmpdata.userid) {
+									var acquire = {
+										userid: tmpdata.userid,
+										leagueid: tmpdata.leagueid,
+										add: USER['workingRoster'].playerid,
+										drop: tmp.players[idx].playerid
+									}
+									Database.acquirePlayer(acquire).then(function(acquirePlayer) {
+										if (acquirePlayer.success) {
+											log("player acquired");
+											USER['workingRoster'].pending = tmp.players[idx].pending = "";
+											var index = USER['roster']['players'].filter(function(item) {
+												log(item);
+												if (USER['roster']['players'][item].playerid == USER['workingRoster'].playerid)
+													return item;
+											});
+											USER['roster']['players'][index].owner = tmp.players[idx].owner
+											USER['workingRoster'] = null;
+										}
+									}).catch(function(err) {
+										log(err);
+										revertChange();
+									});
+								}
 								// if everything checks out with the player move, then update database
 								else if (USER['workingRoster'].starter != tmp.players[idx].starter) {
 									tmp.players[idx].pending = (tmp.players[idx].starter)? Constants.pendingBench : Constants.pendingStart;
@@ -365,7 +389,7 @@ function Application() {
 		getAllPlayers: () => {
 			log("Get Roster is currently using a temporary user and league, update when create league, invite users, etc. functions are done.");
 			var tmpdata = {
-				leagueid: '-KdIiWEUj7_toD3MKMO_',
+				leagueid: '-KdqV4iI8CRGl3GiB24P', //-KdqV4iI8CRGl3GiB24P, -KdIiWEUj7_toD3MKMO_
 				from: 1483250400000,
 				to: 1485928800000
 			}
@@ -379,7 +403,7 @@ function Application() {
 					<td>{{ row.scores.street_lights }}</td>\
 					<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
 					<td>{{ (!row.owner)? \'None\' : row.owner }}</td>\
-					<td><button v-on:click="$emit(\'aquire\')" :disabled="(!row.owner)? false : true">Aquire</button></td>\
+					<td><button v-on:click="$emit(\'acquire\')" :disabled="(!row.owner)? false : true">Acquire</button></td>\
 					<td>{{ row.pending }}</td>\
 				</tr>'
 			});
@@ -412,7 +436,7 @@ function Application() {
 						rosters: userRosters
 					},
 					methods: {
-						aquirePlayer: (idx) => {
+						acquirePlayer: (idx) => {
 							var tmp = USER['_allPlayers'];
 
 							if (USER['workingRoster']) {
@@ -427,7 +451,7 @@ function Application() {
 
 							}
 							else {
-								tmp.players[idx].pending = Constants.pendingAquire;
+								tmp.players[idx].pending = Constants.pendingAcquire;
 								USER['workingRoster'] = tmp.players[idx];
 							}
 						}
