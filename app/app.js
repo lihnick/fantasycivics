@@ -233,14 +233,14 @@ function Application() {
 		// Gets the user's roster based on a selected league
 		getRoster: () => {
 			log("Get Roster is currently using a temporary user and league, update when create league, invite users, etc. functions are done.");
-			var tmp = {
+			var tmpdata = {
 				userid: 'testuser0001',
 				leagueid: '-KdIiWEUj7_toD3MKMO_',
 				from: 1483250400000,
 				to: 1485928800000
 			}
 
-			Vue.component('roster-list', {
+			APP['roster-list'] = Vue.component('roster-list', {
 				props: ['row'],
 				template: '<tr>\
 					<td>{{ row.name }}</td>\
@@ -254,7 +254,7 @@ function Application() {
 				</tr>'
 			});
 
-			Database.getRoster(tmp).then(function(result) {
+			Database.getRoster(tmpdata).then(function(result) {
 				test = result;
 				var playerList = [];
 				USER['roster'] = {
@@ -287,7 +287,8 @@ function Application() {
 						aggregator: Object.keys(workingRoster).map(function(id) {
 							return workingRoster[id].scores.graffiti + workingRoster[id].scores.pot_holes + workingRoster[id].scores.street_lights;
 						}).reduce((a, b) => a + b, 0),
-						toggle: {}
+						toggle: {},
+						move: []
 					},
 					methods: {
 						togglePlayer: (idx) => {
@@ -303,14 +304,26 @@ function Application() {
 								tmp.toggle[tmp.players[idx].playerid] = update;
 								tmp.players[idx].pending = update;
 							}
-						},
+							if (Object.keys(tmp.toggle).length == 2) {
+								log("moving players");
+								if (tmp.validateLineup(tmp.move)) {
+									tmp.move[0]['userid'] = tmpdata['userid'];
+									tmp.move[0]['leagueid'] = tmpdata['leagueid'];
+									Database.movePlayer(tmp.move.shift()).then(function(result) {
+										if (result.success) {
+											log("success");
+										}
+									}, function(err) {
+										log("error");
+										tmp.revertChange();
+									});
 
-						updateLineup: () => {
-							var tmp = APP['userRoster'];
-							var move = [];
-							console.log(move);
-							tmp.validateLineup(move);
-							console.log(move);
+								} else {
+									log("Invalid player movement");
+									tmp.players[idx].pending = "";
+									delete tmp.toggle[tmp.players[idx].playerid];
+								}
+							}
 						},
 
 						validateLineup: (move) => {
@@ -330,7 +343,6 @@ function Application() {
 								console.log("benching: " + benching.length + " -  starting: " + starting.length);
 							});
 							if (benching.length != starting.length) {
-								alert("Invalid movement of players");
 								return false;
 							} else {
 								for (var i = 0; i < benching.length; i++) {
@@ -343,14 +355,11 @@ function Application() {
 							}
 						},
 
-						updateRoster: () => {
-
-						},
-
 						revertChange: () => {
 							var tmp = APP['userRoster'];
 							tmp.players = jQuery.extend(true, {}, USER['roster']['players']);
 							tmp.toggle = {};
+							tmp.move = [];
 						},
 
 						checkUpdates: () => {
