@@ -235,7 +235,7 @@ function Application() {
 			log("Get Roster is currently using a temporary user and league, update when create league, invite users, etc. functions are done.");
 			var tmpdata = {
 				userid: 'testuser0001',
-				leagueid: '-KdIiWEUj7_toD3MKMO_',
+				leagueid: '-KdqV4iI8CRGl3GiB24P', //-KdqV4iI8CRGl3GiB24P, -KdIiWEUj7_toD3MKMO_
 				from: 1483250400000,
 				to: 1485928800000
 			}
@@ -254,24 +254,25 @@ function Application() {
 				</tr>'
 			});
 
-			Database.getRoster(tmpdata).then(function(result) {
-				test = result;
+			Database.getRoster(tmpdata).then(function(rosterData) {
+				test = rosterData;
+				log(rosterData);
 				var playerList = [];
 				USER['roster'] = {
-					userid: result.userid,
-					leagueid: result.leagueid,
-					from: result.from,
-					to: result.to,
+					userid: rosterData.userid,
+					leagueid: rosterData.leagueid,
+					from: rosterData.from,
+					to: rosterData.to,
 					players: playerList
 				};
-				Object.keys(result.players).map(function(id) {
+				Object.keys(rosterData.players).map(function(id) {
 					playerList.push({
 						playerid: id,
-						name: result.players[id].name,
-						owner: result.players[id].owner,
-						starter: result.players[id].starter,
-						ward: result.players[id].ward,
-						scores: result.players[id].scores,
+						name: rosterData.players[id].name,
+						owner: rosterData.players[id].owner,
+						starter: rosterData.players[id].starter,
+						ward: rosterData.players[id].ward,
+						scores: rosterData.players[id].scores,
 						pending: ""
 					});
 				});
@@ -287,42 +288,54 @@ function Application() {
 						aggregator: Object.keys(workingRoster).map(function(id) {
 							return workingRoster[id].scores.graffiti + workingRoster[id].scores.pot_holes + workingRoster[id].scores.street_lights;
 						}).reduce((a, b) => a + b, 0),
-						toggle: {},
-						move: []
+						toggle: {}
 					},
 					methods: {
-						togglePlayer: (idx) => {
+						togglePlayer: (idx) => { 
 							var tmp = APP['userRoster'];
-							test = tmp;
-							log(idx + " - " + tmp.players[idx].playerid);
-							var update = (tmp.players[idx].starter)? Constants.pendingBench : Constants.pendingStart;
-							if (tmp.toggle[tmp.players[idx].playerid]) { // toggle operation already done
-								tmp.players[idx].pending = "";
-								delete tmp.toggle[tmp.players[idx].playerid];
-							}
-							else {
-								tmp.toggle[tmp.players[idx].playerid] = update;
-								tmp.players[idx].pending = update;
-							}
-							if (Object.keys(tmp.toggle).length == 2) {
-								log("moving players");
-								if (tmp.validateLineup(tmp.move)) {
-									tmp.move[0]['userid'] = tmpdata['userid'];
-									tmp.move[0]['leagueid'] = tmpdata['leagueid'];
-									Database.movePlayer(tmp.move.shift()).then(function(result) {
-										if (result.success) {
-											log("success");
-										}
-									}, function(err) {
-										log("error");
-										tmp.revertChange();
-									});
 
-								} else {
-									log("Invalid player movement");
+							if (USER['workingRoster']) {
+								// makes sure the selected is not the same, if so undo select
+								if (USER['workingRoster'].playerid == tmp.players[idx].playerid) {
 									tmp.players[idx].pending = "";
-									delete tmp.toggle[tmp.players[idx].playerid];
+									USER['workingRoster'] = null;
+								} 
+								// if everything checks out with the player move, then update database
+								else if (USER['workingRoster'].starter != tmp.players[idx].starter) {
+									tmp.players[idx].pending = (tmp.players[idx].starter)? Constants.pendingBench : Constants.pendingStart;
+									var p1 = USER['workingRoster'];
+									var p2 = tmp.players[idx];
+									var move = {
+										userid: tmpdata.userid,
+										leagueid: tmpdata.leagueid,
+										sit: (p1.starter)? p1.playerid : p2.playerid,
+										start: (!p1.starter)? p1.playerid : p2.playerid
+									}
+									// temporarily disable the toggle buttons
+									log(move);
+									Database.movePlayer(move).then(function(movePlayer) {
+										if (movePlayer.success){
+											p1.starter = p2.starter;
+											p2.starter = !p2.starter;
+											p1.pending = p2.pending = "";
+											USER['workingRoster'] = null;
+										}
+									}).catch(function(err) {
+										log(err);
+										revertChange();
+									});
 								}
+								// otherwise, revert and show error in user's movement
+								else {
+									log("Invalid player movement!");
+									tmp.players[idx].pending = USER['workingRoster'].pending = "";
+									USER['workingRoster'] = null;
+								}
+							}
+							// adds pending update to the UI
+							else {
+								tmp.players[idx].pending = (tmp.players[idx].starter)? Constants.pendingBench : Constants.pendingStart;
+								USER['workingRoster'] = tmp.players[idx];
 							}
 						},
 
