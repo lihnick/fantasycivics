@@ -307,7 +307,7 @@ function Application() {
 
 						updateLineup: () => {
 							var tmp = APP['userRoster'];
-							var move = {};
+							var move = [];
 							console.log(move);
 							tmp.validateLineup(move);
 							console.log(move);
@@ -334,7 +334,10 @@ function Application() {
 								return false;
 							} else {
 								for (var i = 0; i < benching.length; i++) {
-									
+									move.push({
+										sit: benching[i],
+										start: starting[i]
+									})
 								}
 								return true;
 							}
