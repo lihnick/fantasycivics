@@ -309,16 +309,18 @@ function Application() {
 										add: USER['workingRoster'].playerid,
 										drop: tmp.players[idx].playerid
 									}
+									log("acquiring players");
+									log(acquire);
 									Database.acquirePlayer(acquire).then(function(acquirePlayer) {
 										if (acquirePlayer.success) {
 											log("player acquired");
 											USER['workingRoster'].pending = tmp.players[idx].pending = "";
 											var index = USER['roster']['players'].filter(function(item) {
 												log(item);
-												if (USER['roster']['players'][item].playerid == USER['workingRoster'].playerid)
+												if (item.playerid == USER['workingRoster'].playerid)
 													return item;
 											});
-											USER['roster']['players'][index].owner = tmp.players[idx].owner
+											index.owner = tmp.players[idx].owner
 											USER['workingRoster'] = null;
 										}
 									}).catch(function(err) {
