@@ -341,7 +341,7 @@ function Application() {
 			}
 
 			Vue.component('player-list', {
-				props: ['row'],
+				props: ['row', 'swap'],
 				template: '<tr>\
 					<td> {{ row.name }} </td>\
 					<td>{{ row.scores.graffiti }}</td>\
@@ -353,11 +353,11 @@ function Application() {
 					<div>\
 						<button v-on:click="$emit(\'toggle\')" :disabled="(!row.owner)? false : true">Swap</button>\
 						<div>\
-							<a>person 1</a>\
-							<a>person 2</a>\
-							<a>person 3</a>\
-							<a>person 4</a>\
-							<a>person 5</a>\
+							<a>{{ swap[0].name }}</a>\
+							<a>{{ swap[1].name }}</a>\
+							<a>{{ swap[2].name }}</a>\
+							<a>{{ swap[3].name }}</a>\
+							<a>{{ swap[4].name }}</a>\
 						</div>\
 					</div>\
 					</td>\
@@ -378,10 +378,14 @@ function Application() {
 				APP['allPlayers'] = new Vue({
 					el: '#allPlayers',
 					data: {
-						players: workingPlayers
+						players: workingPlayers,
+						swap: {},
+						rosters: USER['roster']['players']
 					},
 					methods: {
-
+						getRoster: () => {
+							return "test";
+						}
 					}
 				});
 
