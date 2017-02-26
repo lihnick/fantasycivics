@@ -452,13 +452,18 @@ function Application() {
 							<td>{{ row.scores.pot_holes }}</td>\
 							<td>{{ row.scores.street_lights }}</td>\
 							<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
-							<td>{{ (!row.owner)? \'None\' : row.owner }}</td>\
+							<td>{{ (!row.owner)? \'None\' : checkName(row.owner) }}</td>\
 							<td><button v-on:click="$emit(\'acquire\')" :disabled="(!row.owner || checkUser(row))? false : true">{{ (checkUser(row)) ? \'Drop\' : \'Acquire\' }}</button></td>\
 							<td>{{ row.pending }}</td>\
 						</tr>',
 						methods: {
 							checkUser: (other) => {
 								return (other.owner == USER['userid']);
+							},
+							checkName: (owner) => {
+								if (USER['selectedLeague']) 
+									return USER['selectedLeague'].users[owner].name;
+								return owner;
 							}
 						}
 					});
