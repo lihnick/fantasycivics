@@ -172,10 +172,12 @@ function Application() {
 				localStorage[Constants.userNameTag] = result.name;
 				localStorage[Constants.userEmailTag] = result.email;
 				localStorage[Constants.userImageTag] = result.image;
-
+				log(result.userid);
 				Database.updateUser({userid: result.userid}).then(() => {
+					log("test");
 					window.location.href = Constants.loginRedirect;
-				});				
+				}).catch((err) => {log(err)});	
+				log("done");
 			}, function(err) {
 				alert(err);
 			});
@@ -372,12 +374,13 @@ function Application() {
 									var p2 = tmp.players[idx];
 									var move = {
 										userid: USER['userid'],
-										leagueid: USER['userSelectedLeague'],
+										leagueid: USER['leagueid'],
 										sit: (p1.starter)? p1.playerid : p2.playerid,
 										start: (!p1.starter)? p1.playerid : p2.playerid
 									}
 									// temporarily disable the toggle buttons
 									log(move);
+									test = move;
 									Database.movePlayer(move).then(function(movePlayer) {
 										if (movePlayer.success){
 											p1.starter = p2.starter;
@@ -388,7 +391,6 @@ function Application() {
 										}
 									}).catch(function(err) {
 										log(err);
-										revertChange();
 									});
 								}
 								// otherwise, revert and show error in user's movement
@@ -449,9 +451,14 @@ function Application() {
 							<td>{{ row.scores.street_lights }}</td>\
 							<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
 							<td>{{ (!row.owner)? \'None\' : row.owner }}</td>\
-							<td><button v-on:click="$emit(\'acquire\')" :disabled="(!row.owner || row.owner == \'testuser0001\')? false : true">{{ (row.owner == \'testuser0001\') ? \'Drop\' : \'Acquire\' }}</button></td>\
+							<td><button v-on:click="$emit(\'acquire\')" :disabled="(!row.owner || checkUser(row))? false : true">{{ (checkUser(row)) ? \'Drop\' : \'Acquire\' }}</button></td>\
 							<td>{{ row.pending }}</td>\
-						</tr>'
+						</tr>',
+						methods: {
+							checkUser: (other) => {
+								return (other.owner == USER['userid']);
+							}
+						}
 					});
 				}
 
