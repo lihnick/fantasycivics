@@ -272,19 +272,21 @@ function Application() {
 				to: 1485928800000
 			}
 
-			USER['_roster-list'] = Vue.component('roster-list', {
-				props: ['row'],
-				template: '<tr>\
-					<td>{{ row.name }}</td>\
-					<td>{{ row.scores.graffiti }}</td>\
-					<td>{{ row.scores.pot_holes }}</td>\
-					<td>{{ row.scores.street_lights }}</td>\
-					<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
-					<td>{{ (row.starter)? \'Starter\' : \'Benched\' }}</td>\
-					<td><button v-on:click="$emit(\'toggle\')">Toggle</button></td>\
-					<td>{{ row.pending }}</td>\
-				</tr>'
-			});
+			if (!USER['_roster-list']) {
+				USER['_roster-list'] = Vue.component('roster-list', {
+					props: ['row'],
+					template: '<tr>\
+						<td>{{ row.name }}</td>\
+						<td>{{ row.scores.graffiti }}</td>\
+						<td>{{ row.scores.pot_holes }}</td>\
+						<td>{{ row.scores.street_lights }}</td>\
+						<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
+						<td>{{ (row.starter)? \'Starter\' : \'Benched\' }}</td>\
+						<td><button v-on:click="$emit(\'toggle\')">Toggle</button></td>\
+						<td>{{ row.pending }}</td>\
+					</tr>'
+				});
+			}
 
 			Database.getRoster(userdata).then(function(rosterData) {
 				test = rosterData;
@@ -396,20 +398,21 @@ function Application() {
 				from: 1483250400000,
 				to: 1485928800000
 			}
-
-			USER['_player-list'] = Vue.component('player-list', {
-				props: ['row'],
-				template: '<tr>\
-					<td> {{ row.name }} </td>\
-					<td>{{ row.scores.graffiti }}</td>\
-					<td>{{ row.scores.pot_holes }}</td>\
-					<td>{{ row.scores.street_lights }}</td>\
-					<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
-					<td>{{ (!row.owner)? \'None\' : row.owner }}</td>\
-					<td><button v-on:click="$emit(\'acquire\')" :disabled="(!row.owner || row.owner == \'testuser0001\')? false : true">{{ (row.owner == \'testuser0001\') ? \'Drop\' : \'Acquire\' }}</button></td>\
-					<td>{{ row.pending }}</td>\
-				</tr>'
-			});
+			if (!USER['_player-list']) {
+				USER['_player-list'] = Vue.component('player-list', {
+					props: ['row'],
+					template: '<tr>\
+						<td> {{ row.name }} </td>\
+						<td>{{ row.scores.graffiti }}</td>\
+						<td>{{ row.scores.pot_holes }}</td>\
+						<td>{{ row.scores.street_lights }}</td>\
+						<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
+						<td>{{ (!row.owner)? \'None\' : row.owner }}</td>\
+						<td><button v-on:click="$emit(\'acquire\')" :disabled="(!row.owner || row.owner == \'testuser0001\')? false : true">{{ (row.owner == \'testuser0001\') ? \'Drop\' : \'Acquire\' }}</button></td>\
+						<td>{{ row.pending }}</td>\
+					</tr>'
+				});
+			}
 
 			Database.getAllPlayers(userdata).then(function(result) {
 				USER['allPlayers'] = [];
@@ -459,6 +462,8 @@ function Application() {
 										add: (!p1.owner)? p1.playerid : p2.playerid,
 										drop: (p1.owner)? p1.playerid : p2.playerid
 									}
+									// it would be nice, if I can just recall the Application().getRoster() function, but freezes the UI
+									// Updates to add/drop player will also affect the roster
 									Database.acquirePlayer(move).then(function(acquirePlayer) {
 										if (acquirePlayer.success) {
 											p1.pending = p2.pending = "";
