@@ -23,6 +23,7 @@ function Application() {
 	var Constants = {
 		logoutRedirect: 'index.html',
 		loginRedirect: 'app.html',
+		leagueRedirect: 'roster.html',
 		pending: 'Pending',
 		pendingBench: 'Benching',
 		pendingStart: 'starting',
@@ -31,7 +32,8 @@ function Application() {
 		userIdTag: 'userid',
 		userEmailTag: 'email',
 		userImageTag: 'image',
-		userNameTag: 'name'
+		userNameTag: 'name',
+		userSelectedLeague: 'leagueid'
 	};
 
 	// Public Variables
@@ -135,7 +137,7 @@ function Application() {
 				USER.name = localStorage[Constants.userNameTag];
 				USER.email = localStorage[Constants.userEmailTag];
 				USER.image = localStorage[Constants.userImageTag];
-
+				USER.leagueid = localStorage[Constants.userSelectedLeague];
 				// getCurrentUser() will be reset once another page loads
 				// Database.Auth.getCurrentUser().then(function(result) {
 				// 	log("users should be the same");
@@ -175,7 +177,7 @@ function Application() {
 		getUserLeagues: () => {
 			if (!USER['userid']) 
 				return;
-			Database.getUserLeagues({userid: USER.userid}).then(function(userLeagueList) {
+			return Database.getUserLeagues({userid: USER.userid}).then(function(userLeagueList) {
 				log(userLeagueList);
 				test = userLeagueList;
 				if (Object.keys(userLeagueList.leagues).length == 0) {
@@ -201,57 +203,43 @@ function Application() {
 				});
 				log(USER.userLeagues);
 
+			}, function(err) {
+				log(err);
+				return err;
+			});
+		},
+
+		displayUserLeagues: () => {
+			Application().getUserLeagues().then(() => {
 				Vue.component('league-list', {
 					props: ['row'],
 					template: '<tr>\
-						<td> {{ row.name }} </td>\
-						<td>{{ row.scores.graffiti }}</td>\
-						<td>{{ row.scores.pot_holes }}</td>\
-						<td>{{ row.scores.street_lights }}</td>\
-						<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
-						<td>{{ (!row.owner)? \'None\' : row.owner }}</td>\
-						<td><button v-on:click="$emit(\'acquire\')" :disabled="(!row.owner || row.owner == \'testuser0001\')? false : true">{{ (row.owner == \'testuser0001\') ? \'Drop\' : \'Acquire\' }}</button></td>\
-						<td>{{ row.pending }}</td>\
+						<td><button v-on:click="$emit(\'info\')">info</button></td>\
+						<td>{{ row.name }}</td>\
+						<td>{{ row.start }}</td>\
+						<td>{{ row.end }}</td>\
+						<td><div v-for="(user, idx) in row.users">\
+							<pre>Team: {{ user.team}}	Wins: {{ user.wins}}	Losses: {{ user.losses }}</pre>\
+						</div></td>\
 					</tr>'
 				});
 
 				USER['_userLeagues'] = new Vue({
 					el: '#userLeagues',
 					data: {
-						leagues: {}
+						leagueids: Object.keys(USER.userLeagues),
+						leagues: USER.userLeagues
 					},
 					methods: {
-
+						loadLeague: (idx) => {
+							log("next");
+							USER.leagueid = USER.userLeagues[idx].leagueid;
+							localStorage[Constants.userSelectedLeague] = USER.userLeagues[idx].leagueid
+							window.location.href = Constants.leagueRedirect;
+						}
 					}
 				});
-
-				
-			}, function(err) {
-				log(err);
-			});
-		},
-
-		displayLeagues: () => {
-
-
-			Vue.component('league-list', {
-				props: ['idx'],
-				template: '<li>{{ idx.name }} | {{ idx.start }} to {{ idx.end }}<button v-on:click="$emit(\'info\')">info</button></li>'
-			});
-
-			USER['_displayLeagues'] = new Vue({
-				el: '#displayLeagues',
-				data: {
-					leagueids: Object.keys(USER.userLeagues),
-					leagues: USER.userLeagues
-				},
-				methods: {
-					getIdx: (idx) => {
-						log(idx);
-						log(USER.userLeagues[idx].users);
-					}
-				}
-			});
+			});			
 		},
 
 		getLeague: () => {

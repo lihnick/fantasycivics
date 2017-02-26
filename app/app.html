@@ -51,15 +51,13 @@
 		</div>
 
 		<h2>Current Leagues</h2>
-		<table id="userLeagues">
-			<th>League Name</th>
-			<tr is="league-list" v-for="(league, index) in leagues" v-bind:row="league"></tr>
-			<ul>
-				<li is="league-list" v-for="(league, index) in leagues" v-bind:row="league" v-on:info="getIdx(index)"></li>
-				<!-- <li is="league-list" v-for="(league, index) in leagues" v-bind:list="league" v-on:info="console.log(index)"></li> -->
-			</ul>
+		<div id="userLeagues">
 			
-		</table>
+			<table>
+				<th>Info</th><th>League Name</th><th>Start</th><th>End</th><th>Users</th>
+				<tr is="league-list" v-for="(league, index) in leagues" v-bind:row="league" v-on:info="loadLeague(index)"></tr>
+			</table>
+		</div>
 
 		<!-- Footer -->
 
@@ -78,7 +76,7 @@
 			app.getUser();
 			app.displayUser();
 			app.createLeague();
-			app.getUserLeagues();
+			app.displayUserLeagues();
 		</script>
 	</body>
 </html>
