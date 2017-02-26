@@ -33,7 +33,9 @@ function Application() {
 		userEmailTag: 'email',
 		userImageTag: 'image',
 		userNameTag: 'name',
-		userSelectedLeague: 'leagueid'
+		userSelectedLeague: 'leagueid',
+		seletedLeagueStart: 'leaguestart',
+		seletedLeagueEnd: 'leagueend'
 	};
 
 	// Public Variables
@@ -138,6 +140,8 @@ function Application() {
 				USER.email = localStorage[Constants.userEmailTag];
 				USER.image = localStorage[Constants.userImageTag];
 				USER.leagueid = localStorage[Constants.userSelectedLeague];
+				USER.leaguestart = parseInt(localStorage[Constants.seletedLeagueStart]);
+				USER.leagueend = parseInt(localStorage[Constants.seletedLeagueEnd]);
 				// getCurrentUser() will be reset once another page loads
 				// Database.Auth.getCurrentUser().then(function(result) {
 				// 	log("users should be the same");
@@ -242,7 +246,9 @@ function Application() {
 						loadLeague: (idx) => {
 							log("next");
 							USER.leagueid = USER.userLeagues[idx].leagueid;
-							localStorage[Constants.userSelectedLeague] = USER.userLeagues[idx].leagueid
+							localStorage[Constants.userSelectedLeague] = USER.userLeagues[idx].leagueid;
+							localStorage[Constants.seletedLeagueStart] = USER.userLeagues[idx].start;
+							localStorage[Constants.seletedLeagueEnd] = USER.userLeagues[idx].end;
 							window.location.href = Constants.leagueRedirect;
 						}
 					}
@@ -250,9 +256,23 @@ function Application() {
 			});			
 		},
 
-		getLeague: () => {
-			return Database.getLeague({leagueid: USER['leagueid']}).then(function(result) {
-				USER['selectedLeague'] = result;
+		getLeague: (params) => {
+			if(!params.userid)
+				throw new Error('Must specify {userid}.');
+			else if(!params.leagueid)
+				throw new Error('Must specify {leagueid}.');
+			else if(!params.from)
+				throw new Error('Must specify {from}.');
+			else if(!params.to)
+				throw new Error('Must specify {to}.');
+			return Database.getLeague({
+				leagueid: params.userid,
+				leagueid: params.leagueid,
+				from: params.from,
+				to: params.to
+			}).then(function(result) {
+				log(result);
+				return result;
 			}, function(err) {
 				log(err);
 			});
@@ -260,12 +280,11 @@ function Application() {
 
 		// Gets the user's roster based on a selected league
 		getRoster: () => {
-			log("Get Roster is currently using a temporary user and league, update when create league, invite users, etc. functions are done.");
 			var userdata = {
 				userid: USER['userid'],
 				leagueid: USER['leagueid'], //-KdqV4iI8CRGl3GiB24P, -KdIiWEUj7_toD3MKMO_
-				from: USER['selectedLeague']['start'],
-				to: USER['selectedLeague']['end']
+				from: USER['leaguestart'],
+				to: USER['leagueend']
 			}
 
 			return Database.getRoster(userdata).then(function(rosterData) {
@@ -353,7 +372,7 @@ function Application() {
 									var p2 = tmp.players[idx];
 									var move = {
 										userid: USER['userid'],
-										leagueid: USER['selectedLeague'][leagueid],
+										leagueid: USER['userSelectedLeague'],
 										sit: (p1.starter)? p1.playerid : p2.playerid,
 										start: (!p1.starter)? p1.playerid : p2.playerid
 									}
@@ -391,11 +410,10 @@ function Application() {
 		},
 
 		getAllPlayers: () => {
-			log("Get Roster is currently using a temporary user and league, update when create league, invite users, etc. functions are done.");
 			var userdata = {
 				leagueid: USER['leagueid'], //-KdqV4iI8CRGl3GiB24P, -KdIiWEUj7_toD3MKMO_
-				from: USER['selectedLeague']['start'],
-				to: USER['selectedLeague']['end']
+				from: USER['leaguestart'],
+				to: USER['leagueend']
 			}
 
 			return Database.getAllPlayers(userdata).then(function(result) {
@@ -465,7 +483,7 @@ function Application() {
 									var p2 = tmp.players[idx];
 									var move = {
 										userid: USER['userid'],
-										leagueid: USER['selectedLeague']['leagueid'],
+										leagueid: USER['userSelectedLeague'],
 										add: (!p1.owner)? p1.playerid : p2.playerid,
 										drop: (p1.owner)? p1.playerid : p2.playerid
 									}
@@ -525,14 +543,27 @@ function Application() {
 			}); 
 		},
 
+		getMatch: () => {
+			log("Get Match has a 1 offset to account for the greater, but not equal operator");
+			var tmpdata = {
+				userid: USER['userid'],
+				leagueid: USER['leagueid'],
+				on: parseInt(USER['leaguestart'] + 1)
+			};
+			log(tmpdata);
+			Database.getMatch(tmpdata).then(console.log);
+		},
+
 		// this function is specific to the items needed at the roster page
 		loadRosterPage: () => {
-			Application().getUserLeagues().then(() => { // this function populates USER['userLeagues']
+			Application().getLeague({
+				userid: USER['userid'],
+				leagueid: USER['leagueid'],
+				from: USER['leaguestart'],
+				to: USER['leagueend']
+			}).then((leagueLen) => {
 				if (!USER['selectedLeague']) {
-					USER['selectedLeague'] = USER['userLeagues'].filter((item) => {
-						if (item['leagueid'] == USER['leagueid'])
-							return item;
-					})[0]; // only want the first element
+					USER['selectedLeague'] = leagueLen;
 				}
 				Application().displayRoster();
 				Application().displayAllPlayers();
