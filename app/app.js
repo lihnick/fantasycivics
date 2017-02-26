@@ -281,18 +281,28 @@ function Application() {
 				log(USER['roster']);
 
 				//var workingRoster = jQuery.extend(true, {}, USER['roster']['players']);
-
 				USER['_userRoster'] = new Vue({
 					el: '#userRoster',
 					data: {
 						players: USER['roster']['players'],
 						// update aggregator, reference scoring.js
 						aggregator: Object.keys(USER['roster']['players']).map(function(id) {
+							if (!USER['roster']['players'][id].starter){
+								return 0;
+							}
 							return USER['roster']['players'][id].scores.graffiti + USER['roster']['players'][id].scores.pot_holes + USER['roster']['players'][id].scores.street_lights;
 						}).reduce((a, b) => a + b, 0),
 						toggle: {}
 					},
 					methods: {
+						updateAggregator: () => {
+							USER['_userRoster'].aggregator = Object.keys(USER['_userRoster'].players).map(function(id) {
+								if (!USER['_userRoster'].players[id].starter){
+									return 0;
+								}
+								return USER['_userRoster'].players[id].scores.graffiti + USER['_userRoster'].players[id].scores.pot_holes + USER['_userRoster'].players[id].scores.street_lights;
+							}).reduce((a, b) => a + b, 0);
+						},
 						togglePlayer: (idx) => { 
 							var tmp = USER['_userRoster'];
 
@@ -467,6 +477,7 @@ function Application() {
 															item.ward = p1.ward;
 														}
 													});
+													USER['_userRoster'].updateAggregator();
 												}
 											} else {
 												p2.owner = p1.owner;
@@ -480,6 +491,7 @@ function Application() {
 															item.ward = p2.ward;
 														}
 													});
+													USER['_userRoster'].updateAggregator();
 												}
 											}
 											USER['workingPlayers'] = null;
