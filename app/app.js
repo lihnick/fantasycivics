@@ -160,6 +160,9 @@ function Application() {
 			localStorage.removeItem(Constants.userNameTag);
 			localStorage.removeItem(Constants.userEmailTag);
 			localStorage.removeItem(Constants.userImageTag);
+			localStorage.removeItem(Constants.userSelectedLeague);
+			localStorage.removeItem(Constants.seletedLeagueStart);
+			localStorage.removeItem(Constants.seletedLeagueEnd);
 			Database.Auth.signOutUser(); // not sure if this is needed, but just in case
 			window.location.href = Constants.logoutRedirect;
 		},
@@ -172,8 +175,8 @@ function Application() {
 				localStorage[Constants.userNameTag] = result.name;
 				localStorage[Constants.userEmailTag] = result.email;
 				localStorage[Constants.userImageTag] = result.image;
-				log(result.userid);
-				Database.updateUser({userid: result.userid}).then(() => {
+				log(result);
+				Database.updateUser(result).then(() => {
 					log("test");
 					window.location.href = Constants.loginRedirect;
 				}).catch((err) => {log(err)});	
@@ -291,7 +294,6 @@ function Application() {
 
 			return Database.getRoster(userdata).then(function(rosterData) {
 				test = rosterData;
-				log(rosterData);
 				var playerList = Object.keys(rosterData.players).map(function(id) {
 					return {
 						playerid: id,
@@ -483,14 +485,14 @@ function Application() {
 									tmp.players[idx].pending = "";
 									USER['workingPlayers'] = null;
 								}
-								else if (USER['workingPlayers'].owner ==  "testuser0001" && tmp.players[idx].owner == false ||
-										 USER['workingPlayers'].owner ==  false && tmp.players[idx].owner == "testuser0001") {
+								else if (USER['workingPlayers'].owner ==  USER['userid'] && tmp.players[idx].owner == false ||
+										 USER['workingPlayers'].owner ==  false && tmp.players[idx].owner == USER['userid']) {
 									tmp.players[idx].pending = (tmp.players[idx].owner)? Constants.pendingDrop : Constants.pendingAcquire;
 									var p1 = USER['workingPlayers'];
 									var p2 = tmp.players[idx];
 									var move = {
 										userid: USER['userid'],
-										leagueid: USER['userSelectedLeague'],
+										leagueid: USER['leagueid'],
 										add: (!p1.owner)? p1.playerid : p2.playerid,
 										drop: (p1.owner)? p1.playerid : p2.playerid
 									}
