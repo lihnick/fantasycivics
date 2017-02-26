@@ -342,39 +342,6 @@ function Application() {
 									tmp.players[idx].pending = "";
 									USER['workingRoster'] = null;
 								} 
-								// else if (USER['workingRoster'].owner == false && tmp.players[idx].owner == userdata.userid) {
-								// 	tmp.players[idx].pending = Constants.pendingDrop;
-								// 	var acquire = {
-								// 		userid: userdata.userid,
-								// 		leagueid: userdata.leagueid,
-								// 		add: USER['workingRoster'].playerid,
-								// 		drop: tmp.players[idx].playerid
-								// 	}
-								// 	Database.acquirePlayer(acquire).then(function(acquirePlayer) {
-								// 		if (acquirePlayer.success) {
-								// 			log("player acquired");
-								// 			var p1 = USER['workingRoster'];
-								// 			var p2 = tmp.players[idx];
-											
-								// 			p1.pending = p2.pending = "";
-								// 			p1.owner = p2.owner;
-								// 			p1.starter = p2.starter;
-								// 			Object.keys(USER['_allPlayers'].players).map(function(index) {
-								// 				if (USER['_allPlayers'].players[index].playerid == p2.playerid) {
-								// 					USER['_allPlayers'].players[index].owner = p2.owner = false;
-								// 				}
-								// 			});
-
-								// 			tmp.players.splice(idx, 1);
-								// 			tmp.players.push(p1);
-
-								// 			USER['workingRoster'] = null;
-								// 		}
-								// 	}).catch(function(err) {
-								// 		log(err);
-								// 		revertChange();
-								// 	});
-								// }
 								// if everything checks out with the player move, then update database
 								else if (USER['workingRoster'].starter != tmp.players[idx].starter) {
 									tmp.players[idx].pending = (tmp.players[idx].starter)? Constants.pendingBench : Constants.pendingStart;
