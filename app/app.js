@@ -112,10 +112,14 @@ function Application() {
 
 		// displays user info in html elements
 		displayUser: () => {
-			document.getElementById(Constants.userIdTag).innerHTML = USER.userid;
-			document.getElementById(Constants.userNameTag).innerHTML = USER.name;
-			document.getElementById(Constants.userEmailTag).innerHTML = USER.email;
-			document.getElementById(Constants.userImageTag).src = USER.image;
+			if (document.getElementById(Constants.userIdTag))
+				document.getElementById(Constants.userIdTag).innerText = USER.userid;
+			if (document.getElementById(Constants.userNameTag))
+				document.getElementById(Constants.userNameTag).innerText = USER.name;
+			if (document.getElementById(Constants.userEmailTag))
+				document.getElementById(Constants.userEmailTag).innerText = USER.email;
+			if (document.getElementById(Constants.userImageTag))
+				document.getElementById(Constants.userImageTag).src = USER.image;
 		},
 
 
@@ -169,33 +173,59 @@ function Application() {
 		},
 
 		getUserLeagues: () => {
-			//Database.getUserLeagues({userid: USER.userid}).then(function(result) {
-			Database.getUserLeagues({userid: "testuser0001"}).then(function(result) {
-				log(result);
-
-				var tmp = Object.keys(result.leagues);
-				var leagues = [];
-				for (idx in tmp) {
-					var usr = Object.keys(result.leagues[tmp[idx]].users);
-					var usrLst = [];
-					for (i in usr) {
-						usrLst.push({
-							userid: usr[i],
-							team: result.leagues[tmp[idx]].users[usr[i]].team,
-							losses: result.leagues[tmp[idx]].users[usr[i]].losses,
-							wins: result.leagues[tmp[idx]].users[usr[i]].wins
-						});
-					}
-					leagues.push({
-						leagueid: tmp[idx],
-						name: result.leagues[tmp[idx]].name,
-						start: result.leagues[tmp[idx]].start,
-						end: result.leagues[tmp[idx]].end,
-						users: usrLst
-					});
+			if (!USER['userid']) 
+				return;
+			Database.getUserLeagues({userid: USER.userid}).then(function(userLeagueList) {
+				log(userLeagueList);
+				test = userLeagueList;
+				if (Object.keys(userLeagueList.leagues).length == 0) {
+					log("No League available, create one above.");
+					return;
 				}
-				log(leagues);
-				USER.userLeagues = leagues;
+				USER['userLeagues'] = Object.keys(userLeagueList.leagues).map(function(key) {
+					var usrLst = Object.keys(userLeagueList.leagues[key].users).map(function(usrs) {
+						return {
+							userid: usrs,
+							team: userLeagueList.leagues[key].users[usrs].team,
+							losses: userLeagueList.leagues[key].users[usrs].losses,
+							wins: userLeagueList.leagues[key].users[usrs].wins
+						}
+					});
+					return {
+						leagueid: key,
+						name: userLeagueList.leagues[key].name,
+						start: userLeagueList.leagues[key].start,
+						end: userLeagueList.leagues[key].end,
+						users: usrLst
+					}
+				});
+				log(USER.userLeagues);
+
+				Vue.component('league-list', {
+					props: ['row'],
+					template: '<tr>\
+						<td> {{ row.name }} </td>\
+						<td>{{ row.scores.graffiti }}</td>\
+						<td>{{ row.scores.pot_holes }}</td>\
+						<td>{{ row.scores.street_lights }}</td>\
+						<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
+						<td>{{ (!row.owner)? \'None\' : row.owner }}</td>\
+						<td><button v-on:click="$emit(\'acquire\')" :disabled="(!row.owner || row.owner == \'testuser0001\')? false : true">{{ (row.owner == \'testuser0001\') ? \'Drop\' : \'Acquire\' }}</button></td>\
+						<td>{{ row.pending }}</td>\
+					</tr>'
+				});
+
+				USER['_userLeagues'] = new Vue({
+					el: '#userLeagues',
+					data: {
+						leagues: {}
+					},
+					methods: {
+
+					}
+				});
+
+				
 			}, function(err) {
 				log(err);
 			});
@@ -226,16 +256,16 @@ function Application() {
 
 		getLeague: () => {
 			Database.getLeague("-KdEABT6mOvW_ayE5p2Z").then(function(result) {
-				console.log(result);
+				log(result);
 			}, function(err) {
-				console.log(err);
+				log(err);
 			});
 		},
 
 		// Gets the user's roster based on a selected league
 		getRoster: () => {
 			log("Get Roster is currently using a temporary user and league, update when create league, invite users, etc. functions are done.");
-			var tmpdata = {
+			var userdata = {
 				userid: 'testuser0001',
 				leagueid: '-KdqV4iI8CRGl3GiB24P', //-KdqV4iI8CRGl3GiB24P, -KdIiWEUj7_toD3MKMO_
 				from: 1483250400000,
@@ -256,7 +286,7 @@ function Application() {
 				</tr>'
 			});
 
-			Database.getRoster(tmpdata).then(function(rosterData) {
+			Database.getRoster(userdata).then(function(rosterData) {
 				test = rosterData;
 				log(rosterData);
 				var playerList = [];
@@ -312,11 +342,11 @@ function Application() {
 									tmp.players[idx].pending = "";
 									USER['workingRoster'] = null;
 								} 
-								// else if (USER['workingRoster'].owner == false && tmp.players[idx].owner == tmpdata.userid) {
+								// else if (USER['workingRoster'].owner == false && tmp.players[idx].owner == userdata.userid) {
 								// 	tmp.players[idx].pending = Constants.pendingDrop;
 								// 	var acquire = {
-								// 		userid: tmpdata.userid,
-								// 		leagueid: tmpdata.leagueid,
+								// 		userid: userdata.userid,
+								// 		leagueid: userdata.leagueid,
 								// 		add: USER['workingRoster'].playerid,
 								// 		drop: tmp.players[idx].playerid
 								// 	}
@@ -351,8 +381,8 @@ function Application() {
 									var p1 = USER['workingRoster'];
 									var p2 = tmp.players[idx];
 									var move = {
-										userid: tmpdata.userid,
-										leagueid: tmpdata.leagueid,
+										userid: userdata.userid,
+										leagueid: userdata.leagueid,
 										sit: (p1.starter)? p1.playerid : p2.playerid,
 										start: (!p1.starter)? p1.playerid : p2.playerid
 									}
@@ -394,7 +424,7 @@ function Application() {
 
 		getAllPlayers: () => {
 			log("Get Roster is currently using a temporary user and league, update when create league, invite users, etc. functions are done.");
-			var tmpdata = {
+			var userdata = {
 				leagueid: '-KdqV4iI8CRGl3GiB24P', //-KdqV4iI8CRGl3GiB24P, -KdIiWEUj7_toD3MKMO_
 				from: 1483250400000,
 				to: 1485928800000
@@ -414,7 +444,7 @@ function Application() {
 				</tr>'
 			});
 
-			Database.getAllPlayers(tmpdata).then(function(result) {
+			Database.getAllPlayers(userdata).then(function(result) {
 				USER['allPlayers'] = [];
 				log(result);
 				Object.keys(result).sort().map(function(id) {
@@ -458,7 +488,7 @@ function Application() {
 									var p2 = tmp.players[idx];
 									var move = {
 										userid: 'testuser0001',
-										leagueid: tmpdata.leagueid,
+										leagueid: userdata.leagueid,
 										add: (!p1.owner)? p1.playerid : p2.playerid,
 										drop: (p1.owner)? p1.playerid : p2.playerid
 									}

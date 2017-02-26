@@ -11,9 +11,19 @@
 	</head>
 	<body>
 		<h1>Roster</h1>
+		<p>Insert roster page, and fancy tables</p>
 		<a href="index.html">Home</a>
 		<a href="app.html">App</a>
 		<a href="#">Roster</a>
+
+		<h2>User Info</h2>
+		<div>
+			<!-- <p id="userid"></p> -->
+			<p id="email"></p>
+			<p id="name"></p>
+			<!-- <img id="image" style="width:64px;height:64px;" alt="No Image"></img> -->
+			<button onclick="Application().userLogout()">Logout</button>
+		</div>
 
 		<div id="userRoster">
 			<table>
@@ -49,6 +59,9 @@
 			// Instantiate app
 			var app = Application();
 			app.getUser();
+			app.displayUser();
+			app.getRoster();
+			app.getAllPlayers();
 		</script>
 	</body>
 </html>
