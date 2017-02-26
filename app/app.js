@@ -280,15 +280,15 @@ function Application() {
 				});
 				log(USER['roster']);
 
-				var workingRoster = jQuery.extend(true, {}, USER['roster']['players']);
+				//var workingRoster = jQuery.extend(true, {}, USER['roster']['players']);
 
 				USER['_userRoster'] = new Vue({
 					el: '#userRoster',
 					data: {
-						players: workingRoster,
+						players: USER['roster']['players'],
 						// update aggregator, reference scoring.js
-						aggregator: Object.keys(workingRoster).map(function(id) {
-							return workingRoster[id].scores.graffiti + workingRoster[id].scores.pot_holes + workingRoster[id].scores.street_lights;
+						aggregator: Object.keys(USER['roster']['players']).map(function(id) {
+							return USER['roster']['players'][id].scores.graffiti + USER['roster']['players'][id].scores.pot_holes + USER['roster']['players'][id].scores.street_lights;
 						}).reduce((a, b) => a + b, 0),
 						toggle: {}
 					},
@@ -302,32 +302,39 @@ function Application() {
 									tmp.players[idx].pending = "";
 									USER['workingRoster'] = null;
 								} 
-								else if (USER['workingRoster'].owner == false && tmp.players[idx].owner == tmpdata.userid) {
-									var acquire = {
-										userid: tmpdata.userid,
-										leagueid: tmpdata.leagueid,
-										add: USER['workingRoster'].playerid,
-										drop: tmp.players[idx].playerid
-									}
-									log("acquiring players");
-									log(acquire);
-									Database.acquirePlayer(acquire).then(function(acquirePlayer) {
-										if (acquirePlayer.success) {
-											log("player acquired");
-											USER['workingRoster'].pending = tmp.players[idx].pending = "";
-											var index = USER['roster']['players'].filter(function(item) {
-												log(item);
-												if (item.playerid == USER['workingRoster'].playerid)
-													return item;
-											});
-											index.owner = tmp.players[idx].owner
-											USER['workingRoster'] = null;
-										}
-									}).catch(function(err) {
-										log(err);
-										revertChange();
-									});
-								}
+								// else if (USER['workingRoster'].owner == false && tmp.players[idx].owner == tmpdata.userid) {
+								// 	tmp.players[idx].pending = Constants.pendingDrop;
+								// 	var acquire = {
+								// 		userid: tmpdata.userid,
+								// 		leagueid: tmpdata.leagueid,
+								// 		add: USER['workingRoster'].playerid,
+								// 		drop: tmp.players[idx].playerid
+								// 	}
+								// 	Database.acquirePlayer(acquire).then(function(acquirePlayer) {
+								// 		if (acquirePlayer.success) {
+								// 			log("player acquired");
+								// 			var p1 = USER['workingRoster'];
+								// 			var p2 = tmp.players[idx];
+											
+								// 			p1.pending = p2.pending = "";
+								// 			p1.owner = p2.owner;
+								// 			p1.starter = p2.starter;
+								// 			Object.keys(USER['_allPlayers'].players).map(function(index) {
+								// 				if (USER['_allPlayers'].players[index].playerid == p2.playerid) {
+								// 					USER['_allPlayers'].players[index].owner = p2.owner = false;
+								// 				}
+								// 			});
+
+								// 			tmp.players.splice(idx, 1);
+								// 			tmp.players.push(p1);
+
+								// 			USER['workingRoster'] = null;
+								// 		}
+								// 	}).catch(function(err) {
+								// 		log(err);
+								// 		revertChange();
+								// 	});
+								// }
 								// if everything checks out with the player move, then update database
 								else if (USER['workingRoster'].starter != tmp.players[idx].starter) {
 									tmp.players[idx].pending = (tmp.players[idx].starter)? Constants.pendingBench : Constants.pendingStart;
@@ -363,22 +370,9 @@ function Application() {
 							}
 							// adds pending update to the UI
 							else {
-								tmp.players[idx].pending = Constants.pending;
+								tmp.players[idx].pending = (tmp.players[idx].starter)? Constants.pendingBench : Constants.pendingStart;
 								USER['workingRoster'] = tmp.players[idx];
 							}
-						},
-
-						revertChange: () => {
-							var tmp = USER['_userRoster'];
-							log('reverting change');
-							tmp.players = jQuery.extend(true, {}, USER['roster']['players']);
-							USER['workingRoster'] = null;
-						},
-
-						checkUpdates: () => {
-							log("checking for updates");
-							Application().getRoster();
-							Application().getAllPlayers();
 						}
 					}
 				});
@@ -405,7 +399,7 @@ function Application() {
 					<td>{{ row.scores.street_lights }}</td>\
 					<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
 					<td>{{ (!row.owner)? \'None\' : row.owner }}</td>\
-					<td><button v-on:click="$emit(\'acquire\')" :disabled="(!row.owner)? false : true">Acquire</button></td>\
+					<td><button v-on:click="$emit(\'acquire\')" :disabled="(!row.owner || row.owner == \'testuser0001\')? false : true">{{ (row.owner == \'testuser0001\') ? \'Drop\' : \'Acquire\' }}</button></td>\
 					<td>{{ row.pending }}</td>\
 				</tr>'
 			});
@@ -441,20 +435,67 @@ function Application() {
 						acquirePlayer: (idx) => {
 							var tmp = USER['_allPlayers'];
 
-							if (USER['workingRoster']) {
+							if (USER['workingPlayers']) {
 								// makes sure the selected is not the same, if so undo select
-								if (USER['workingRoster'].playerid == tmp.players[idx].playerid) {
+								if (USER['workingPlayers'].playerid == tmp.players[idx].playerid) {
 									tmp.players[idx].pending = "";
-									USER['workingRoster'] = null;
+									USER['workingPlayers'] = null;
 								}
-								else if (USER['workingRoster'].owner ==  "testuser0001" && tmp.players[idx].owner == false) {
-
+								else if (USER['workingPlayers'].owner ==  "testuser0001" && tmp.players[idx].owner == false ||
+										 USER['workingPlayers'].owner ==  false && tmp.players[idx].owner == "testuser0001") {
+									tmp.players[idx].pending = (tmp.players[idx].owner)? Constants.pendingDrop : Constants.pendingAcquire;
+									var p1 = USER['workingPlayers'];
+									var p2 = tmp.players[idx];
+									var move = {
+										userid: 'testuser0001',
+										leagueid: tmpdata.leagueid,
+										add: (!p1.owner)? p1.playerid : p2.playerid,
+										drop: (p1.owner)? p1.playerid : p2.playerid
+									}
+									Database.acquirePlayer(move).then(function(acquirePlayer) {
+										if (acquirePlayer.success) {
+											p1.pending = p2.pending = "";
+											if (p1.owner == false) {
+												p1.owner = p2.owner;
+												p2.owner = false;
+												if (USER['_userRoster']) {
+													USER['_userRoster'].players.filter(function(item) {
+														if (item.playerid == p2.playerid) {
+															item.name = p1.name;
+															item.playerid = p1.playerid;
+															item.scores = p1.scores;
+															item.ward = p1.ward;
+														}
+													});
+												}
+											} else {
+												p2.owner = p1.owner;
+												p1.owner = false;
+												if (USER['_userRoster']) {
+													USER['_userRoster'].players.filter(function(item) {
+														if (item.playerid == p1.playerid) {
+															item.name = p2.name;
+															item.playerid = p2.playerid;
+															item.scores = p2.scores;
+															item.ward = p2.ward;
+														}
+													});
+												}
+											}
+											USER['workingPlayers'] = null;
+											
+										}
+									}).catch(function(err) {
+										log(err);
+									});
 								}
-
+								else {
+									log("Invalid Add/Drop of players");
+								}
 							}
 							else {
-								tmp.players[idx].pending = Constants.pendingAcquire;
-								USER['workingRoster'] = tmp.players[idx];
+								tmp.players[idx].pending = (tmp.players[idx].owner)? Constants.pendingDrop : Constants.pendingAcquire;
+								USER['workingPlayers'] = tmp.players[idx];
 							}
 						}
 					}
