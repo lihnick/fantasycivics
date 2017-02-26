@@ -168,7 +168,10 @@ function Application() {
 				localStorage[Constants.userNameTag] = result.name;
 				localStorage[Constants.userEmailTag] = result.email;
 				localStorage[Constants.userImageTag] = result.image;
-				window.location.href = Constants.loginRedirect;
+
+				Database.updateUser({userid: result.userid}).then(() => {
+					window.location.href = Constants.loginRedirect;
+				});				
 			}, function(err) {
 				alert(err);
 			});
@@ -216,12 +219,17 @@ function Application() {
 					template: '<tr>\
 						<td><button v-on:click="$emit(\'info\')">info</button></td>\
 						<td>{{ row.name }}</td>\
-						<td>{{ row.start }}</td>\
-						<td>{{ row.end }}</td>\
+						<td>{{ momentDate(row.start, \"MM/DD/YY\") }}</td>\
+						<td>{{ momentDate(row.end, \"MM/DD/YY\") }}</td>\
 						<td><div v-for="(user, idx) in row.users">\
 							<pre>Team: {{ user.team}}	Wins: {{ user.wins}}	Losses: {{ user.losses }}</pre>\
 						</div></td>\
-					</tr>'
+					</tr>',
+					methods: {
+						momentDate: (date, format) => {
+							return moment(date).format(format);
+						}
+					}
 				});
 
 				USER['_userLeagues'] = new Vue({
@@ -243,8 +251,8 @@ function Application() {
 		},
 
 		getLeague: () => {
-			Database.getLeague("-KdEABT6mOvW_ayE5p2Z").then(function(result) {
-				log(result);
+			return Database.getLeague({leagueid: USER['leagueid']}).then(function(result) {
+				USER['selectedLeague'] = result;
 			}, function(err) {
 				log(err);
 			});
@@ -254,10 +262,10 @@ function Application() {
 		getRoster: () => {
 			log("Get Roster is currently using a temporary user and league, update when create league, invite users, etc. functions are done.");
 			var userdata = {
-				userid: 'testuser0001',
-				leagueid: '-KdqV4iI8CRGl3GiB24P', //-KdqV4iI8CRGl3GiB24P, -KdIiWEUj7_toD3MKMO_
-				from: 1483250400000,
-				to: 1485928800000
+				userid: USER['userid'],
+				leagueid: USER['leagueid'], //-KdqV4iI8CRGl3GiB24P, -KdIiWEUj7_toD3MKMO_
+				from: USER['selectedLeague']['start'],
+				to: USER['selectedLeague']['end']
 			}
 
 			return Database.getRoster(userdata).then(function(rosterData) {
@@ -289,10 +297,6 @@ function Application() {
 		},
 
 		displayRoster: () => {
-			// temporary fix
-			USER['userid'] = 'testuser0001';
-			USER['leagueid'] = '-KdqV4iI8CRGl3GiB24P';
-
 			Application().getRoster().then(() => {
 				if (!USER['_roster-list']) {
 					USER['_roster-list'] = Vue.component('roster-list', {
@@ -349,7 +353,7 @@ function Application() {
 									var p2 = tmp.players[idx];
 									var move = {
 										userid: USER['userid'],
-										leagueid: USER['leagueid'],
+										leagueid: USER['selectedLeague'][leagueid],
 										sit: (p1.starter)? p1.playerid : p2.playerid,
 										start: (!p1.starter)? p1.playerid : p2.playerid
 									}
@@ -389,9 +393,9 @@ function Application() {
 		getAllPlayers: () => {
 			log("Get Roster is currently using a temporary user and league, update when create league, invite users, etc. functions are done.");
 			var userdata = {
-				leagueid: '-KdqV4iI8CRGl3GiB24P', //-KdqV4iI8CRGl3GiB24P, -KdIiWEUj7_toD3MKMO_
-				from: 1483250400000,
-				to: 1485928800000
+				leagueid: USER['leagueid'], //-KdqV4iI8CRGl3GiB24P, -KdIiWEUj7_toD3MKMO_
+				from: USER['selectedLeague']['start'],
+				to: USER['selectedLeague']['end']
 			}
 
 			return Database.getAllPlayers(userdata).then(function(result) {
@@ -416,9 +420,6 @@ function Application() {
 		},
 
 		displayAllPlayers: () => {
-			//temporary fix
-			USER['leagueid'] = '-KdqV4iI8CRGl3GiB24P';
-
 			Application().getAllPlayers().then(() => {
 				if (!USER['_player-list']) {
 					USER['_player-list'] = Vue.component('player-list', {
@@ -463,8 +464,8 @@ function Application() {
 									var p1 = USER['workingPlayers'];
 									var p2 = tmp.players[idx];
 									var move = {
-										userid: 'testuser0001',
-										leagueid: USER['leagueid'],
+										userid: USER['userid'],
+										leagueid: USER['selectedLeague']['leagueid'],
 										add: (!p1.owner)? p1.playerid : p2.playerid,
 										drop: (p1.owner)? p1.playerid : p2.playerid
 									}
@@ -522,8 +523,21 @@ function Application() {
 				});
 
 			}); 
-		} 
+		},
 
+		// this function is specific to the items needed at the roster page
+		loadRosterPage: () => {
+			Application().getUserLeagues().then(() => { // this function populates USER['userLeagues']
+				if (!USER['selectedLeague']) {
+					USER['selectedLeague'] = USER['userLeagues'].filter((item) => {
+						if (item['leagueid'] == USER['leagueid'])
+							return item;
+					})[0]; // only want the first element
+				}
+				Application().displayRoster();
+				Application().displayAllPlayers();
+			});
+		}
 	}; // end of return
 } // end of factory function
 
