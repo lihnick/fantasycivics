@@ -260,35 +260,11 @@ function Application() {
 				to: 1485928800000
 			}
 
-			if (!USER['_roster-list']) {
-				USER['_roster-list'] = Vue.component('roster-list', {
-					props: ['row'],
-					template: '<tr>\
-						<td>{{ row.name }}</td>\
-						<td>{{ row.scores.graffiti }}</td>\
-						<td>{{ row.scores.pot_holes }}</td>\
-						<td>{{ row.scores.street_lights }}</td>\
-						<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
-						<td>{{ (row.starter)? \'Starter\' : \'Benched\' }}</td>\
-						<td><button v-on:click="$emit(\'toggle\')">Toggle</button></td>\
-						<td>{{ row.pending }}</td>\
-					</tr>'
-				});
-			}
-
-			Database.getRoster(userdata).then(function(rosterData) {
+			return Database.getRoster(userdata).then(function(rosterData) {
 				test = rosterData;
 				log(rosterData);
-				var playerList = [];
-				USER['roster'] = {
-					userid: rosterData.userid,
-					leagueid: rosterData.leagueid,
-					from: rosterData.from,
-					to: rosterData.to,
-					players: playerList
-				};
-				Object.keys(rosterData.players).map(function(id) {
-					playerList.push({
+				var playerList = Object.keys(rosterData.players).map(function(id) {
+					return {
 						playerid: id,
 						name: rosterData.players[id].name,
 						owner: rosterData.players[id].owner,
@@ -296,9 +272,43 @@ function Application() {
 						ward: rosterData.players[id].ward,
 						scores: rosterData.players[id].scores,
 						pending: ""
-					});
+					};
 				});
+				USER['roster'] = {
+					userid: rosterData.userid,
+					leagueid: rosterData.leagueid,
+					from: rosterData.from,
+					to: rosterData.to,
+					players: playerList
+				};
 				log(USER['roster']);
+
+			}, function(err) {
+				log(err);
+			});
+		},
+
+		displayRoster: () => {
+			// temporary fix
+			USER['userid'] = 'testuser0001';
+			USER['leagueid'] = '-KdqV4iI8CRGl3GiB24P';
+
+			Application().getRoster().then(() => {
+				if (!USER['_roster-list']) {
+					USER['_roster-list'] = Vue.component('roster-list', {
+						props: ['row'],
+						template: '<tr>\
+							<td>{{ row.name }}</td>\
+							<td>{{ row.scores.graffiti }}</td>\
+							<td>{{ row.scores.pot_holes }}</td>\
+							<td>{{ row.scores.street_lights }}</td>\
+							<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
+							<td>{{ (row.starter)? \'Starter\' : \'Benched\' }}</td>\
+							<td><button v-on:click="$emit(\'toggle\')">Toggle</button></td>\
+							<td>{{ row.pending }}</td>\
+						</tr>'
+					});
+				}
 
 				//var workingRoster = jQuery.extend(true, {}, USER['roster']['players']);
 				USER['_userRoster'] = new Vue({
@@ -338,8 +348,8 @@ function Application() {
 									var p1 = USER['workingRoster'];
 									var p2 = tmp.players[idx];
 									var move = {
-										userid: userdata.userid,
-										leagueid: userdata.leagueid,
+										userid: USER['userid'],
+										leagueid: USER['leagueid'],
 										sit: (p1.starter)? p1.playerid : p2.playerid,
 										start: (!p1.starter)? p1.playerid : p2.playerid
 									}
@@ -373,9 +383,6 @@ function Application() {
 						}
 					}
 				});
-
-			}, function(err) {
-				log(err);
 			});
 		},
 
@@ -386,23 +393,8 @@ function Application() {
 				from: 1483250400000,
 				to: 1485928800000
 			}
-			if (!USER['_player-list']) {
-				USER['_player-list'] = Vue.component('player-list', {
-					props: ['row'],
-					template: '<tr>\
-						<td> {{ row.name }} </td>\
-						<td>{{ row.scores.graffiti }}</td>\
-						<td>{{ row.scores.pot_holes }}</td>\
-						<td>{{ row.scores.street_lights }}</td>\
-						<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
-						<td>{{ (!row.owner)? \'None\' : row.owner }}</td>\
-						<td><button v-on:click="$emit(\'acquire\')" :disabled="(!row.owner || row.owner == \'testuser0001\')? false : true">{{ (row.owner == \'testuser0001\') ? \'Drop\' : \'Acquire\' }}</button></td>\
-						<td>{{ row.pending }}</td>\
-					</tr>'
-				});
-			}
 
-			Database.getAllPlayers(userdata).then(function(result) {
+			return Database.getAllPlayers(userdata).then(function(result) {
 				USER['allPlayers'] = [];
 				log(result);
 				Object.keys(result).sort().map(function(id) {
@@ -417,6 +409,32 @@ function Application() {
 					});
 				});
 				log(USER.allPlayers);
+
+			}, function(err) {
+				log(err);
+			});
+		},
+
+		displayAllPlayers: () => {
+			//temporary fix
+			USER['leagueid'] = '-KdqV4iI8CRGl3GiB24P';
+
+			Application().getAllPlayers().then(() => {
+				if (!USER['_player-list']) {
+					USER['_player-list'] = Vue.component('player-list', {
+						props: ['row'],
+						template: '<tr>\
+							<td> {{ row.name }} </td>\
+							<td>{{ row.scores.graffiti }}</td>\
+							<td>{{ row.scores.pot_holes }}</td>\
+							<td>{{ row.scores.street_lights }}</td>\
+							<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
+							<td>{{ (!row.owner)? \'None\' : row.owner }}</td>\
+							<td><button v-on:click="$emit(\'acquire\')" :disabled="(!row.owner || row.owner == \'testuser0001\')? false : true">{{ (row.owner == \'testuser0001\') ? \'Drop\' : \'Acquire\' }}</button></td>\
+							<td>{{ row.pending }}</td>\
+						</tr>'
+					});
+				}
 
 				var workingPlayers = jQuery.extend(true, {}, USER['allPlayers']);
 				var userRosters = USER['allPlayers'].filter(function(item) {
@@ -446,7 +464,7 @@ function Application() {
 									var p2 = tmp.players[idx];
 									var move = {
 										userid: 'testuser0001',
-										leagueid: userdata.leagueid,
+										leagueid: USER['leagueid'],
 										add: (!p1.owner)? p1.playerid : p2.playerid,
 										drop: (p1.owner)? p1.playerid : p2.playerid
 									}
@@ -503,11 +521,9 @@ function Application() {
 					}
 				});
 
-			}, function(err) {
+			}); 
+		} 
 
-			});
-		}
-
-	};
-}
+	}; // end of return
+} // end of factory function
 
