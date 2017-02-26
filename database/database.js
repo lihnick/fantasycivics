@@ -35,7 +35,7 @@ var Database = {
 	Auth: DatabaseAuth(DatabaseFirebase),
 	Scoring: Scoring,
 
-	LOCK_ROSTERS_AFTER: (5 / 7), // Locks rosters 6/7 of the way through the match
+	LOCK_ROSTERS_AFTER: Infinity, // Locks rosters 6/7 of the way through the match
 
 	getLockTime: (match) => {
 		var duration = match.end - match.start;
@@ -760,7 +760,7 @@ var Database = {
 					reject('Roster locked for remainder of the match.');
 				}
 				else{
-					movePlayerCallback(resolve, reject);
+					acquirePlayerCallback(resolve, reject);
 				}
 			});
 		});

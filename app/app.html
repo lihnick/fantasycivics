@@ -25,10 +25,10 @@
 
 		<h2>User Info</h2>
 		<div>
-			<p id="userid"></p>
+			<!-- <p id="userid"></p> -->
 			<p id="email"></p>
 			<p id="name"></p>
-			<img id="image" style="width:64px;height:64px;" alt="No Image"></img>
+			<!-- <img id="image" style="width:64px;height:64px;" alt="No Image"></img> -->
 			<button onclick="Application().userLogout()">Logout</button>
 		</div>
 
@@ -51,12 +51,12 @@
 		</div>
 
 		<h2>Current Leagues</h2>
-		<div id="displayLeagues">
-			<ul>
-				<li is="league-list" v-for="(league, index) in leagues" v-bind:idx="league" v-on:info="getIdx(index)"></li>
-				<!-- <li is="league-list" v-for="(league, index) in leagues" v-bind:list="league" v-on:info="console.log(index)"></li> -->
-			</ul>
+		<div id="userLeagues">
 			
+			<table>
+				<th>Info</th><th>League Name</th><th>Start</th><th>End</th><th>Users</th>
+				<tr is="league-list" v-for="(league, index) in leagues" v-bind:row="league" v-on:info="loadLeague(index)"></tr>
+			</table>
 		</div>
 
 		<!-- Footer -->
@@ -74,7 +74,9 @@
 			// Instantiate app
 			var app = Application();
 			app.getUser();
+			app.displayUser();
 			app.createLeague();
+			app.displayUserLeagues();
 		</script>
 	</body>
 </html>

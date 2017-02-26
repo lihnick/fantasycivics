@@ -20,14 +20,22 @@ function Application() {
 
 	// Private Variables
 	//		These variables are function scoped
-	var APP = {}; // stores infomation related to Vue.js
 	var Constants = {
 		logoutRedirect: 'index.html',
 		loginRedirect: 'app.html',
+		leagueRedirect: 'roster.html',
+		pending: 'Pending',
+		pendingBench: 'Benching',
+		pendingStart: 'starting',
+		pendingAcquire: 'Acquiring',
+		pendingDrop: 'Dropping',
 		userIdTag: 'userid',
 		userEmailTag: 'email',
 		userImageTag: 'image',
-		userNameTag: 'name'
+		userNameTag: 'name',
+		userSelectedLeague: 'leagueid',
+		seletedLeagueStart: 'leaguestart',
+		seletedLeagueEnd: 'leagueend'
 	};
 
 	// Public Variables
@@ -41,7 +49,7 @@ function Application() {
 				template: '<li>{{ invite }}<button v-on:click="$emit(\'pop\')">X</button></li>'
 			});
 
-			APP['newLeague'] = new Vue({
+			USER['_newLeague'] = new Vue({
 				el: '#newLeague',
 				data: {
 					name: "",
@@ -53,8 +61,8 @@ function Application() {
 				}, 
 				methods: {
 					inviteUsers: () => {
-						var tmp = APP['newLeague'];
-						debug(APP);
+						var tmp = USER['_newLeague'];
+						debug(USER);
 						if (tmp.invite) {
 							tmp.users.push(tmp.invite);
 							tmp.invite = "";
@@ -63,7 +71,7 @@ function Application() {
 						}
 					},
 					finalizeLeague: () => {
-						var tmp = APP['newLeague'];
+						var tmp = USER['_newLeague'];
 						if (tmp.name && tmp.users.length > 0) {
 							var result = {
 								name: tmp.name,
@@ -97,7 +105,7 @@ function Application() {
 							log("Invalid Date: " +  (Math.floor(( end - start ) / 86400000) + 1) + " days in duration.");
 						else
 							log("Duration: " + (Math.floor(( end - start ) / 86400000) + 1) + " days.");
-						APP['newLeague'].range = $(this).datepicker('getDate');
+						USER['_newLeague'].range = $(this).datepicker('getDate');
 					}
 				});
 			});
@@ -108,10 +116,14 @@ function Application() {
 
 		// displays user info in html elements
 		displayUser: () => {
-			document.getElementById(Constants.userIdTag).innerHTML = USER.userid;
-			document.getElementById(Constants.userNameTag).innerHTML = USER.name;
-			document.getElementById(Constants.userEmailTag).innerHTML = USER.email;
-			document.getElementById(Constants.userImageTag).src = USER.image;
+			if (document.getElementById(Constants.userIdTag))
+				document.getElementById(Constants.userIdTag).innerText = USER.userid;
+			if (document.getElementById(Constants.userNameTag))
+				document.getElementById(Constants.userNameTag).innerText = USER.name;
+			if (document.getElementById(Constants.userEmailTag))
+				document.getElementById(Constants.userEmailTag).innerText = USER.email;
+			if (document.getElementById(Constants.userImageTag))
+				document.getElementById(Constants.userImageTag).src = USER.image;
 		},
 
 
@@ -127,7 +139,9 @@ function Application() {
 				USER.name = localStorage[Constants.userNameTag];
 				USER.email = localStorage[Constants.userEmailTag];
 				USER.image = localStorage[Constants.userImageTag];
-
+				USER.leagueid = localStorage[Constants.userSelectedLeague];
+				USER.leaguestart = parseInt(localStorage[Constants.seletedLeagueStart]);
+				USER.leagueend = parseInt(localStorage[Constants.seletedLeagueEnd]);
 				// getCurrentUser() will be reset once another page loads
 				// Database.Auth.getCurrentUser().then(function(result) {
 				// 	log("users should be the same");
@@ -146,6 +160,9 @@ function Application() {
 			localStorage.removeItem(Constants.userNameTag);
 			localStorage.removeItem(Constants.userEmailTag);
 			localStorage.removeItem(Constants.userImageTag);
+			localStorage.removeItem(Constants.userSelectedLeague);
+			localStorage.removeItem(Constants.seletedLeagueStart);
+			localStorage.removeItem(Constants.seletedLeagueEnd);
 			Database.Auth.signOutUser(); // not sure if this is needed, but just in case
 			window.location.href = Constants.logoutRedirect;
 		},
@@ -158,236 +175,414 @@ function Application() {
 				localStorage[Constants.userNameTag] = result.name;
 				localStorage[Constants.userEmailTag] = result.email;
 				localStorage[Constants.userImageTag] = result.image;
-				window.location.href = Constants.loginRedirect;
+				log(result);
+				Database.updateUser(result).then(() => {
+					log("test");
+					window.location.href = Constants.loginRedirect;
+				}).catch((err) => {log(err)});	
+				log("done");
 			}, function(err) {
 				alert(err);
 			});
 		},
 
 		getUserLeagues: () => {
-			//Database.getUserLeagues({userid: USER.userid}).then(function(result) {
-			Database.getUserLeagues({userid: "testuser0001"}).then(function(result) {
-				log(result);
-
-				var tmp = Object.keys(result.leagues);
-				var leagues = [];
-				for (idx in tmp) {
-					var usr = Object.keys(result.leagues[tmp[idx]].users);
-					var usrLst = [];
-					for (i in usr) {
-						usrLst.push({
-							userid: usr[i],
-							team: result.leagues[tmp[idx]].users[usr[i]].team,
-							losses: result.leagues[tmp[idx]].users[usr[i]].losses,
-							wins: result.leagues[tmp[idx]].users[usr[i]].wins
-						});
-					}
-					leagues.push({
-						leagueid: tmp[idx],
-						name: result.leagues[tmp[idx]].name,
-						start: result.leagues[tmp[idx]].start,
-						end: result.leagues[tmp[idx]].end,
-						users: usrLst
-					});
+			if (!USER['userid']) 
+				return;
+			return Database.getUserLeagues({userid: USER.userid}).then(function(userLeagueList) {
+				log(userLeagueList);
+				test = userLeagueList;
+				if (Object.keys(userLeagueList.leagues).length == 0) {
+					log("No League available, create one above.");
+					return;
 				}
-				log(leagues);
-				USER.userLeagues = leagues;
+				USER['userLeagues'] = Object.keys(userLeagueList.leagues).map(function(key) {
+					var usrLst = Object.keys(userLeagueList.leagues[key].users).map(function(usrs) {
+						return {
+							userid: usrs,
+							team: userLeagueList.leagues[key].users[usrs].team,
+							losses: userLeagueList.leagues[key].users[usrs].losses,
+							wins: userLeagueList.leagues[key].users[usrs].wins
+						}
+					});
+					return {
+						leagueid: key,
+						name: userLeagueList.leagues[key].name,
+						start: userLeagueList.leagues[key].start,
+						end: userLeagueList.leagues[key].end,
+						users: usrLst
+					}
+				});
+				log(USER.userLeagues);
+
 			}, function(err) {
 				log(err);
+				return err;
 			});
 		},
 
-		displayLeagues: () => {
-
-
-			Vue.component('league-list', {
-				props: ['idx'],
-				template: '<li>{{ idx.name }} | {{ idx.start }} to {{ idx.end }}<button v-on:click="$emit(\'info\')">info</button></li>'
-			});
-
-			APP['displayLeagues'] = new Vue({
-				el: '#displayLeagues',
-				data: {
-					leagueids: Object.keys(USER.userLeagues),
-					leagues: USER.userLeagues
-				},
-				methods: {
-					getIdx: (idx) => {
-						log(idx);
-						log(USER.userLeagues[idx].users);
+		displayUserLeagues: () => {
+			Application().getUserLeagues().then(() => {
+				Vue.component('league-list', {
+					props: ['row'],
+					template: '<tr>\
+						<td><button v-on:click="$emit(\'info\')">info</button></td>\
+						<td>{{ row.name }}</td>\
+						<td>{{ momentDate(row.start, \"MM/DD/YY\") }}</td>\
+						<td>{{ momentDate(row.end, \"MM/DD/YY\") }}</td>\
+						<td><div v-for="(user, idx) in row.users">\
+							<pre>Team: {{ user.team}}	Wins: {{ user.wins}}	Losses: {{ user.losses }}</pre>\
+						</div></td>\
+					</tr>',
+					methods: {
+						momentDate: (date, format) => {
+							return moment(date).format(format);
+						}
 					}
-				}
-			});
+				});
+
+				USER['_userLeagues'] = new Vue({
+					el: '#userLeagues',
+					data: {
+						leagueids: Object.keys(USER.userLeagues),
+						leagues: USER.userLeagues
+					},
+					methods: {
+						loadLeague: (idx) => {
+							log("next");
+							USER.leagueid = USER.userLeagues[idx].leagueid;
+							localStorage[Constants.userSelectedLeague] = USER.userLeagues[idx].leagueid;
+							localStorage[Constants.seletedLeagueStart] = USER.userLeagues[idx].start;
+							localStorage[Constants.seletedLeagueEnd] = USER.userLeagues[idx].end;
+							window.location.href = Constants.leagueRedirect;
+						}
+					}
+				});
+			});			
 		},
 
-		getLeague: () => {
-			Database.getLeague("-KdEABT6mOvW_ayE5p2Z").then(function(result) {
-				console.log(result);
+		getLeague: (params) => {
+			if(!params.userid)
+				throw new Error('Must specify {userid}.');
+			else if(!params.leagueid)
+				throw new Error('Must specify {leagueid}.');
+			else if(!params.from)
+				throw new Error('Must specify {from}.');
+			else if(!params.to)
+				throw new Error('Must specify {to}.');
+			return Database.getLeague({
+				leagueid: params.userid,
+				leagueid: params.leagueid,
+				from: params.from,
+				to: params.to
+			}).then(function(result) {
+				log(result);
+				return result;
 			}, function(err) {
-				console.log(err);
+				log(err);
 			});
 		},
 
 		// Gets the user's roster based on a selected league
 		getRoster: () => {
-			log("Get Roster is currently using a temporary user and league, update when create league, invite users, etc. functions are done.");
-			var tmp = {
-				userid: 'testuser0001',
-				leagueid: '-KdIiWEUj7_toD3MKMO_',
-				from: 1483250400000,
-				to: 1485928800000
+			var userdata = {
+				userid: USER['userid'],
+				leagueid: USER['leagueid'], //-KdqV4iI8CRGl3GiB24P, -KdIiWEUj7_toD3MKMO_
+				from: USER['leaguestart'],
+				to: USER['leagueend']
 			}
 
-			Vue.component('roster-list', {
-				props: ['row'],
-				template: '<tr><td> {{ row.name }} </td> <td>{{ row.scores.graffiti }}</td> <td>{{ row.scores.pot_holes }}</td> <td>{{ row.scores.street_lights }}</td> <td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td> <td>{{ (row.starter)? \'Starter\' : \'Benched\' }}</td> <td><button v-on:click="$emit(\'toggle\')">Toggle</button></td><td>{{ row.pending }}</td></tr>'
-			});
-
-			Database.getRoster(tmp).then(function(result) {
-				test = result;
-				var playerList = [];
+			return Database.getRoster(userdata).then(function(rosterData) {
+				test = rosterData;
+				var playerList = Object.keys(rosterData.players).map(function(id) {
+					return {
+						playerid: id,
+						name: rosterData.players[id].name,
+						owner: rosterData.players[id].owner,
+						starter: rosterData.players[id].starter,
+						ward: rosterData.players[id].ward,
+						scores: rosterData.players[id].scores,
+						pending: ""
+					};
+				});
 				USER['roster'] = {
-					userid: result.userid,
-					leagueid: result.leagueid,
-					from: result.from,
-					to: result.to,
+					userid: rosterData.userid,
+					leagueid: rosterData.leagueid,
+					from: rosterData.from,
+					to: rosterData.to,
 					players: playerList
 				};
-				Object.keys(result.players).map(function(id) {
-					playerList.push({
-						playerid: id,
-						name: result.players[id].name,
-						owner: result.players[id].owner,
-						starter: result.players[id].starter,
-						ward: result.players[id].ward,
-						scores: result.players[id].scores,
-						pending: ""
-					});
-				});
 				log(USER['roster']);
-
-				var workingRoster = jQuery.extend(true, {}, USER['roster']['players']);
-
-				APP['userRoster'] = new Vue({
-					el: '#userRoster',
-					data: {
-						players: workingRoster,
-						aggregator: Object.keys(workingRoster).map(function(id) {
-							return workingRoster[id].scores.graffiti + workingRoster[id].scores.pot_holes + workingRoster[id].scores.street_lights;
-						}).reduce((a, b) => a + b, 0),
-						toggle: {}
-					},
-					methods: {
-						togglePlayer: (idx) => {
-							var tmp = APP['userRoster'];
-							test = tmp;
-							log(idx + " - " + tmp.players[idx].playerid);
-							var update = (tmp.players[idx].starter)? "Benching" : "Starting";
-							if (tmp.toggle[tmp.players[idx].playerid]) { // toggle operation already done
-								tmp.players[idx].pending = "";
-								delete tmp.toggle[tmp.players[idx].playerid];
-							}
-							else {
-								tmp.toggle[tmp.players[idx].playerid] = update;
-								tmp.players[idx].pending = update;
-							}
-						},
-
-						updateLineup: () => {
-							var tmp = APP['userRoster'];
-							tmp.validateLineup();
-							
-						},
-
-						validateLineup: () => {
-							var tmp = APP['userRoster'];
-							log(tmp.toggle);
-							var benching = [];
-							var starting = [];
-							Object.keys(tmp.toggle).map(function(idx) {
-								console.log(tmp.toggle[idx]);
-							});
-						},
-
-						updateRoster: () => {
-
-						},
-
-						revertChange: () => {
-							var tmp = APP['userRoster'];
-							tmp.players = jQuery.extend(true, {}, USER['roster']['players']);
-							tmp.toggle = {};
-						},
-
-						checkUpdates: () => {
-							log("checking for updates");
-							Application().getRoster();
-							Application().getAllPlayers();
-						}
-					}
-				});
 
 			}, function(err) {
 				log(err);
 			});
 		},
 
+		displayRoster: () => {
+			Application().getRoster().then(() => {
+				if (!USER['_roster-list']) {
+					USER['_roster-list'] = Vue.component('roster-list', {
+						props: ['row'],
+						template: '<tr>\
+							<td>{{ row.name }}</td>\
+							<td>{{ row.scores.graffiti }}</td>\
+							<td>{{ row.scores.pot_holes }}</td>\
+							<td>{{ row.scores.street_lights }}</td>\
+							<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
+							<td>{{ (row.starter)? \'Starter\' : \'Benched\' }}</td>\
+							<td><button v-on:click="$emit(\'toggle\')">Toggle</button></td>\
+							<td>{{ row.pending }}</td>\
+						</tr>'
+					});
+				}
+
+				//var workingRoster = jQuery.extend(true, {}, USER['roster']['players']);
+				USER['_userRoster'] = new Vue({
+					el: '#userRoster',
+					data: {
+						players: USER['roster']['players'],
+						// update aggregator, reference scoring.js
+						aggregator: Object.keys(USER['roster']['players']).map(function(id) {
+							if (!USER['roster']['players'][id].starter){
+								return 0;
+							}
+							return USER['roster']['players'][id].scores.graffiti + USER['roster']['players'][id].scores.pot_holes + USER['roster']['players'][id].scores.street_lights;
+						}).reduce((a, b) => a + b, 0),
+						toggle: {}
+					},
+					methods: {
+						updateAggregator: () => {
+							USER['_userRoster'].aggregator = Object.keys(USER['_userRoster'].players).map(function(id) {
+								if (!USER['_userRoster'].players[id].starter){
+									return 0;
+								}
+								return USER['_userRoster'].players[id].scores.graffiti + USER['_userRoster'].players[id].scores.pot_holes + USER['_userRoster'].players[id].scores.street_lights;
+							}).reduce((a, b) => a + b, 0);
+						},
+						togglePlayer: (idx) => { 
+							var tmp = USER['_userRoster'];
+
+							if (USER['workingRoster']) {
+								// makes sure the selected is not the same, if so undo select
+								if (USER['workingRoster'].playerid == tmp.players[idx].playerid) {
+									tmp.players[idx].pending = "";
+									USER['workingRoster'] = null;
+								} 
+								// if everything checks out with the player move, then update database
+								else if (USER['workingRoster'].starter != tmp.players[idx].starter) {
+									tmp.players[idx].pending = (tmp.players[idx].starter)? Constants.pendingBench : Constants.pendingStart;
+									var p1 = USER['workingRoster'];
+									var p2 = tmp.players[idx];
+									var move = {
+										userid: USER['userid'],
+										leagueid: USER['leagueid'],
+										sit: (p1.starter)? p1.playerid : p2.playerid,
+										start: (!p1.starter)? p1.playerid : p2.playerid
+									}
+									// temporarily disable the toggle buttons
+									log(move);
+									test = move;
+									Database.movePlayer(move).then(function(movePlayer) {
+										if (movePlayer.success){
+											p1.starter = p2.starter;
+											p2.starter = !p2.starter;
+											p1.pending = p2.pending = "";
+											USER['roster']['players'] = tmp.players; // temporary fix
+											USER['workingRoster'] = null;
+										}
+									}).catch(function(err) {
+										log(err);
+									});
+								}
+								// otherwise, revert and show error in user's movement
+								else {
+									log("Invalid player movement!");
+									tmp.players[idx].pending = USER['workingRoster'].pending = "";
+									USER['workingRoster'] = null;
+								}
+							}
+							// adds pending update to the UI
+							else {
+								tmp.players[idx].pending = (tmp.players[idx].starter)? Constants.pendingBench : Constants.pendingStart;
+								USER['workingRoster'] = tmp.players[idx];
+							}
+						}
+					}
+				});
+			});
+		},
+
 		getAllPlayers: () => {
-			log("Get Roster is currently using a temporary user and league, update when create league, invite users, etc. functions are done.");
-			var tmp = {
-				leagueid: '-KdIiWEUj7_toD3MKMO_',
-				from: 1483250400000,
-				to: 1485928800000
+			var userdata = {
+				leagueid: USER['leagueid'], //-KdqV4iI8CRGl3GiB24P, -KdIiWEUj7_toD3MKMO_
+				from: USER['leaguestart'],
+				to: USER['leagueend']
 			}
 
-			Vue.component('player-list', {
-				props: ['row'],
-				template: '<tr>\
-					<td> {{ row.name }} </td>\
-					<td>{{ row.scores.graffiti }}</td>\
-					<td>{{ row.scores.pot_holes }}</td>\
-					<td>{{ row.scores.street_lights }}</td>\
-					<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
-					<td>{{ (!row.owner)? \'None\' : row.owner }}</td>\
-					<td><div>\
-						<button v-on:click="$emit(\'toggle\')" :disabled="(!row.owner)? false : true">Swap</button></td><td>{{ row.pending }}\
-						<div>\
-							<a>person 1</a>\
-							<a>person 2</a>\
-							<a>person 3</a>\
-							<a>person 4</a>\
-							<a>person 5</a>\
-						</div>\
-					</div></td>\
-					<td></td>\
-				</tr>'
-			});
-
-			Database.getAllPlayers(tmp).then(function(result) {
+			return Database.getAllPlayers(userdata).then(function(result) {
 				USER['allPlayers'] = [];
+				log(result);
 				Object.keys(result).sort().map(function(id) {
-					USER['allPlayers'].push(result[id]);
+					USER['allPlayers'].push({
+						name: result[id].name,
+						owner: result[id].owner,
+						playerid: result[id].playerid,
+						scores: result[id].scores,
+						starter: result[id].starter,
+						ward: result[id].ward,
+						pending: ""
+					});
 				});
 				log(USER.allPlayers);
 
+			}, function(err) {
+				log(err);
+			});
+		},
+
+		displayAllPlayers: () => {
+			Application().getAllPlayers().then(() => {
+				if (!USER['_player-list']) {
+					USER['_player-list'] = Vue.component('player-list', {
+						props: ['row'],
+						template: '<tr>\
+							<td> {{ row.name }} </td>\
+							<td>{{ row.scores.graffiti }}</td>\
+							<td>{{ row.scores.pot_holes }}</td>\
+							<td>{{ row.scores.street_lights }}</td>\
+							<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
+							<td>{{ (!row.owner)? \'None\' : checkName(row.owner) }}</td>\
+							<td><button v-on:click="$emit(\'acquire\')" :disabled="(!row.owner || checkUser(row))? false : true">{{ (checkUser(row)) ? \'Drop\' : \'Acquire\' }}</button></td>\
+							<td>{{ row.pending }}</td>\
+						</tr>',
+						methods: {
+							checkUser: (other) => {
+								return (other.owner == USER['userid']);
+							},
+							checkName: (owner) => {
+								if (USER['selectedLeague']) 
+									return USER['selectedLeague'].users[owner].name;
+								return owner;
+							}
+						}
+					});
+				}
+
 				var workingPlayers = jQuery.extend(true, {}, USER['allPlayers']);
+				var userRosters = USER['allPlayers'].filter(function(item) {
+					if (item.owner == "testuser0001") return item;
+				});
 
-
-				APP['allPlayers'] = new Vue({
+				USER['_allPlayers'] = new Vue({
 					el: '#allPlayers',
 					data: {
-						players: workingPlayers
+						players: workingPlayers,
+						rosters: userRosters
 					},
 					methods: {
+						acquirePlayer: (idx) => {
+							var tmp = USER['_allPlayers'];
 
+							if (USER['workingPlayers']) {
+								// makes sure the selected is not the same, if so undo select
+								if (USER['workingPlayers'].playerid == tmp.players[idx].playerid) {
+									tmp.players[idx].pending = "";
+									USER['workingPlayers'] = null;
+								}
+								else if (USER['workingPlayers'].owner ==  USER['userid'] && tmp.players[idx].owner == false ||
+										 USER['workingPlayers'].owner ==  false && tmp.players[idx].owner == USER['userid']) {
+									tmp.players[idx].pending = (tmp.players[idx].owner)? Constants.pendingDrop : Constants.pendingAcquire;
+									var p1 = USER['workingPlayers'];
+									var p2 = tmp.players[idx];
+									var move = {
+										userid: USER['userid'],
+										leagueid: USER['leagueid'],
+										add: (!p1.owner)? p1.playerid : p2.playerid,
+										drop: (p1.owner)? p1.playerid : p2.playerid
+									}
+									// it would be nice, if I can just recall the Application().getRoster() function, but freezes the UI
+									// Updates to add/drop player will also affect the roster
+									Database.acquirePlayer(move).then(function(acquirePlayer) {
+										if (acquirePlayer.success) {
+											p1.pending = p2.pending = "";
+											if (p1.owner == false) {
+												p1.owner = p2.owner;
+												p2.owner = false;
+												if (USER['_userRoster']) {
+													USER['_userRoster'].players.filter(function(item) {
+														if (item.playerid == p2.playerid) {
+															item.name = p1.name;
+															item.playerid = p1.playerid;
+															item.scores = p1.scores;
+															item.ward = p1.ward;
+														}
+													});
+													USER['_userRoster'].updateAggregator();
+												}
+											} else {
+												p2.owner = p1.owner;
+												p1.owner = false;
+												if (USER['_userRoster']) {
+													USER['_userRoster'].players.filter(function(item) {
+														if (item.playerid == p1.playerid) {
+															item.name = p2.name;
+															item.playerid = p2.playerid;
+															item.scores = p2.scores;
+															item.ward = p2.ward;
+														}
+													});
+													USER['_userRoster'].updateAggregator();
+												}
+											}
+											USER['workingPlayers'] = null;
+											
+										}
+									}).catch(function(err) {
+										log(err);
+									});
+								}
+								else {
+									log("Invalid Add/Drop of players");
+								}
+							}
+							else {
+								tmp.players[idx].pending = (tmp.players[idx].owner)? Constants.pendingDrop : Constants.pendingAcquire;
+								USER['workingPlayers'] = tmp.players[idx];
+							}
+						}
 					}
 				});
 
-			}, function(err) {
+			}); 
+		},
 
+		getMatch: () => {
+			log("Get Match has a 1 offset to account for the greater, but not equal operator");
+			var tmpdata = {
+				userid: USER['userid'],
+				leagueid: USER['leagueid'],
+				on: parseInt(USER['leaguestart'] + 1)
+			};
+			log(tmpdata);
+			Database.getMatch(tmpdata).then(console.log);
+		},
+
+		// this function is specific to the items needed at the roster page
+		loadRosterPage: () => {
+			Application().getLeague({
+				userid: USER['userid'],
+				leagueid: USER['leagueid'],
+				from: USER['leaguestart'],
+				to: USER['leagueend']
+			}).then((leagueLen) => {
+				if (!USER['selectedLeague']) {
+					USER['selectedLeague'] = leagueLen;
+				}
+				Application().displayRoster();
+				Application().displayAllPlayers();
 			});
 		}
-
-	};
-}
+	}; // end of return
+} // end of factory function
 
