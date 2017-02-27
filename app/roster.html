@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Requests</title>
-
+		<title>Roster</title>
 
 		<script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
 		<script type="text/javascript" src="../assets/vue.js"></script>
@@ -12,30 +10,41 @@
 		<script type="text/javascript" src="../assets/jquery-3.1.1.min.js"></script>
 	</head>
 	<body>
-		<!-- Header -->
-		
-		<h1>Fantasy Civics</h1>
-		<p>Insert splash page, and fancy stuff</p>
-
-		<!-- Contents -->
-		<a href="#">Home</a>
+		<h1>Roster</h1>
+		<p>Insert roster page, and fancy tables</p>
+		<a href="index.html">Home</a>
 		<a href="app.html">App</a>
-		<a href="roster.html">Roster</a>
+		<a href="#">Roster</a>
 
 		<h2>User Info</h2>
 		<div>
-			<p id="userid"></p>
+			<!-- <p id="userid"></p> -->
 			<p id="email"></p>
 			<p id="name"></p>
 			<!-- <img id="image" style="width:64px;height:64px;" alt="No Image"></img> -->
 			<button onclick="Application().userLogout()">Logout</button>
 		</div>
-		
-		<h2>Login</h2>
 
-		<input type="button" value="Google Authentication" onclick="Application().userLogin()">
+		<div id="userRoster">
+			<table>
+				<tr>
+					<th>Players</th><th>Graffiti</th><th>Pot Holes</th><th>Street Lights</th><th>Score</th><th>lineup</th><th>Actions</th><th>Pending</th>
+				</tr>
+				<tr is="roster-list" v-for="(player, index) in players" v-bind:row="player" v-bind:swap="players" v-on:toggle="togglePlayer(index)"></tr>
+				<tr>
+					<td></td><td></td><td></td><td></td>
+					<td>{{ aggregator }}</td>
+					<td></td><td></td><td></td>
+				</tr>
+			</table>
+		</div>
 
-		<!-- Footer -->
+		<div id="allPlayers">
+			<table>
+				<th>Players</th><th>Graffiti</th><th>Pot Holes</th><th>Street Lights</th><th>Score</th><th>League</th><th>Actions</th><th>Pending</th>
+				<tr is="player-list" v-for="(player, index) in players" v-bind:row="player" v-bind:swap="rosters" v-on:acquire="acquirePlayer(index)"></tr>
+			</table>
+		</div>
 
 		<!-- script -->
 
@@ -50,6 +59,10 @@
 			// Instantiate app
 			var app = Application();
 			app.getUser();
+			app.displayUser();
+			app.loadRosterPage();
+			//app.displayRoster();
+			//app.displayAllPlayers();
 		</script>
 	</body>
 </html>

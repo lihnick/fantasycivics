@@ -768,7 +768,7 @@ var Database = {
 					reject('Roster locked for remainder of the match.');
 				}
 				else{
-					movePlayerCallback(resolve, reject);
+					acquirePlayerCallback(resolve, reject);
 				}
 			});
 		});
