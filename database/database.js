@@ -35,7 +35,8 @@ var Database = {
 	Auth: DatabaseAuth(DatabaseFirebase),
 	Scoring: Scoring,
 
-	LOCK_ROSTERS_AFTER: Infinity, // Locks rosters 6/7 of the way through the match
+	LOCK_ROSTERS_AFTER: (5 / 7), // Locks rosters 5/7 of the way through the match
+	IN_SIMULATED_TIME: false,
 
 	getLockTime: (match) => {
 		var duration = match.end - match.start;
@@ -579,7 +580,7 @@ var Database = {
 				for(var week in schedule){
 					var games = schedule[week];
 					var sampleGame = games[0];
-					if(params.on < sampleGame.end && params.on > sampleGame.start){
+					if(params.on <= sampleGame.end && params.on >= sampleGame.start){
 						foundDate = true;
 						for(var gid in games){
 							var game = games[gid];
@@ -621,15 +622,24 @@ var Database = {
 		}
 
 		return new Promise((resolve, reject) => {
-			Database.getMatch(params).then((match) => {
-				var lockTime = Database.getLockTime(match);
-				var res = params.on > lockTime;
+			if(Database.IN_SIMULATED_TIME){
 				resolve({
-					locked: res,
-					lockTime: lockTime,
-					match: match
+					locked: false,
+					lockTime: false,
+					match: false
 				});
-			}).catch(reject);
+			}
+			else{
+				Database.getMatch(params).then((match) => {
+					var lockTime = Database.getLockTime(match);
+					var res = params.on > lockTime;
+					resolve({
+						locked: res,
+						lockTime: lockTime,
+						match: match
+					});
+				}).catch(reject);
+			}
 		});
 	},
 
