@@ -18,6 +18,32 @@ The above scripts will expose a public function. Call this function to instantia
 var Database = InitDatabase();
 ```
 
+## Globals
+
+**Warning:** If using global values other than the default, remember that the values reset to default on any page load.
+
+### Database.LOCK_ROSTERS_AFTER
+
+Value between `0` and `1` to determine at what point during a match users will no longer be able to modify their rosters. Default: `(5/7)`.
+
+* Ex) `Database.LOCKROSTERS_AFTER = 0.5;` means that rosters will be locked to editing halfway through the match.
+
+### Database.IN_SIMULATED_TIME
+
+Boolean for whether or not matches will be played using historical data and simulated time. Default: `false`.
+
+### Database.Scoring.DATASET_NAMES
+
+A mapping of dataset keys to their user-friendly names. The dataset keys match the keys provided in scoring data responses and every scoring data response includes all of the dataset keys.
+
+```javascript
+{
+	pot_holes: 'Pot Holes',
+	street_lights: 'Light Outages',
+	graffiti: 'Graffiti'
+}
+```
+
 The database object currently supports the methods below. Most, if not all, methods return promises and can be handled with `then` and `catch` callbacks.
 
 If not otherwise specified, parameters are required. If there is an ellipsis `...` in a response structure, it means that the format of the above object is repeated for other keys at the same level, if any.
