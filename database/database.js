@@ -579,7 +579,7 @@ var Database = {
 				for(var week in schedule){
 					var games = schedule[week];
 					var sampleGame = games[0];
-					if(params.on < sampleGame.end && params.on > sampleGame.start){
+					if(params.on <= sampleGame.end && params.on >= sampleGame.start){
 						foundDate = true;
 						for(var gid in games){
 							var game = games[gid];
