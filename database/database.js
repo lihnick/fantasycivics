@@ -35,7 +35,8 @@ var Database = {
 	Auth: DatabaseAuth(DatabaseFirebase),
 	Scoring: Scoring,
 
-	LOCK_ROSTERS_AFTER: (5 / 7), // Locks rosters 6/7 of the way through the match
+	LOCK_ROSTERS_AFTER: (5 / 7), // Locks rosters 5/7 of the way through the match
+	IN_SIMULATED_TIME: false,
 
 	getLockTime: (match) => {
 		var duration = match.end - match.start;
@@ -621,9 +622,16 @@ var Database = {
 		}
 
 		return new Promise((resolve, reject) => {
+
 			Database.getMatch(params).then((match) => {
 				var lockTime = Database.getLockTime(match);
-				var res = params.on > lockTime;
+				var res = false;
+				if(Database.IN_SIMULATED_TIME){
+					res = false;
+				}
+				else{
+					res = params.on > lockTime;
+				}
 				resolve({
 					locked: res,
 					lockTime: lockTime,
