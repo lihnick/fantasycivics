@@ -50,11 +50,13 @@
 			var l2 = '-KdJnBQC6hc7OF9FguyQ';
 			var l3 = '-KdiofxVNZK1_QDoI3cN';
 
+			var LEAGUE_ID = l2;
+
 			var Database = InitDatabase();
 
 			// Testing Get League Response
 			Database.getLeague({
-				leagueid: l3,
+				leagueid: LEAGUE_ID,
 				from: new Date('2/12/2017').getTime(),
 				to: Date.now()
 			}).then((league) => {
@@ -93,7 +95,7 @@
 
 			Database.getMatch({
 				userid: 'testuser0002',
-				leagueid: l3,
+				leagueid: LEAGUE_ID,
 				on: Date.now()
 			}).then((res) => {
 				console.log('Test Get Match Response');
@@ -105,7 +107,7 @@
 
 			// Comment out after testing once: changes persist
 			/*Database.movePlayer({
-				leagueid: l3,
+				leagueid: LEAGUE_ID,
 				userid: 'testuser0002',
 				sit: 'playerid0020',
 				start: 'playerid0031'

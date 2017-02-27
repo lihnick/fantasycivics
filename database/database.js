@@ -622,22 +622,24 @@ var Database = {
 		}
 
 		return new Promise((resolve, reject) => {
-
-			Database.getMatch(params).then((match) => {
-				var lockTime = Database.getLockTime(match);
-				var res = false;
-				if(Database.IN_SIMULATED_TIME){
-					res = false;
-				}
-				else{
-					res = params.on > lockTime;
-				}
+			if(Database.IN_SIMULATED_TIME){
 				resolve({
-					locked: res,
-					lockTime: lockTime,
-					match: match
+					locked: false,
+					lockTime: false,
+					match: false
 				});
-			}).catch(reject);
+			}
+			else{
+				Database.getMatch(params).then((match) => {
+					var lockTime = Database.getLockTime(match);
+					var res = params.on > lockTime;
+					resolve({
+						locked: res,
+						lockTime: lockTime,
+						match: match
+					});
+				}).catch(reject);
+			}
 		});
 	},
 
