@@ -2,9 +2,15 @@
 
 ## Getting Started
 
-All five of these files must be imported.
+All of these files must be imported.
 
 ```html
+<!-- Dependencies -->
+<script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
+<script type="text/javascript" src="../assets/promise.min.js"></script>
+<script type="text/javascript" src="../assets/jquery-3.1.1.min.js"></script>
+<script type="text/javascript" src="../lib/util.js"></script>
+<!-- Database API -->
 <script type="text/javascript" src="./database/player.js"></script>
 <script type="text/javascript" src="./database/league.js"></script>
 <script type="text/javascript" src="./database/scoring.js"></script>
@@ -17,6 +23,10 @@ The above scripts will expose a public function. Call this function to instantia
 ```javascript
 var Database = InitDatabase();
 ```
+
+The database object currently supports the methods below. Most, if not all, methods return promises and can be handled with `then` and `catch` callbacks.
+
+If not otherwise specified, parameters are required. If there is an ellipsis `...` in a response structure, it means that the format of the above object is repeated for other keys at the same level, if any.
 
 ## Globals
 
@@ -43,10 +53,6 @@ A mapping of dataset keys to their user-friendly names. The dataset keys match t
 	graffiti: 'Graffiti'
 }
 ```
-
-The database object currently supports the methods below. Most, if not all, methods return promises and can be handled with `then` and `catch` callbacks.
-
-If not otherwise specified, parameters are required. If there is an ellipsis `...` in a response structure, it means that the format of the above object is repeated for other keys at the same level, if any.
 
 ## Authentication
 
