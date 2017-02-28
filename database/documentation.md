@@ -748,3 +748,21 @@ Promise bearing data or error.
 		success: true
 	}
 ```
+
+## Events
+
+Listen for events like so:
+
+```javascript
+Database.when('rosters_change', {
+	leagueid: 'leagueid0001'
+}, function(res){
+	console.log('Rosters Changed: ', res);
+});
+```
+
+The following events are currently supported:
+
+* `rosters_change`
+	* Parameters: `leagueid`
+	* Response: `{changed: true}`
