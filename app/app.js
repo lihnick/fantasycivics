@@ -186,9 +186,30 @@ function Application() {
 			});
 		},
 
+		getLeagueData: () => {
+			if (!USER['leagueid'])
+				throw new Error("Leagueid not found.");
+			return Database.getLeagueData({leagueid: USER['leagueid']}).then((leagueData) => {
+				var tmp = leagueData.users[Object.keys(leagueData.users)[0]];
+				var idx = parseInt(tmp.losses) + parseInt(tmp.wins);
+				var obj = leagueData.schedule[idx][0]
+				USER['rosterdate'] = {
+					prevfrom: obj.start - (obj.end - obj.start),
+					prevto: obj.start,
+					thisfrom: obj.start,
+					thisto: obj.end,
+					week: idx
+				};
+				log(leagueData);
+				test = leagueData;
+			}).catch((err) => {
+				log("Error thrown, " + err);
+			});
+		},
+
 		getUserLeagues: () => {
 			if (!USER['userid']) 
-				return;
+				throw new Error("Userid not found.");
 			return Database.getUserLeagues({userid: USER.userid}).then(function(userLeagueList) {
 				log(userLeagueList);
 				test = userLeagueList;
@@ -270,29 +291,27 @@ function Application() {
 				throw new Error('Must specify {from}.');
 			else if(!params.to)
 				throw new Error('Must specify {to}.');
-			return Database.getLeague({
-				leagueid: params.userid,
-				leagueid: params.leagueid,
-				from: params.from,
-				to: params.to
-			}).then(function(result) {
+
+			return Database.getLeague(params).then(function(result) {
 				log(result);
-				return result;
+				return result; // this return is used by loadRosterPage()
 			}, function(err) {
 				log(err);
 			});
 		},
 
 		// Gets the user's roster based on a selected league
-		getRoster: () => {
-			var userdata = {
-				userid: USER['userid'],
-				leagueid: USER['leagueid'], //-KdqV4iI8CRGl3GiB24P, -KdIiWEUj7_toD3MKMO_
-				from: USER['leaguestart'],
-				to: USER['leagueend']
-			}
+		getRoster: (params) => {
+			if(!params.userid)
+				throw new Error('Must specify {userid}.');
+			else if(!params.leagueid)
+				throw new Error('Must specify {leagueid}.');
+			else if(!params.from)
+				throw new Error('Must specify {from}.');
+			else if(!params.to)
+				throw new Error('Must specify {to}.');
 
-			return Database.getRoster(userdata).then(function(rosterData) {
+			return Database.getRoster(params).then(function(rosterData) {
 				test = rosterData;
 				var playerList = Object.keys(rosterData.players).map(function(id) {
 					return {
@@ -314,13 +333,27 @@ function Application() {
 				};
 				log(USER['roster']);
 
-			}, function(err) {
-				log(err);
+			}).catch((err) => {
+				log("Error thrown, " + err);
 			});
 		},
 
 		displayRoster: () => {
-			Application().getRoster().then(() => {
+			if(!USER.userid)
+				throw new Error('userid not found.');
+			else if(!USER.leagueid)
+				throw new Error('leagueid not found.');
+			else if(!USER.rosterdate.prevfrom)
+				throw new Error('starting date not found');
+			else if(!USER.rosterdate.prevto)
+				throw new Error('ending date not found');
+
+			Application().getRoster({
+				userid: USER.userid,
+				leagueid: USER.leagueid,
+				from: USER.rosterdate.prevfrom,
+				to: USER.rosterdate.prevto
+			}).then(() => {
 				if (!USER['_roster-list']) {
 					USER['_roster-list'] = Vue.component('roster-list', {
 						props: ['row'],
@@ -413,14 +446,17 @@ function Application() {
 			});
 		},
 
-		getAllPlayers: () => {
-			var userdata = {
-				leagueid: USER['leagueid'], //-KdqV4iI8CRGl3GiB24P, -KdIiWEUj7_toD3MKMO_
-				from: USER['leaguestart'],
-				to: USER['leagueend']
-			}
+		getAllPlayers: (params) => {
+			if(!params.leagueid)
+				throw new Error('DB - leagueid not found.');
+			else if(!params.from)
+				throw new Error('DB - starting date not found');
+			else if(!params.to)
+				throw new Error('DB - ending date not found');
 
-			return Database.getAllPlayers(userdata).then(function(result) {
+			 //-KdqV4iI8CRGl3GiB24P, -KdIiWEUj7_toD3MKMO_
+
+			return Database.getAllPlayers(params).then(function(result) {
 				USER['allPlayers'] = [];
 				log(result);
 				Object.keys(result).sort().map(function(id) {
@@ -436,13 +472,24 @@ function Application() {
 				});
 				log(USER.allPlayers);
 
-			}, function(err) {
-				log(err);
+			}).catch((err) => {
+				log("Thrown, " + err);
 			});
 		},
 
 		displayAllPlayers: () => {
-			Application().getAllPlayers().then(() => {
+			if(!USER.leagueid)
+				throw new Error('UI - leagueid not found.');
+			else if(!USER.rosterdate.prevfrom)
+				throw new Error('UI - starting date not found');
+			else if(!USER.rosterdate.prevto)
+				throw new Error('UI - ending date not found');
+
+			Application().getAllPlayers({
+				leagueid: USER.leagueid,
+				from: USER.rosterdate.prevfrom,
+				to: USER.rosterdate.prevto
+			}).then(() => {
 				if (!USER['_player-list']) {
 					USER['_player-list'] = Vue.component('player-list', {
 						props: ['row'],
@@ -461,8 +508,9 @@ function Application() {
 								return (other.owner == USER['userid']);
 							},
 							checkName: (owner) => {
-								if (USER['selectedLeague']) 
-									return USER['selectedLeague'].users[owner].name;
+								if (USER['selectedleague']) {
+									return USER['selectedleague'].users[owner].name;
+								}
 								return owner;
 							}
 						}
@@ -538,7 +586,7 @@ function Application() {
 											USER['workingPlayers'] = null;
 											
 										}
-									}).catch(function(err) {
+									}).catch((err) => {
 										log(err);
 									});
 								}
@@ -570,19 +618,28 @@ function Application() {
 
 		// this function is specific to the items needed at the roster page
 		loadRosterPage: () => {
-			Application().getLeague({
-				userid: USER['userid'],
-				leagueid: USER['leagueid'],
-				from: USER['leaguestart'],
-				to: USER['leagueend']
-			}).then((leagueLen) => {
-				if (!USER['selectedLeague']) {
-					USER['selectedLeague'] = leagueLen;
-				}
-				Application().displayRoster();
-				Application().displayAllPlayers();
+
+			Application().getLeagueData({
+				leagueid: USER['leagueid']
+			}).then(() => {
+				Application().getLeague({
+					userid: USER.userid,
+					leagueid: USER.leagueid,
+					from: USER.rosterdate.prevfrom,
+					to: USER.rosterdate.prevto
+				}).then((userSelect) => {
+					log(userSelect);
+					USER['selectedleague'] = userSelect;
+					log(USER);
+					Application().displayRoster();
+					Application().displayAllPlayers();
+				}).catch((err) => {
+					log("Thrown, " + err);
+				});
+			}).catch((err) => {
+				log("Thrown, " + err);
 			});
+
 		}
 	}; // end of return
 } // end of factory function
-
