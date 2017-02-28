@@ -452,27 +452,33 @@ var Database = {
 			throw new Error('Must specify {to}.');
 		}
 
-		new Promise((resolve, reject) => {
+		return new Promise((resolve, reject) => {
 			var ref = db.ref('rosters/' + params.leagueid + '/' + params.userid);
 			var query = ref.orderByChild('timestamp').startAt(params.from).endAt(params.to).limitToLast(1);
 			query.once('value', (snapshot) => {
-				var roster = snapshot.val();
-				console.log('Fetched last historical roster: ', roster);
-				delete roster.timestamp;
-				var changes = ['sit', 'start', 'add', 'drop'];
-				for(var c = 0; c < changes.length; c++){
-					var action = changes[c];
-					if(roster[action]){
-						delete roster[action];
-					}
+				var val = snapshot.val();
+				var keys = Object.keys(val);
+				if(keys.length > 1){
+					reject('Error in getHistoricalRoster: Too many historical rosters were returned.');
 				}
-				resolve({
-					userid: params.userid,
-					leagueid: params.leagueid,
-					from: params.from,
-					to: params.to,
-					roster: roster
-				});
+				else{
+					var roster = val[keys[0]];
+					delete roster.timestamp;
+					var changes = ['sit', 'start', 'add', 'drop'];
+					for(var c = 0; c < changes.length; c++){
+						var action = changes[c];
+						if(roster[action]){
+							delete roster[action];
+						}
+					}
+					resolve({
+						userid: params.userid,
+						leagueid: params.leagueid,
+						from: params.from,
+						to: params.to,
+						roster: roster
+					});
+				}
 			}).catch(reject);
 		});
 	},

@@ -93,7 +93,8 @@
 				console.error(err);
 			});
 
-			Database.getMatch({
+			// Should return error now that match has passed
+			/*Database.getMatch({
 				userid: 'testuser0002',
 				leagueid: LEAGUE_ID,
 				on: Date.now()
@@ -103,7 +104,7 @@
 			}).catch((err) => {
 				console.log('Test Get Match Response');
 				console.error(err);
-			});
+			});*/
 
 			// Comment out after testing once: changes persist
 			/*Database.movePlayer({
@@ -133,6 +134,31 @@
 				console.log('Testing Create League');
 				console.error(err);
 			});*/
+
+			// Test Match Scoring
+			var testUser = 'testuser0001';
+			var testTime = new Date('1/30/2017').getTime();
+			Database.getMatch({
+				leagueid: LEAGUE_ID,
+				userid: testUser,
+				on: testTime
+			}).then((match) => {
+				console.log('Match: ', match);
+				Database.getHistoricalRoster({
+					leagueid: LEAGUE_ID,
+					userid: testUser,
+					from: match.start,
+					to: match.end
+				}).then((roster) => {
+					console.log('Last Roster for Match: ', roster);
+				}).catch((err) => {
+					console.log('Error in getHistoricalRoster');
+					console.error(err);
+				});
+			}).catch((err) => {
+				console.log('Error in getMatch');
+				console.error(err);
+			});
 
 		</script>
 	
