@@ -333,7 +333,8 @@ Promise bearing data or error.
 		testuser0001: {
 			wins: 0,
 			losses: 0,
-			team: 'Test Team'
+			team: 'Test Team',
+			name: 'Fake Player'
 		}
 		...
 	},
@@ -425,6 +426,49 @@ Promise bearing data or error.
 ```
 
 * Each "week" (set of matches) is contained in a list. The `schedule` property of the response is a list of these lists.
+
+### Database.getLeaderboard()
+Get win/loss records and rankings for users in the given league.
+
+**Parameters**
+```
+{
+	leagueid: 'leagueid0001'
+}
+```
+
+**Response**
+Promise bearing data or error.
+```
+{
+	leagueid: 'leagueid0001',
+	name: 'Test League',
+	records: {
+		testuser0001: {
+			wins: ['testuser0002', 'testuser0004'], // List of players beaten
+			losses: ['testuser0003'], // List of players lost to
+			team: 'Test Team',
+			name: 'Fake Player',
+			userid: 'testuser0001'
+		}
+		...
+	},
+	rankings: [
+		{
+			wins: ['testuser0002', 'testuser0004'], // List of players beaten
+			losses: ['testuser0003'], // List of players lost to
+			team: 'Test Team',
+			name: 'Fake Player',
+			userid: 'testuser0001'
+		}
+		...
+	]
+}
+```
+
+* In the `rankings` list, users are sorted in order of rank, where index `0` is first place.
+* In the future, tiebreakers will be implemented.
+* If you already have the `league` object for the given league, you can accelerate this query like so: `Database.getLeaderboard({...}, league)`.
 
 ## Players
 
