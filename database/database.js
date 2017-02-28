@@ -485,7 +485,7 @@ var Database = {
 					}
 				}
 				else{
-					console.warn('getHistoricalRoster: No historical rosters found, using current roster, may be misdated.');
+					//console.warn('getHistoricalRoster: No historical rosters found, using current roster, may be misdated.');
 					Database.getLeagueData({
 						leagueid: params.leagueid
 					}).then((league) => {
