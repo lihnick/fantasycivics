@@ -7,6 +7,7 @@ Database.Auth.getCurrentUser().then((user) => {
 }).catch((err) => {
 	if(err === 'No user currently authenticated.'){
 		console.log(err);
+		displayError(err);
 	}
 	else{
 		console.error(err);
@@ -17,7 +18,7 @@ var loginBtn = document.getElementById('login-button')
 loginBtn.addEventListener('click', (e) => {
 	Database.Auth.signInUser().then((user) => {
 		login(user);
-	}).catch(console.error);
+	}).catch(displayError);
 });
 
 function main(){
@@ -43,7 +44,7 @@ function main(){
 		}).then((res) => {
 			presentJoined();
 			renderUserLeagues();
-		}).catch(console.error);
+		}).catch(displayError);
 	}
 	else{
 		renderUserLeagues();
@@ -56,7 +57,7 @@ function login(user){
 	KNOWN_USERS[USER.userid] = USER;
 	Database.updateUser(user).then((done) => {
 		main();
-	}).catch(console.error);
+	}).catch(displayError);
 }
 
 function createLeagueInvitation(){
@@ -66,7 +67,7 @@ function createLeagueInvitation(){
 	}).then((res) => {
 		console.log('Join League with Code: ' + res.inviteid);
 		renderUserLeagues();
-	}).catch(console.error);
+	}).catch(displayError);
 }
 
 function getQueryParams(qs) {
@@ -81,11 +82,22 @@ function getQueryParams(qs) {
 }
 
 function displayMessage(message){
+	var box = document.getElementById('message-container');
 	var output = document.getElementById('message');
+	var close = document.getElementById('close-message');
+	box.style.display = 'block';
+	output.innerText = message;
+	close.addEventListener('click', (e) => {
+		box.style.display = 'none';
+	});
+}
+
+function displayError(err){
+	displayMessage('Error: ' + err.toString());
 }
 
 function presentJoined(){
-	console.log('You joined the league!');
+	displayMessage('You joined the league!');
 }
 
 function renderUserLeagues(){
@@ -124,7 +136,7 @@ function renderUserLeagues(){
 						lh += '<h3>' + stub.league.name + '</h3>'
 						if(stub.league.creator === USER.userid){
 							lh += '<h4>Invite URL</h4>'
-							lh += '<p>' + window.location.href + '?code=' + inviteid + '</p>'
+							lh += '<p>' + document.location.origin + document.location.pathname + '?code=' + inviteid + '</p>'
 						}
 						lh += '<h4>Members</h4>'
 						lh += '<ul>'
@@ -138,13 +150,13 @@ function renderUserLeagues(){
 					html += lh
 				}
 				output.innerHTML = html;
-			}).catch(console.error);
+			}).catch(displayError);
 		}
 		else{
 			html += '<p>No leagues: start one!</p>'
 			output.innerHTML = html;
 		}
-	}).catch(console.error);
+	}).catch(displayError);
 }
 
 function startLeague(stub){
@@ -156,5 +168,5 @@ function startLeague(stub){
 		weeks: 3
 	}).then((res) => {
 		console.log('Go to league: ' + res.leagueid);
-	}).catch(console.error);
+	}).catch(displayError);
 }
