@@ -8,11 +8,36 @@
 		<script type="text/javascript" src="../assets/promise.min.js"></script>
 		<script type="text/javascript" src="../assets/moment.min.js"></script>
 		<script type="text/javascript" src="../assets/jquery-3.1.1.min.js"></script>
+
+		<style>
+
+			section#page {
+				display: none;
+			}
+
+		</style>
+
 	</head>
 	<body>
+		
 		<!-- Header -->
+
 		<h1>Fantasy Civics</h1>
 
+		<section id="login">
+			<h2>Login</h2>
+			<button id="login-button">Google Login</button>
+		</section>
+
+		<section id="page">
+
+			<h2>Start a New League</h2>
+			<button id="create-button">Start League</button>
+
+			<h2>Leagues Waiting to Begin</h2>
+			<div id="waiting-leagues"></div>
+
+		</section>
 
 		<!-- Footer -->
 
