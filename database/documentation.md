@@ -667,6 +667,7 @@ Promise bearing data or error.
 		on: 1483250400000,
 		home: 'testuser0001',
 		away: 'testuser0002',
+		winner: 'testuser0002', // Field will not exist if match is not over
 		start: 1483250400000,
 		end: 1485928800000,
 		week: 2
@@ -674,6 +675,34 @@ Promise bearing data or error.
 ```
 
 * Properties `start` and `end` represent the start and ending times of the match.
-* Property `week` indicates the week in the season the match is part of.
+* Property `week` indicates the week in the season the match is part of (does not correspond to week index in schedule).
 
 **Note:** _The process to determine who wins a past match and save that result are still under development._
+
+### Database.getMatchScore()
+Get the match a given player is competing in or will compete in on a given date.
+
+**Parameters**
+```
+{
+	userid: 'testuser0001',
+	leagueid: 'leagueid0001',
+	on: 1483250400000
+}
+```
+
+**Response**
+Promise bearing data or error.
+```
+	{
+		userid: 'testuser0001',
+		leagueid: 'leagueid0001',
+		on: 1483250400000,
+		home: 'testuser0001',
+		away: 'testuser0002',
+		winner: 'testuser0002', // Field will not exist if match is not over
+		start: 1483250400000,
+		end: 1485928800000,
+		week: 2
+	}
+```

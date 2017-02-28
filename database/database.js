@@ -764,17 +764,23 @@ var Database = {
 							home: false,
 							away: false
 						}
+						var gameRosters = {};
 						for(var i = 0; i < rosters.length; i++){
 							var competitor = rosters[i];
 							var roster = competitor.roster;
 							var totalScore = 0;
 							for(var pid in roster){
+								var player = allPlayers[pid];
+								player.starter = roster[pid];
 								if(roster[pid]){
-									var player = allPlayers[pid];
 									for(var dataset in Scoring.DATASETS){
 										totalScore += player.scores[dataset];
 									}
 								}
+								if(!gameRosters[competitor.userid]){
+									gameRosters[competitor.userid] = {};
+								}
+								gameRosters[competitor.userid][pid] = player;
 							}
 							if(match.home === competitor.userid){
 								finalScore.home = totalScore;
@@ -787,6 +793,7 @@ var Database = {
 						resolve({
 							leagueid: params.leagueid,
 							match: match,
+							rosters: gameRosters,
 							winner: winner
 						});
 					}).catch(reject);
