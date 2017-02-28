@@ -795,6 +795,57 @@ var Database = {
 		});
 	},
 
+	setMatchOutcome: (params) => {
+		if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+		else if(!params.leagueid){
+			throw new Error('Must specify {leagueid}.');
+		}
+		else if(!params.on){
+			throw new Error('Must specify {on}.');
+		}
+
+		return new Promise((resolve, reject) => {
+			Database.getMatchScore(params).then((score) => {
+				var ref = db.ref('leagues/' + params.leagueid + '/schedule');
+				ref.once('value', (snapshot) => {
+					var schedule = snapshot.val();
+					var weekKey = (score.match.week - 1);
+					var games = schedule[weekKey];
+					var found = false;
+					var gameKey = false;
+					for(var g in games){
+						var game = games[g];
+						if(game.home === score.match.home && game.away === score.match.away){
+							found = true;
+							gameKey = g;
+							break;
+						}
+					}
+					if(found){
+						var outcomeRef = db.ref('leagues/' + params.leagueid + '/schedule/' + weekKey + '/' + gameKey + '/winner');
+						outcomeRef.once('value', (snapshot) => {
+							if(snapshot.exists()){
+								reject('setMatchOutcome: Match outcome already determined.');
+							}
+							else{
+								outcomeRef.set(score.winner).then(() => {
+									resolve({
+										success: true
+									});
+								}).catch(reject);
+							}
+						}).catch(reject);
+					}
+					else{
+						reject('setMatchOutcome: Could not find match {match: ' + JSON.stringify(score.match) + '} in league {leagueid: ' + params.leagueid + '} schedule.');
+					}
+				}).catch(reject);
+			}).catch(reject);
+		});
+	},
+
 	isLocked: (params) => {
 		if(!params.userid){
 			throw new Error('Must specify {userid}.');

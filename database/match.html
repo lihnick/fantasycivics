@@ -57,7 +57,7 @@
 
 			var fromDate = new Date('2/19/2017').getTime();
 			var toDate = new Date('2/24/2017').getTime()
-			var onDate = new Date('2/24/2017').getTime()
+			var onDate = new Date('2/21/2017').getTime()
 
 			var testUser = 'testuser0001';
 			var testTime = onDate;//new Date('2/3/2017').getTime();
@@ -65,20 +65,20 @@
 			function loadMatch(league){
 				Database.getMatch({
 					userid: testUser,
-					leagueid: LEAGUE_ID,
+					leagueid: league.leagueid,
 					on: onDate
 				}).then((match) => {
 					console.log('Test Get Match Response');
 					console.log(match);
 					var p1 = Database.getRoster({
 						userid: match.home,
-						leagueid: LEAGUE_ID,
+						leagueid: league.leagueid,
 						from: match.start,
 						to: match.end
 					});
 					var p2 = Database.getRoster({
 						userid: match.away,
-						leagueid: l3,
+						leagueid: league.leagueid,
 						from: match.start,
 						to: match.end
 					});
@@ -96,23 +96,27 @@
 				});
 			}
 
-			Database.getLeague({
-				leagueid: LEAGUE_ID,
-				from: fromDate,
-				to: toDate
-			}).then((league) => {
-				console.log('Test Get League Response');
-				console.log(league);
-				loadMatch(league);
-				//
-				renderSchedule(league.schedule, league, league.users);
-				for(var uid in league.rosters){
-					renderRosters(league.rosters[uid], uid, league);
-				}
-			}).catch((err) => {
-				console.log('Test Get League Response');
-				console.error(err);
-			});
+			function main(){
+				Database.getLeague({
+					leagueid: LEAGUE_ID,
+					from: fromDate,
+					to: toDate
+				}).then((league) => {
+					console.log('Test Get League Response');
+					console.log(league);
+					loadMatch(league);
+					//
+					renderSchedule(league.schedule, league, league.users);
+					for(var uid in league.rosters){
+						//renderRosters(league.rosters[uid], uid, league);
+					}
+				}).catch((err) => {
+					console.log('Test Get League Response');
+					console.error(err);
+				});
+			}
+
+			main();
 
 			// Test Match Scoring
 			Database.getMatchScore({
@@ -120,7 +124,17 @@
 				userid: testUser,
 				on: testTime
 			}).then((score) => {
-				console.log('Match Outcome: ', score);
+				console.log('Match Score: ', score);
+				Database.setMatchOutcome({
+					leagueid: LEAGUE_ID,
+					userid: testUser,
+					on: testTime
+				}).then((res) => {
+					console.log('Set Match Outcome: ', res);
+				}).catch((err) => {
+					console.log('Error in setMatchOutcome');
+					console.error(err);
+				});
 			}).catch((err) => {
 				console.log('Error in getMatchScore');
 				console.error(err);
