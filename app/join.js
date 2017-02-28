@@ -35,8 +35,19 @@ function main(){
 
 	var params = getQueryParams(document.location.search);
 	var inviteid = params.code;
-	
-	renderUserLeagues();
+
+	if(inviteid){
+		Database.acceptLeagueInvitation({
+			userid: USER.userid,
+			inviteid: inviteid
+		}).then((res) => {
+			presentJoined();
+			renderUserLeagues();
+		}).catch(console.error);
+	}
+	else{
+		renderUserLeagues();
+	}
 
 }
 
@@ -69,17 +80,12 @@ function getQueryParams(qs) {
 	return params;
 }
 
-function joinLeague(inviteid){
-	Database.acceptLeagueInvitation({
-		userid: USER.userid,
-		inviteid: inviteid
-	}).then((res) => {
-		presentJoined();
-	}).catch(console.error);
+function displayMessage(message){
+	var output = document.getElementById('message');
 }
 
 function presentJoined(){
-
+	console.log('You joined the league!');
 }
 
 function renderUserLeagues(){
@@ -116,15 +122,19 @@ function renderUserLeagues(){
 					var stub = res[inviteid];
 					var lh = '';
 						lh += '<h3>' + stub.league.name + '</h3>'
-						lh += '<h4>Invite URL</h4>'
-						lh += '<p>' + window.location.href + '?code=' + inviteid + '</p>'
+						if(stub.league.creator === USER.userid){
+							lh += '<h4>Invite URL</h4>'
+							lh += '<p>' + window.location.href + '?code=' + inviteid + '</p>'
+						}
 						lh += '<h4>Members</h4>'
 						lh += '<ul>'
 						for(var userKey in stub.members){
 							lh += '<li>' + KNOWN_USERS[userKey].name + '</li>'
 						}
 						lh += '</ul>'
-						lh += '<button>Begin League</button>'
+						if(stub.league.creator === USER.userid){
+							lh += '<button>Begin League</button>'
+						}
 					html += lh
 				}
 				output.innerHTML = html;
