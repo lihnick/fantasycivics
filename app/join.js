@@ -1,13 +1,14 @@
 var Database = InitDatabase();
 var USER = false;
 var KNOWN_USERS = {};
+var WATCH_LEAGUES = {};
+var YOUR_LEAGUES = {}
 
 Database.Auth.getCurrentUser().then((user) => {
 	login(user);
 }).catch((err) => {
 	if(err === 'No user currently authenticated.'){
-		console.log(err);
-		displayError(err);
+		displayMessage('Log in in to play Fantasy Civics!');
 	}
 	else{
 		console.error(err);
@@ -43,13 +44,17 @@ function main(){
 			inviteid: inviteid
 		}).then((res) => {
 			presentJoined();
-			renderUserLeagues();
+			render();
 		}).catch(displayError);
 	}
 	else{
-		renderUserLeagues();
+		render();
 	}
 
+}
+
+function render(){
+	renderUserLeagues();
 }
 
 function login(user){
@@ -93,6 +98,7 @@ function displayMessage(message){
 }
 
 function displayError(err){
+	console.error(err);
 	displayMessage('Error: ' + err.toString());
 }
 
@@ -107,6 +113,7 @@ function renderUserLeagues(){
 		var output = document.getElementById('waiting-leagues');
 		var html = '';
 		if(res){
+			YOUR_LEAGUES = res;
 			var promises = [];
 			for(var iid in res){
 				for(var uid in res[iid].members){
@@ -131,6 +138,14 @@ function renderUserLeagues(){
 					KNOWN_USERS[user.userid] = user;
 				}
 				for(var inviteid in res){
+					if(!(inviteid in WATCH_LEAGUES)){
+						WATCH_LEAGUES[inviteid] = true;
+						Database.when('people_join', {
+							inviteid: inviteid
+						}, (res) => {
+							renderUserLeagues();
+						});
+					}
 					var stub = res[inviteid];
 					var lh = '';
 						lh += '<h3>' + stub.league.name + '</h3>'
@@ -145,7 +160,7 @@ function renderUserLeagues(){
 						}
 						lh += '</ul>'
 						if(stub.league.creator === USER.userid){
-							lh += '<button>Begin League</button>'
+							lh += '<button onclick="startLeague(\'' + inviteid + '\');">Begin League</button>'
 						}
 					html += lh
 				}
@@ -159,14 +174,20 @@ function renderUserLeagues(){
 	}).catch(displayError);
 }
 
-function startLeague(stub){
-	Database.createLeague({
-		name: stub.league.name,
-		users: Object.keys(stub.memebers),
-		start: new Date('2/5/2017').getTime(),
-		end: new Date('2/26/2017').getTime(),
-		weeks: 3
-	}).then((res) => {
-		console.log('Go to league: ' + res.leagueid);
-	}).catch(displayError);
+function startLeague(inviteid){
+	var stub = YOUR_LEAGUES[inviteid];
+	try{
+		Database.createLeague({
+			name: stub.league.name,
+			users: Object.keys(stub.members),
+			start: new Date('2/5/2017').getTime(),
+			end: new Date('2/26/2017').getTime(),
+			weeks: 3
+		}).then((res) => {
+			displayMessage('Created League: ' + res.leagueid);
+		}).catch(displayError);
+	}
+	catch(err){
+		displayError(err);
+	}
 }

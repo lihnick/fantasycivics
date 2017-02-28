@@ -58,6 +58,17 @@ var Database = {
 					});
 				});
 				break;
+			case 'people_join':
+				if(!params.inviteid){
+					throw new Error('Must specify {inviteid}.');
+				}
+				var ref = db.ref('invitations/' + params.inviteid + '/members');
+				ref.on('child_added', (snapshot) => {
+					callback({
+						changed: true
+					});
+				});
+				break;
 			default:
 				throw new Error('No such event listener: ' + eventType);
 				break;
