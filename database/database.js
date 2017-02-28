@@ -380,57 +380,71 @@ var Database = {
 		});
 	},
 
-	getLeaderBoard: (params) => {
+	getLeaderBoard: (params, inLeague) => {
 		if(!params.leagueid){
 			throw new Error('Must specify {leagueid}.');
 		}
 
-		return new Promise((resolve, reject) => {
-			Database.getLeague({
+		var getLeaderBoardCallback = (league, resolve, reject) => {
+			var records = Util.clone(league.users);
+			// Convert counters to lists of opponents
+			for(var uid in records){
+				records[uid].userid = uid;
+				records[uid].wins = [];
+				records[uid].losses = [];
+			}
+			var schedule = league.schedule;
+			for(var w in schedule){
+				for(var g in schedule[w]){
+					var match = schedule[w][g];
+					if(match.winner){
+						var loser = (match.home === match.winner) ? match.away : match.home;
+						/*records[match.winner].wins++;
+						records[loser].losses++;*/
+						// Track opponents
+						records[match.winner].wins.push(loser);
+						records[loser].losses.push(match.winner);
+					}
+				}
+			}
+			var rankings = Object.keys(records).map((userKey) => {
+				records[userKey].userid = userKey;
+				return records[userKey];
+			}).sort((a, b) => {
+				var winDiff = b.wins.length - a.wins.length;
+				var loseDiff = a.losses.length - b.losses.length;
+				var order = winDiff;
+				if(winDiff === 0){
+					order = loseDiff;
+				}
+				return order;
+			});
+			resolve({
 				leagueid: params.leagueid,
-				from: 1,
-				to: 1
-			}).then((league) => {
-				var records = Util.clone(league.users);
-				// Convert counters to lists of opponents
-				for(var uid in records){
-					records[uid].userid = uid;
-					records[uid].wins = [];
-					records[uid].losses = [];
+				name: league.name,
+				records: records,
+				rankings: rankings
+			});
+		}
+
+		return new Promise((resolve, reject) => {
+			if(inLeague){
+				if(inLeague.leagueid === params.leagueid){
+					getLeaderBoardCallback(inLeague, resolve, reject);
 				}
-				var schedule = league.schedule;
-				for(var w in schedule){
-					for(var g in schedule[w]){
-						var match = schedule[w][g];
-						if(match.winner){
-							var loser = (match.home === match.winner) ? match.away : match.home;
-							/*records[match.winner].wins++;
-							records[loser].losses++;*/
-							// Track opponents
-							records[match.winner].wins.push(loser);
-							records[loser].losses.push(match.winner);
-						}
-					}
+				else{
+					reject('getLeaderboard: League object passed in to accelerate query does not match the given leagueid.');
 				}
-				var rankings = Object.keys(records).map((userKey) => {
-					records[userKey].userid = userKey;
-					return records[userKey];
-				}).sort((a, b) => {
-					var winDiff = b.wins.length - a.wins.length;
-					var loseDiff = a.losses.length - b.losses.length;
-					var order = winDiff;
-					if(winDiff === 0){
-						order = loseDiff;
-					}
-					return order;
-				});
-				resolve({
+			}
+			else{
+				Database.getLeague({
 					leagueid: params.leagueid,
-					name: league.name,
-					records: records,
-					rankings: rankings
-				});
-			}).catch(reject);
+					from: 1,
+					to: 1
+				}).then((league) => {
+					getLeaderBoardCallback(league, resolve, reject);
+				}).catch(reject);				
+			}
 		});
 	},
 
