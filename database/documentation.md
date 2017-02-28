@@ -333,7 +333,8 @@ Promise bearing data or error.
 		testuser0001: {
 			wins: 0,
 			losses: 0,
-			team: 'Test Team'
+			team: 'Test Team',
+			name: 'Fake Player'
 		}
 		...
 	},
@@ -392,7 +393,8 @@ Promise bearing data or error.
 		testuser0001: {
 			wins: 0,
 			losses: 0,
-			team: 'Test Team'
+			team: 'Test Team',
+			name: 'Fake Player'
 		}
 		...
 	},

@@ -270,3 +270,23 @@ function renderBoxScore(match, home, away, league){
 	div.appendChild(playerTable);
 	document.body.appendChild(div);	
 }
+
+function renderBoxScore(rankings, records, league){
+	var div = document.createElement('div');
+	var h2 = document.createElement('h2');
+		h2.innerText = league.name + ' Leaderboard';
+	var headers = [
+		'Rank',
+		'Name'
+	];
+	var rows = rankings.map((user, i) => {
+		return [
+			(i + 1),
+			user.name
+		];
+	})
+	var playerTable = createDOMTable(headers, rows);
+	div.appendChild(h2);
+	div.appendChild(playerTable);
+	document.body.appendChild(div);	
+}

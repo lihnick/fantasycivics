@@ -386,7 +386,11 @@ var Database = {
 		}
 
 		return new Promise((resolve, reject) => {
-			Database.getLeagueData(params).then((league) => {
+			Database.getLeague({
+				leagueid: params.leagueid,
+				from: 1,
+				to: 1
+			}).then((league) => {
 				var records = Util.clone(league.users);
 				// Convert counters to lists of opponents
 				for(var uid in records){
