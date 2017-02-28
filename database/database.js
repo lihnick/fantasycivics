@@ -76,6 +76,7 @@ var Database = {
 				if(snapshot.exists()){
 					var userData = snapshot.val();
 					var newData = {
+						userid: userData.userid || params.userid, // Reversed in case world explodes
 						name: params.name || userData.name,
 						image: params.image || userData.image,
 						email: params.email || userData.image

@@ -1,5 +1,6 @@
 var Database = InitDatabase();
 var USER = false;
+var KNOWN_USERS = {};
 
 Database.Auth.getCurrentUser().then((user) => {
 	login(user);
@@ -38,6 +39,7 @@ function main(){
 
 function login(user){
 	USER = user;
+	KNOWN_USERS[USER.userid] = USER;
 	Database.updateUser(user).then((done) => {
 		main();
 	}).catch(console.error);
@@ -73,26 +75,51 @@ function renderUserLeagues(){
 		var output = document.getElementById('waiting-leagues');
 		var html = '';
 		if(res){
-			for(var inviteid in res){
-				var stub = res[inviteid];
-				var lh = '';
-					lh += '<h3>' + stub.league.name + '</h3>'
-					lh += '<h4>Invite URL</h4>'
-					lh += '<p>' + window.location.href + '?code=' + inviteid + '</p>'
-					lh += '<h4>Members</h4>'
-					lh += '<ul>'
-					for(var uid in stub.members){
-						lh += '<li>' + uid + '</li>'
-					}
-					lh += '</ul>'
-					lh += '<button>Begin League</button>'
-				html += lh
+			var promises = [];
+			for(var iid in res){
+				for(var uid in res[iid].members){
+					var p = new Promise((resolve, reject) => {
+						if(uid in KNOWN_USERS){
+							resolve(KNOWN_USERS[uid]);
+						}
+						else{
+							Database.getUser({
+								userid: uid
+							}).then((user) => {
+								resolve(user);
+							}).catch(reject);
+						}
+					})
+					promises.push(p);
+				}
 			}
+			Promise.all(promises).then((users) => {
+				for(var u = 0; u < users.length; u++){
+					var user = users[u];
+					KNOWN_USERS[user.userid] = user;
+				}
+				for(var inviteid in res){
+					var stub = res[inviteid];
+					var lh = '';
+						lh += '<h3>' + stub.league.name + '</h3>'
+						lh += '<h4>Invite URL</h4>'
+						lh += '<p>' + window.location.href + '?code=' + inviteid + '</p>'
+						lh += '<h4>Members</h4>'
+						lh += '<ul>'
+						for(var userKey in stub.members){
+							lh += '<li>' + KNOWN_USERS[userKey].name + '</li>'
+						}
+						lh += '</ul>'
+						lh += '<button>Begin League</button>'
+					html += lh
+				}
+				output.innerHTML = html;
+			}).catch(console.error);
 		}
 		else{
 			html += '<p>No leagues: start one!</p>'
+			output.innerHTML = html;
 		}
-		output.innerHTML = html;
 	}).catch(console.error);
 }
 
