@@ -271,18 +271,20 @@ function renderBoxScore(match, home, away, league){
 	document.body.appendChild(div);	
 }
 
-function renderBoxScore(rankings, records, league){
+function renderLeaderboard(rankings, records, league){
 	var div = document.createElement('div');
 	var h2 = document.createElement('h2');
 		h2.innerText = league.name + ' Leaderboard';
 	var headers = [
 		'Rank',
-		'Name'
+		'Name',
+		'Record'
 	];
 	var rows = rankings.map((user, i) => {
 		return [
 			(i + 1),
-			user.name
+			user.name,
+			'(' + user.wins.length + '-' + user.losses.length + ')'
 		];
 	})
 	var playerTable = createDOMTable(headers, rows);

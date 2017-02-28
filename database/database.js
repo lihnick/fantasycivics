@@ -416,8 +416,12 @@ var Database = {
 					return records[userKey];
 				}).sort((a, b) => {
 					var winDiff = b.wins.length - a.wins.length;
-					var loseDiff = a.wins.length - b.wins.length;
-					return winDiff;
+					var loseDiff = a.losses.length - b.losses.length;
+					var order = winDiff;
+					if(winDiff === 0){
+						order = loseDiff;
+					}
+					return order;
 				});
 				resolve({
 					records: records,

@@ -44,8 +44,6 @@
 
 		<script type="text/javascript" src="./test-views.js"></script>
 
-		<h1>Leaderboard</h1>
-		
 		<script type="text/javascript">
 
 			var l1 = '-KdIiWEUj7_toD3MKMO_';
@@ -57,15 +55,23 @@
 
 			var Database = InitDatabase();
 
-			Database.getLeaderBoard({
-				leagueid: LEAGUE_ID
-			}).then((res) => {
-				console.log('Testing getLeaderBoard Response:');
-				console.log(res);
-			}).catch((err) => {
-				console.log('Err in getLeaderBoard:');
-				console.error(err);
-			});
+			Database.getLeague({
+				leagueid: LEAGUE_ID,
+				from: 1,
+				to: 1
+			}).then((league) => {
+				Database.getLeaderBoard({
+					leagueid: LEAGUE_ID
+				}).then((res) => {
+					console.log('Testing getLeaderBoard Response:');
+					console.log(res);
+					renderLeaderboard(res.rankings, res.records, league);
+				}).catch((err) => {
+					console.log('Err in getLeaderBoard:');
+					console.error(err);
+				});
+			}).catch(console.error);
+
 
 		</script>
 	
