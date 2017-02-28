@@ -55,22 +55,16 @@
 
 			var Database = InitDatabase();
 
-			Database.getLeague({
-				leagueid: LEAGUE_ID,
-				from: 1,
-				to: 1
-			}).then((league) => {
-				Database.getLeaderBoard({
-					leagueid: LEAGUE_ID
-				}).then((res) => {
-					console.log('Testing getLeaderBoard Response:');
-					console.log(res);
-					renderLeaderboard(res.rankings, res.records, league);
-				}).catch((err) => {
-					console.log('Err in getLeaderBoard:');
-					console.error(err);
-				});
-			}).catch(console.error);
+			Database.getLeaderBoard({
+				leagueid: LEAGUE_ID
+			}).then((res) => {
+				console.log('Testing getLeaderBoard Response:');
+				console.log(res);
+				renderLeaderboard(res.rankings, res.records, {name: res.name});
+			}).catch((err) => {
+				console.log('Err in getLeaderBoard:');
+				console.error(err);
+			});
 
 
 		</script>

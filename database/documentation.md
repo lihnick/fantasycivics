@@ -428,6 +428,48 @@ Promise bearing data or error.
 
 * Each "week" (set of matches) is contained in a list. The `schedule` property of the response is a list of these lists.
 
+### Database.getLeaderboard()
+Get win/loss records and rankings for users in the given league.
+
+**Parameters**
+```
+{
+	leagueid: 'leagueid0001'
+}
+```
+
+**Response**
+Promise bearing data or error.
+```
+{
+	leagueid: 'leagueid0001',
+	name: 'Test League',
+	records: {
+		testuser0001: {
+			wins: ['testuser0002', 'testuser0004'], // List of players beaten
+			losses: ['testuser0003'], // List of players lost to
+			team: 'Test Team',
+			name: 'Fake Player',
+			userid: 'testuser0001'
+		}
+		...
+	},
+	rankings: [
+		{
+			wins: ['testuser0002', 'testuser0004'], // List of players beaten
+			losses: ['testuser0003'], // List of players lost to
+			team: 'Test Team',
+			name: 'Fake Player',
+			userid: 'testuser0001'
+		}
+		...
+	]
+}
+```
+
+* In the `rankings` list, users are sorted in order of rank, where index `0` is first place.
+* In the future, tiebreakers will be implemented.
+
 ## Players
 
 **Note:** _In the future, a process to restrict when users can modify their rosters should be implemented, possibly relative to time in the current match._

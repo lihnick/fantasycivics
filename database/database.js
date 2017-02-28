@@ -394,6 +394,7 @@ var Database = {
 				var records = Util.clone(league.users);
 				// Convert counters to lists of opponents
 				for(var uid in records){
+					records[uid].userid = uid;
 					records[uid].wins = [];
 					records[uid].losses = [];
 				}
@@ -424,6 +425,8 @@ var Database = {
 					return order;
 				});
 				resolve({
+					leagueid: params.leagueid,
+					name: league.name,
 					records: records,
 					rankings: rankings
 				});
