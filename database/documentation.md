@@ -481,7 +481,7 @@ Get a player and their scoring data for a given league.
 }
 ```
 
-* If you already have the `league` object for the given league, you can accelerate this query like so: `Database.getAllPlayers({...}, league)`.
+* If you already have the `league` object for the given league, you can accelerate this query like so: `Database.getPlayer({...}, league)`.
 
 **Response**
 Promise bearing data or error.

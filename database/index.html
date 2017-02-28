@@ -137,26 +137,15 @@
 
 			// Test Match Scoring
 			var testUser = 'testuser0006';
-			var testTime = new Date('1/24/2017').getTime();
-			Database.getMatch({
+			var testTime = new Date('2/3/2017').getTime();
+			Database.getMatchOutcome({
 				leagueid: LEAGUE_ID,
 				userid: testUser,
 				on: testTime
-			}).then((match) => {
-				console.log('Match: ', match);
-				Database.getHistoricalRoster({
-					leagueid: LEAGUE_ID,
-					userid: testUser,
-					from: match.start,
-					to: match.end
-				}).then((roster) => {
-					console.log('Last Roster for Match: ', roster);
-				}).catch((err) => {
-					console.log('Error in getHistoricalRoster');
-					console.error(err);
-				});
+			}).then((outcome) => {
+				console.log('Match Outcome: ', outcome);
 			}).catch((err) => {
-				console.log('Error in getMatch');
+				console.log('Error in getMatchOutcome');
 				console.error(err);
 			});
 

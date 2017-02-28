@@ -725,6 +725,76 @@ var Database = {
 		});
 	},
 
+	getMatchOutcome: (params) => {
+		if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+		else if(!params.leagueid){
+			throw new Error('Must specify {leagueid}.');
+		}
+		else if(!params.on){
+			throw new Error('Must specify {on}.');
+		}
+
+		return new Promise((resolve, reject) => {
+			Database.getMatch({
+				leagueid: params.leagueid,
+				userid: params.userid,
+				on: params.on
+			}).then((match) => {
+				var awayProm = Database.getHistoricalRoster({
+					leagueid: LEAGUE_ID,
+					userid: match.away,
+					from: match.start,
+					to: match.end
+				});
+				var homeProm = Database.getHistoricalRoster({
+					leagueid: LEAGUE_ID,
+					userid: match.home,
+					from: match.start,
+					to: match.end
+				});
+				Promise.all([awayProm, homeProm]).then((rosters) => {
+					Database.getAllPlayers({
+						leagueid: params.leagueid,
+						from: match.start,
+						to: match.end
+					}).then((allPlayers) => {
+						var finalScore = {
+							home: false,
+							away: false
+						}
+						for(var i = 0; i < rosters.length; i++){
+							var competitor = rosters[i];
+							var roster = competitor.roster;
+							var totalScore = 0;
+							for(var pid in roster){
+								if(roster[pid]){
+									var player = allPlayers[pid];
+									for(var dataset in Scoring.DATASETS){
+										totalScore += player.scores[dataset];
+									}
+								}
+							}
+							if(match.home === competitor.userid){
+								finalScore.home = totalScore;
+							}
+							else if(match.away === competitor.userid){
+								finalScore.away = totalScore;
+							}
+						}
+						var winner = (finalScore.home > finalScore.away) ? match.home : match.away;
+						resolve({
+							leagueid: params.leagueid,
+							match: match,
+							winner: winner
+						});
+					}).catch(reject);
+				}).catch(reject);
+			}).catch(reject);
+		});
+	},
+
 	isLocked: (params) => {
 		if(!params.userid){
 			throw new Error('Must specify {userid}.');
