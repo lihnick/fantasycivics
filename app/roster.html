@@ -13,49 +13,7 @@
 	<body>
 		<h1>Roster</h1>
 		<p>
-<h2> Current Player </h2>
-<table border="1" id="currentplayer">
-  <tr>
-    <th>Name</th>
-    <th>Graffiti</th>
-    <th>Pot Holes</th>
-	  <th>Street Lights</th>
-    <th>Status</th>
-  </tr>
-  <tr>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td>
-        <select>
-            <option value="Drop">Drop</option>
-            <option value="Starting">Start</option>
-            <option value="Bench">Bench</option>
-        </select>
-    </td>
 
-  </tr>
-</table>
-<button type="button"> Register </button>
-<h2>Other Players</h2>
-<table border="1" id="otherplayer">
-  <tr>
-    <th>Name</th>
-    <th>Graffiti</th>
-    <th>Pot Holes</th>
-	  <th>Street Lights</th>>
-  </tr>
-  <tr>
-    <td></td>
-    <td></td>
-    <td></td>
-	  <>
-    <td>
-        <button type="button">Add</button>
-    </td>
-
-  </tr>
-</table>
 		</p>
 		<a href="index.html">Home</a>
 		<a href="app.html">App</a>
@@ -69,25 +27,38 @@
 			<!-- <img id="image" style="width:64px;height:64px;" alt="No Image"></img> -->
 			<button onclick="Application().userLogout()">Logout</button>
 		</div>
-
+		<h2> userRoster</h2>
 		<div id="userRoster">
-			<table>
+			<table border="1">
 				<tr>
 					<th>Players</th><th>Graffiti</th><th>Pot Holes</th><th>Street Lights</th><th>Score</th><th>lineup</th><th>Actions</th><th>Pending</th>
 				</tr>
 				<tr is="roster-list" v-for="(player, index) in players" v-bind:row="player" v-bind:swap="players" v-on:toggle="togglePlayer(index)"></tr>
 				<tr>
-					<td></td><td></td><td></td><td></td>
-					<td>{{ aggregator }}</td>
-					<td></td><td></td><td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+					<td></td>
+
+    <td></td>
+    <td></td>
+    <td>
+        <select>
+            <option value="Drop">Drop</option>
+            <option value="Starting">Start</option>
+            <option value="Bench">Bench</option>
+        </select>
+    </td>
 				</tr>
 			</table>
 		</div>
-
+        <h2>allPlayers</h2>>
 		<div id="allPlayers">
-			<table>
+			<table border="1">
 				<th>Players</th><th>Graffiti</th><th>Pot Holes</th><th>Street Lights</th><th>Score</th><th>League</th><th>Actions</th><th>Pending</th>
 				<tr is="player-list" v-for="(player, index) in players" v-bind:row="player" v-bind:swap="rosters" v-on:acquire="acquirePlayer(index)"></tr>
+
 			</table>
 		</div>
 
