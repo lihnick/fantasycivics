@@ -185,6 +185,7 @@ function startLeague(inviteid){
 			weeks: 3
 		}).then((res) => {
 			displayMessage('Created League: ' + res.leagueid);
+			// Insert redirect to main app here
 		}).catch(displayError);
 	}
 	catch(err){
