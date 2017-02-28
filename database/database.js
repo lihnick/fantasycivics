@@ -44,6 +44,27 @@ var Database = {
 		return lockTime;
 	},
 
+	when: (eventType, params, callback) => {
+		var res = true;
+		switch(eventType){
+			case 'rosters_change':
+				if(!params.leagueid){
+					throw new Error('Must specify {leagueid}.');
+				}
+				var ref = db.ref('leagues/' + params.leagueid + '/rosters');
+				ref.on('child_changed', (snapshot) => {
+					callback({
+						changed: true
+					});
+				});
+				break;
+			default:
+				throw new Error('No such event listener: ' + eventType);
+				break;
+		}
+		return res;
+	},
+
 	updateUser: (params) => {
 		if(!params.userid){
 			throw new Error('Must specify {userid}.');

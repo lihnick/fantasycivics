@@ -83,7 +83,13 @@
 				console.error(err);
 			});
 
-			Database.getUserLeagues({
+			Database.when('rosters_change', {
+				leagueid: LEAGUE_ID
+			}, (res) => {
+				console.log('Rosters Changed: ', res);
+			});
+
+			/*Database.getUserLeagues({
 				userid: 'testuser0002'
 			}).then((res) => {
 				console.log('Test Get User Leagues Response');
@@ -91,7 +97,7 @@
 			}).catch((err) => {
 				console.log('Test Get User Leagues Response');
 				console.error(err);
-			});
+			});*/
 
 			// Should return error now that match has passed
 			/*Database.getMatch({
