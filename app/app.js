@@ -4,6 +4,7 @@ var Verbose = true;
 var USER = {}; // stores data related to the user that's logged in
 // Database as a global variable during development mode
 var Database = InitDatabase(); // Moved to private variables, when in production mode
+Database.IN_SIMULATED_TIME = true;
 var test; // each time debug is called, the parameter is updated to test, for debugging
 
 var log = console.log;
