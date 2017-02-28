@@ -423,8 +423,12 @@ var Database = {
 
 		return new Promise((resolve, reject) => {
 			var ref = db.ref('rosters/' + params.leagueid + '/' + params.userid);
-			var prom = ref.push(roster);
-			console.log(prom, roster);
+			ref.push(roster).then(() => {
+				console.log('Replicated Roster Successfully: ', roster);
+				resolve({
+					success: true
+				});
+			}).catch(reject);
 		});
 	},
 
@@ -693,11 +697,18 @@ var Database = {
 		else if(!params.start){
 			throw new Error('Must specify {start}.');
 		}
+		else if(Database.IN_SIMULATED_TIME && !params.timestamp){
+			throw new Error('Must specify {timestamp} in simulated time.');
+		}
+		else if(!Database.IN_SIMULATED_TIME){
+			params.timestamp = Date.now();
+		}
 
 		var movePlayerCallback = (resolve, reject) => {
 			var ref = db.ref('leagues/' + params.leagueid + '/rosters/' + params.userid);
 			ref.once('value', (snapshot) => {
 				var players = snapshot.val();
+				var oldRoster = Util.clone(players);
 				if(!players){
 					reject('No roster for user {userid: ' + params.userid + '} in league {leagueid: ' + params.leagueid + '}');
 				}
@@ -717,8 +728,22 @@ var Database = {
 					players[params.sit].starter = false;
 					players[params.start].starter = true;
 					ref.set(players).then(() => {
-						resolve({
-							success: true
+						Database.updateRoster({
+							userid: params.userid,
+							leagueid: params.leagueid,
+							roster: players,
+							change: params,
+							timestamp: params.timestamp
+						}).then(() => {
+							resolve({
+								success: true
+							});
+						}).catch((err) => {
+							ref.set(oldRoster).then(() => {
+								reject(err);
+							}).reject((fatalErr) => {
+								reject('Fatal Error: Replication failed with error message {error: ' + fatalErr + '}, roster data after movePlayer() call may be out of sync.');
+							});
 						});
 					});
 				}
@@ -754,12 +779,20 @@ var Database = {
 		else if(!params.drop){
 			throw new Error('Must specify {drop}.');
 		}
+		else if(Database.IN_SIMULATED_TIME && !params.timestamp){
+			throw new Error('Must specify {timestamp} in simulated time.');
+		}
+		else if(!Database.IN_SIMULATED_TIME){
+			params.timestamp = Date.now();
+		}
 
 		var acquirePlayerCallback = (resolve, reject) => {
 			Database.getLeagueData(params).then((league) => {
 				if(!(params.userid in league.rosters)){
 					reject('No roster for user {userid: ' + params.userid + '} in league {leagueid: ' + params.leagueid + '}');
 				}
+
+				var oldRoster = Util.clone(league.rosters); // For backup purposes
 
 				var playerToDropIsOwned = false;
 				var playerToAddIsFree = true;
@@ -789,8 +822,22 @@ var Database = {
 					var newRoster = league.rosters[params.userid];
 					var ref = db.ref('leagues/' + params.leagueid + '/rosters/' + params.userid);
 					ref.set(newRoster).then(() => {
-						resolve({
-							success: true
+						Database.updateRoster({
+							userid: params.userid,
+							leagueid: params.leagueid,
+							roster: newRoster,
+							change: params,
+							timestamp: params.timestamp
+						}).then(() => {
+							resolve({
+								success: true
+							});
+						}).catch((err) => {
+							ref.set(oldRoster).then(() => {
+								reject(err);
+							}).reject((fatalErr) => {
+								reject('Fatal Error: Replication failed with error message {error: ' + fatalErr + '}, roster data after acquirePlayer() call may be out of sync.');
+							});
 						});
 					}).catch(reject);
 				}
