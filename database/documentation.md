@@ -370,7 +370,7 @@ Promise bearing data or error.
 }
 ```
 
-### Database.getLeague()
+### Database.getLeagueData()
 Get the meta data of an existing league, no player scores.
 
 **Parameters**
@@ -481,7 +481,7 @@ Get a player and their scoring data for a given league.
 }
 ```
 
-* If you already have the `league` object for the given league, you can accelerate this query like so: `Database.getAllPlayers({...}, league)`.
+* If you already have the `league` object for the given league, you can accelerate this query like so: `Database.getPlayer({...}, league)`.
 
 **Response**
 Promise bearing data or error.
@@ -667,6 +667,7 @@ Promise bearing data or error.
 		on: 1483250400000,
 		home: 'testuser0001',
 		away: 'testuser0002',
+		winner: 'testuser0002', // Field will not exist if match is not over
 		start: 1483250400000,
 		end: 1485928800000,
 		week: 2
@@ -674,6 +675,94 @@ Promise bearing data or error.
 ```
 
 * Properties `start` and `end` represent the start and ending times of the match.
-* Property `week` indicates the week in the season the match is part of.
+* Property `week` indicates the week in the season the match is part of (does not correspond to week index in schedule).
 
 **Note:** _The process to determine who wins a past match and save that result are still under development._
+
+### Database.getMatchScore()
+Get the score and current leader or final winner of a match a given user is competing in or has competed in on a given date.
+
+**Parameters**
+```
+{
+	userid: 'testuser0001',
+	leagueid: 'leagueid0001',
+	on: 1483250400000
+}
+```
+
+**Response**
+Promise bearing data or error.
+```
+	{
+		leagueid: 'leagueid0001',
+		winner: 'testuser0002', // Field will show current leader of match, even if match is not over
+		match: {
+			userid: 'testuser0001',
+			leagueid: 'leagueid0001',
+			on: 1483250400000,
+			home: 'testuser0001',
+			away: 'testuser0002',
+			winner: 'testuser0002', // Field will not exist if match is not over
+			start: 1483250400000,
+			end: 1485928800000,
+			week: 2
+		}
+		rosters: {
+			testuser0001: {
+				playerid0001: {
+					name: 'Test Player',
+					owner: 'testuser0001',
+					playerid: 'playerid0001',
+					ward: 51,
+					starter: true,
+					scores: {
+						'potholes': 23,
+						'graffiti': -2
+						...
+					}
+				}
+				...
+			}
+			... // Shows same roster for the second player in the match
+		}
+	}
+```
+
+### Database.setMatchOutcome()
+Decide the outcome of a match a given user is competing in on a given date.
+
+**Parameters**
+```
+{
+	userid: 'testuser0001',
+	leagueid: 'leagueid0001',
+	on: 1483250400000
+}
+```
+
+**Response**
+Promise bearing data or error.
+```
+	{
+		success: true
+	}
+```
+
+## Events
+
+Listen for events like so:
+
+```javascript
+Database.when('rosters_change', {
+	leagueid: 'leagueid0001'
+}, function(res){
+	console.log('Rosters Changed: ', res);
+});
+```
+
+The following events are currently supported:
+
+* `rosters_change`
+	* Parameters: `leagueid`
+	* Response: `{changed: true}`

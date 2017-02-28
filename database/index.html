@@ -83,7 +83,13 @@
 				console.error(err);
 			});
 
-			Database.getUserLeagues({
+			Database.when('rosters_change', {
+				leagueid: LEAGUE_ID
+			}, (res) => {
+				console.log('Rosters Changed: ', res);
+			});
+
+			/*Database.getUserLeagues({
 				userid: 'testuser0002'
 			}).then((res) => {
 				console.log('Test Get User Leagues Response');
@@ -91,9 +97,10 @@
 			}).catch((err) => {
 				console.log('Test Get User Leagues Response');
 				console.error(err);
-			});
+			});*/
 
-			Database.getMatch({
+			// Should return error now that match has passed
+			/*Database.getMatch({
 				userid: 'testuser0002',
 				leagueid: LEAGUE_ID,
 				on: Date.now()
@@ -103,7 +110,7 @@
 			}).catch((err) => {
 				console.log('Test Get Match Response');
 				console.error(err);
-			});
+			});*/
 
 			// Comment out after testing once: changes persist
 			/*Database.movePlayer({
