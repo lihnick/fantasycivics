@@ -2,7 +2,7 @@ function renderRosters(roster, uid, league){
 	var div = document.createElement('div');
 	var h2 = document.createElement('h2');
 	var entry = league.users[uid];
-		h2.innerText = 'Roster for ' + entry.team;
+		h2.innerText = 'Roster for ' + entry.team + ' (' + entry.name + ')';
 	var table = document.createElement('table');
 	var scoreHeaders = Object.keys(Database.Scoring.DATASETS);
 	var scoreFill = '';
@@ -218,6 +218,7 @@ function renderBoxScore(match, home, away, league){
 		}
 	}
 	var startingLineup = true;
+			rows.push([league.users[match.home].name, '', '', league.users[match.away].name, '']);
 			rows.push([league.users[match.home].team, '', '', league.users[match.away].team, '']);
 			rows.push(['Player', 'Score', ' - ', 'Score', 'Player']);
 			rows.push(['Starting Lineup', '', '', 'Starting Lineup', '']);
@@ -265,6 +266,28 @@ function renderBoxScore(match, home, away, league){
 				scores.away.bench
 			]);
 	var playerTable = createDOMTable(false, rows);
+	div.appendChild(h2);
+	div.appendChild(playerTable);
+	document.body.appendChild(div);	
+}
+
+function renderLeaderboard(rankings, records, league){
+	var div = document.createElement('div');
+	var h2 = document.createElement('h2');
+		h2.innerText = league.name + ' Leaderboard';
+	var headers = [
+		'Rank',
+		'Name',
+		'Record'
+	];
+	var rows = rankings.map((user, i) => {
+		return [
+			(i + 1),
+			user.name,
+			'(' + user.wins.length + '-' + user.losses.length + ')'
+		];
+	})
+	var playerTable = createDOMTable(headers, rows);
 	div.appendChild(h2);
 	div.appendChild(playerTable);
 	document.body.appendChild(div);	
