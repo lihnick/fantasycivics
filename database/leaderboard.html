@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Fantasy Civics</title>
+		<!--<link rel="icon" type="img/png" href="style/favicon.png" style="width:30px;">-->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
+		<style>
+
+			table td {
+				padding-right: 10px;
+			}
+
+			.center {
+				text-align: center;
+			}
+
+			td.center {
+				width: 90px;
+			}
+
+			td.player-name {
+				width: 180px;
+			}
+
+		</style>
+	</head>
+
+	<body>
+
+		<h1>Database Testing Suite</h1>
+
+		<script type="text/javascript" src="../assets/promise.min.js"></script>
+		<script type="text/javascript" src="../assets/moment.min.js"></script>
+		<script type="text/javascript" src="../assets/jquery-3.1.1.min.js"></script>
+		<script type="text/javascript" src="../lib/util.js"></script>
+
+		<!-- Five Internal Libraries  Required for Database Usage -->
+		<script type="text/javascript" src="./player.js"></script>
+		<script type="text/javascript" src="./league.js"></script>
+		<script type="text/javascript" src="./scoring.js"></script>
+		<script type="text/javascript" src="./auth.js"></script>
+		<script type="text/javascript" src="./database.js"></script>
+
+		<script type="text/javascript" src="./test-views.js"></script>
+
+		<h1>Leaderboard</h1>
+		
+		<script type="text/javascript">
+
+			var l1 = '-KdIiWEUj7_toD3MKMO_';
+			var l2 = '-KdJnBQC6hc7OF9FguyQ';
+			var test = '-KdYWQQsWkAVuLiIoAwN';
+			var l3 = '-KdiofxVNZK1_QDoI3cN';
+
+			var LEAGUE_ID = l3;
+
+			var Database = InitDatabase();
+
+			Database.getLeaderBoard({
+				leagueid: LEAGUE_ID
+			}).then((res) => {
+				console.log('Testing getLeaderBoard Response:');
+				console.log(res);
+			}).catch((err) => {
+				console.log('Err in getLeaderBoard:');
+				console.error(err);
+			});
+
+		</script>
+	
+	</body>
+
+</html>

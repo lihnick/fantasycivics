@@ -380,6 +380,44 @@ var Database = {
 		});
 	},
 
+	getLeaderBoard: (params) => {
+		if(!params.leagueid){
+			throw new Error('Must specify {leagueid}.');
+		}
+
+		return new Promise((resolve, reject) => {
+			Database.getLeagueData(params).then((league) => {
+				var records = Util.clone(league.users);
+				// Convert counters to lists of opponents
+				for(var uid in records){
+					records[uid].wins = [];
+					records[uid].losses = [];
+				}
+				var schedule = league.schedule;
+				for(var w in schedule){
+					for(var g in schedule[w]){
+						var match = schedule[w][g];
+						if(match.winner){
+							var loser = (match.home === match.winner) ? match.away : match.home;
+							/*records[match.winner].wins++;
+							records[loser].losses++;*/
+							// Track opponents
+							records[match.winner].wins.push(loser);
+							records[loser].losses.push(match.winner);
+						}
+					}
+				}
+				var rankings = Object.keys(records).map((userKey) => {
+					return records[userKey];
+				});
+				resolve({
+					records: records,
+					rankings: rankings
+				});
+			}).catch(reject);
+		});
+	},
+
 	getRoster: (params) => {
 		if(!params.userid){
 			throw new Error('Must specify {userid}.');
