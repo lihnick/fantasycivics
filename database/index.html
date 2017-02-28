@@ -135,20 +135,6 @@
 				console.error(err);
 			});*/
 
-			// Test Match Scoring
-			var testUser = 'testuser0006';
-			var testTime = new Date('2/3/2017').getTime();
-			Database.getMatchOutcome({
-				leagueid: LEAGUE_ID,
-				userid: testUser,
-				on: testTime
-			}).then((outcome) => {
-				console.log('Match Outcome: ', outcome);
-			}).catch((err) => {
-				console.log('Error in getMatchOutcome');
-				console.error(err);
-			});
-
 		</script>
 	
 	</body>

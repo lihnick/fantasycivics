@@ -2,7 +2,7 @@ function renderRosters(roster, uid, league){
 	var div = document.createElement('div');
 	var h2 = document.createElement('h2');
 	var entry = league.users[uid];
-		h2.innerText = 'Roster for ' + entry.team;
+		h2.innerText = 'Roster for ' + entry.team + ' (' + entry.name + ')';
 	var table = document.createElement('table');
 	var scoreHeaders = Object.keys(Database.Scoring.DATASETS);
 	var scoreFill = '';
@@ -218,6 +218,7 @@ function renderBoxScore(match, home, away, league){
 		}
 	}
 	var startingLineup = true;
+			rows.push([league.users[match.home].name, '', '', league.users[match.away].name, '']);
 			rows.push([league.users[match.home].team, '', '', league.users[match.away].team, '']);
 			rows.push(['Player', 'Score', ' - ', 'Score', 'Player']);
 			rows.push(['Starting Lineup', '', '', 'Starting Lineup', '']);

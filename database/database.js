@@ -430,7 +430,7 @@ var Database = {
 		return new Promise((resolve, reject) => {
 			var ref = db.ref('rosters/' + params.leagueid + '/' + params.userid);
 			ref.push(roster).then(() => {
-				console.log('Replicated Roster Successfully: ', roster);
+				//console.log('Replicated Roster Successfully: ', roster);
 				resolve({
 					success: true
 				});
@@ -725,7 +725,7 @@ var Database = {
 		});
 	},
 
-	getMatchOutcome: (params) => {
+	getMatchScore: (params) => {
 		if(!params.userid){
 			throw new Error('Must specify {userid}.');
 		}
