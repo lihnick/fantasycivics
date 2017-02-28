@@ -1,8 +1,18 @@
 var Database = InitDatabase();
+var USER = false;
 
-console.log(Database);
-
-Database.
+Database.Auth.getCurrentUser().then((user) => {
+	USER = user;
+}).catch((err) => {
+	if(err === 'No user currently authenticated.'){
+		Database.Auth.signInUser().then((user) => {
+			USER = user;
+		}).catch(console.error);
+	}
+	else{
+		console.error(err);
+	}
+});
 
 function createLeagueInvitation(){
 	Database.createLeagueInvitation({
