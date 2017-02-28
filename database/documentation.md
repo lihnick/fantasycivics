@@ -370,7 +370,7 @@ Promise bearing data or error.
 }
 ```
 
-### Database.getLeague()
+### Database.getLeagueData()
 Get the meta data of an existing league, no player scores.
 
 **Parameters**

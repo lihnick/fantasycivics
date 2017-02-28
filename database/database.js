@@ -445,39 +445,62 @@ var Database = {
 		else if(!params.leagueid){
 			throw new Error('Must specify {leagueid}.');
 		}
-		else if(!params.from){
-			throw new Error('Must specify {from}.');
-		}
 		else if(!params.to){
 			throw new Error('Must specify {to}.');
 		}
 
+		/*
+		 * Errors not accounted for:
+		 * Error: userid not in league -> request should fail with descriptive error
+		 * Error: league does not exist -> request should fail with descriptive error
+		 */
+
 		return new Promise((resolve, reject) => {
 			var ref = db.ref('rosters/' + params.leagueid + '/' + params.userid);
-			var query = ref.orderByChild('timestamp').startAt(params.from).endAt(params.to).limitToLast(1);
+			// Using only the endAt() filter, this query gets the earliest possible roster
+			var query = ref.orderByChild('timestamp').endAt(params.to).limitToLast(1);
 			query.once('value', (snapshot) => {
 				var val = snapshot.val();
-				var keys = Object.keys(val);
-				if(keys.length > 1){
-					reject('Error in getHistoricalRoster: Too many historical rosters were returned.');
+				if(val){
+					var keys = Object.keys(val);
+					if(keys.length > 1){
+						reject('getHistoricalRoster: Too many historical rosters were returned.');
+					}
+					else{
+						var roster = val[keys[0]];
+						delete roster.timestamp;
+						var changes = ['sit', 'start', 'add', 'drop'];
+						for(var c = 0; c < changes.length; c++){
+							var action = changes[c];
+							if(roster[action]){
+								delete roster[action];
+							}
+						}
+						resolve({
+							userid: params.userid,
+							leagueid: params.leagueid,
+							to: params.to,
+							roster: roster
+						});
+					}
 				}
 				else{
-					var roster = val[keys[0]];
-					delete roster.timestamp;
-					var changes = ['sit', 'start', 'add', 'drop'];
-					for(var c = 0; c < changes.length; c++){
-						var action = changes[c];
-						if(roster[action]){
-							delete roster[action];
+					console.warn('getHistoricalRoster: No historical rosters found, using current roster, may be misdated.');
+					Database.getLeagueData({
+						leagueid: params.leagueid
+					}).then((league) => {
+						var roster = league.rosters[params.userid];
+						for(var pid in roster){
+							var data = roster[pid].starter;
+							roster[pid] = data; // Flatten Records
 						}
-					}
-					resolve({
-						userid: params.userid,
-						leagueid: params.leagueid,
-						from: params.from,
-						to: params.to,
-						roster: roster
-					});
+						resolve({
+							userid: params.userid,
+							leagueid: params.leagueid,
+							to: params.to,
+							roster: roster
+						});
+					}).catch(reject);
 				}
 			}).catch(reject);
 		});
