@@ -680,7 +680,7 @@ Promise bearing data or error.
 **Note:** _The process to determine who wins a past match and save that result are still under development._
 
 ### Database.getMatchScore()
-Get the match a given player is competing in or will compete in on a given date.
+Get the score and current leader or final winner of a match a given user is competing in or has competed in on a given date.
 
 **Parameters**
 ```
@@ -695,14 +695,56 @@ Get the match a given player is competing in or will compete in on a given date.
 Promise bearing data or error.
 ```
 	{
-		userid: 'testuser0001',
 		leagueid: 'leagueid0001',
-		on: 1483250400000,
-		home: 'testuser0001',
-		away: 'testuser0002',
-		winner: 'testuser0002', // Field will not exist if match is not over
-		start: 1483250400000,
-		end: 1485928800000,
-		week: 2
+		winner: 'testuser0002', // Field will show current leader of match, even if match is not over
+		match: {
+			userid: 'testuser0001',
+			leagueid: 'leagueid0001',
+			on: 1483250400000,
+			home: 'testuser0001',
+			away: 'testuser0002',
+			winner: 'testuser0002', // Field will not exist if match is not over
+			start: 1483250400000,
+			end: 1485928800000,
+			week: 2
+		}
+		rosters: {
+			testuser0001: {
+				playerid0001: {
+					name: 'Test Player',
+					owner: 'testuser0001',
+					playerid: 'playerid0001',
+					ward: 51,
+					starter: true,
+					scores: {
+						'potholes': 23,
+						'graffiti': -2
+						...
+					}
+				}
+				...
+			}
+			... // Shows same roster for the second player in the match
+		}
+	}
+```
+
+### Database.setMatchOutcome()
+Decide the outcome of a match a given user is competing in on a given date.
+
+**Parameters**
+```
+{
+	userid: 'testuser0001',
+	leagueid: 'leagueid0001',
+	on: 1483250400000
+}
+```
+
+**Response**
+Promise bearing data or error.
+```
+	{
+		success: true
 	}
 ```
