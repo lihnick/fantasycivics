@@ -418,7 +418,7 @@ var Database = {
 		}
 
 		roster.timestamp = params.timestamp;
-		
+
 		var changes = ['sit', 'start', 'add', 'drop'];
 		for(var c = 0; c < changes.length; c++){
 			var action = changes[c];
@@ -433,6 +433,45 @@ var Database = {
 				console.log('Replicated Roster Successfully: ', roster);
 				resolve({
 					success: true
+				});
+			}).catch(reject);
+		});
+	},
+
+	getHistoricalRoster: (params) => {
+		if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+		else if(!params.leagueid){
+			throw new Error('Must specify {leagueid}.');
+		}
+		else if(!params.from){
+			throw new Error('Must specify {from}.');
+		}
+		else if(!params.to){
+			throw new Error('Must specify {to}.');
+		}
+
+		new Promise((resolve, reject) => {
+			var ref = db.ref('rosters/' + params.leagueid + '/' + params.userid);
+			var query = ref.orderByChild('timestamp').startAt(params.from).endAt(params.to).limitToLast(1);
+			query.once('value', (snapshot) => {
+				var roster = snapshot.val();
+				console.log('Fetched last historical roster: ', roster);
+				delete roster.timestamp;
+				var changes = ['sit', 'start', 'add', 'drop'];
+				for(var c = 0; c < changes.length; c++){
+					var action = changes[c];
+					if(roster[action]){
+						delete roster[action];
+					}
+				}
+				resolve({
+					userid: params.userid,
+					leagueid: params.leagueid,
+					from: params.from,
+					to: params.to,
+					roster: roster
 				});
 			}).catch(reject);
 		});
