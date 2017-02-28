@@ -32,6 +32,9 @@ function main(){
 	createBtn.addEventListener('click', (e) => {
 		createLeagueInvitation();
 	});
+
+	var params = getQueryParams(document.location.search);
+	var inviteid = params.code;
 	
 	renderUserLeagues();
 
@@ -53,6 +56,17 @@ function createLeagueInvitation(){
 		console.log('Join League with Code: ' + res.inviteid);
 		renderUserLeagues();
 	}).catch(console.error);
+}
+
+function getQueryParams(qs) {
+	qs = qs.split('+').join(' ');
+	var params = {},
+		tokens,
+		re = /[?&]?([^=]+)=([^&]*)/g;
+	while (tokens = re.exec(qs)) {
+		params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+	}
+	return params;
 }
 
 function joinLeague(inviteid){
