@@ -38,7 +38,7 @@ function DatabaseAuth(FirebaseInstance){
 
 		getCurrentUser: () => {
 			return new Promise((resolve, reject) => {
-				var result = DatabaseFirebase.auth().currentUser;
+				var result = FirebaseInstance.auth().currentUser;
 				if(result){
 					resolve({
 						userid: result.uid,
