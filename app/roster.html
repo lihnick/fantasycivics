@@ -8,16 +8,18 @@
 		<script type="text/javascript" src="../assets/promise.min.js"></script>
 		<script type="text/javascript" src="../assets/moment.min.js"></script>
 		<script type="text/javascript" src="../assets/jquery-3.1.1.min.js"></script>
+		<script src="/jquery/jquery-1.11.1.min.js"></script>
 	</head>
 	<body>
 		<h1>Roster</h1>
 		<p>
 <h2> Current Player </h2>
-<table border="1">
+<table border="1" id="currentplayer">
   <tr>
     <th>Name</th>
-    <th>Area</th>
-    <th>Ward</th>
+    <th>Graffiti</th>
+    <th>Pot Holes</th>
+	  <th>Street Lights</th>
     <th>Status</th>
   </tr>
   <tr>
@@ -34,18 +36,20 @@
 
   </tr>
 </table>
-<h2>Other Players</h2>
 <button type="button"> Register </button>
-<table border="1">
+<h2>Other Players</h2>
+<table border="1" id="otherplayer">
   <tr>
     <th>Name</th>
-    <th>Area</th>
-    <th>Ward</th>
+    <th>Graffiti</th>
+    <th>Pot Holes</th>
+	  <th>Street Lights</th>>
   </tr>
   <tr>
     <td></td>
     <td></td>
     <td></td>
+	  <>
     <td>
         <button type="button">Add</button>
     </td>
@@ -96,14 +100,26 @@
 		<script type="text/javascript" src="../database/auth.js"></script>
 		<script type="text/javascript" src="../database/database.js"></script>
 		<script type="text/javascript" src="app.js"></script>
+		<script src="/jquery/jquery-1.11.1.min.js"></script>
 		<script type="text/javascript">
 			// Instantiate app
 			var app = Application();
 			app.getUser();
 			app.displayUser();
 			app.loadRosterPage();
-			//app.displayRoster();
-			//app.displayAllPlayers();
+			app.displayRoster();
+			app.displayAllPlayers();
 		</script>
+	    <script type="text/javascript">
+             function show_popup()
+             {
+             var p=window.createPopup()
+             var pbody=p.document.body
+             pbody.style.backgroundColor="lime"
+             pbody.style.border="solid black 1px"
+             pbody.innerHTML="Error! You must have 3 starting players and 2 bench players."
+			 p.show(150,150,200,50,document.body)
+             }
+        </script>
 	</body>
 </html>
