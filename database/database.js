@@ -412,7 +412,13 @@ var Database = {
 		}
 
 		var roster = params.roster;
+		for(var pid in roster){
+			var data = roster[pid].starter;
+			roster[pid] = data; // Flatten Records
+		}
+
 		roster.timestamp = params.timestamp;
+		
 		var changes = ['sit', 'start', 'add', 'drop'];
 		for(var c = 0; c < changes.length; c++){
 			var action = changes[c];
