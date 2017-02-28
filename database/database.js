@@ -278,6 +278,7 @@ var Database = {
 					}
 				}).catch(rejectLeague);
 			}).then((league) => {
+				league.leagueid = params.leagueid;
 				var rosters = league.rosters;
 				var userPromises = [];
 				var promises = [];
@@ -322,18 +323,26 @@ var Database = {
 						}
 					}
 				}).then(() => {
-					var response = {
-						leagueid: params.leagueid,
-						name: league.name,
-						start: league.start,
-						end: league.end,
-						from: params.from,
-						to: params.to,
-						schedule: league.schedule,
-						users: league.users,
-						rosters: rosters
-					}
-					resolve(response);
+					Database.getLeaderboard({
+						leagueid: params.leagueid
+					}, league).then((leaderboard) => {
+						for(var userKey in league.users){
+							league.users[userKey].wins = leaderboard.records[userKey].wins.length;
+							league.users[userKey].losses = leaderboard.records[userKey].losses.length;
+						}
+						var response = {
+							leagueid: params.leagueid,
+							name: league.name,
+							start: league.start,
+							end: league.end,
+							from: params.from,
+							to: params.to,
+							schedule: league.schedule,
+							users: league.users,
+							rosters: rosters
+						}
+						resolve(response);
+					}).catch(reject);
 				}).catch(reject);
 			}).catch(reject);
 		});
@@ -353,6 +362,7 @@ var Database = {
 				else{
 					var rosters = {};
 					var league = snapshot.val();
+					league.leagueid = params.leagueid;
 					for(var uid in league.rosters){
 						rosters[uid] = {};
 						for(var pid in league.rosters[uid]){
@@ -365,27 +375,35 @@ var Database = {
 							}
 						}
 					}
-					var response = {
-						leagueid: params.leagueid,
-						name: league.name,
-						start: league.start,
-						end: league.end,												
-						schedule: league.schedule,
-						users: league.users,
-						rosters: rosters
-					}
-					resolve(response);
+					Database.getLeaderboard({
+						leagueid: params.leagueid
+					}, league).then((leaderboard) => {
+						for(var userKey in league.users){
+							league.users[userKey].wins = leaderboard.records[userKey].wins.length;
+							league.users[userKey].losses = leaderboard.records[userKey].losses.length;
+						}
+						var response = {
+							leagueid: params.leagueid,
+							name: league.name,
+							start: league.start,
+							end: league.end,
+							schedule: league.schedule,
+							users: league.users,
+							rosters: rosters
+						}
+						resolve(response);
+					}).catch(reject);
 				}
 			}).catch(reject);
 		});
 	},
 
-	getLeaderBoard: (params, inLeague) => {
+	getLeaderboard: (params, inLeague) => {
 		if(!params.leagueid){
 			throw new Error('Must specify {leagueid}.');
 		}
 
-		var getLeaderBoardCallback = (league, resolve, reject) => {
+		var getLeaderboardCallback = (league, resolve, reject) => {
 			var records = Util.clone(league.users);
 			// Convert counters to lists of opponents
 			for(var uid in records){
@@ -430,7 +448,7 @@ var Database = {
 		return new Promise((resolve, reject) => {
 			if(inLeague){
 				if(inLeague.leagueid === params.leagueid){
-					getLeaderBoardCallback(inLeague, resolve, reject);
+					getLeaderboardCallback(inLeague, resolve, reject);
 				}
 				else{
 					reject('getLeaderboard: League object passed in to accelerate query does not match the given leagueid.');
@@ -442,7 +460,7 @@ var Database = {
 					from: 1,
 					to: 1
 				}).then((league) => {
-					getLeaderBoardCallback(league, resolve, reject);
+					getLeaderboardCallback(league, resolve, reject);
 				}).catch(reject);				
 			}
 		});

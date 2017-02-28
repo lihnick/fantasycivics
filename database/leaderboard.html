@@ -55,17 +55,32 @@
 
 			var Database = InitDatabase();
 
-			Database.getLeaderBoard({
+			Database.getLeaderboard({
 				leagueid: LEAGUE_ID
 			}).then((res) => {
-				console.log('Testing getLeaderBoard Response:');
+				console.log('Testing getLeaderboard Response:');
 				console.log(res);
 				renderLeaderboard(res.rankings, res.records, {name: res.name});
 			}).catch((err) => {
-				console.log('Err in getLeaderBoard:');
+				console.log('Err in getLeaderboard:');
 				console.error(err);
 			});
 
+			Database.getLeague({
+				leagueid: LEAGUE_ID,
+				from: new Date('2/1/2017').getTime(),
+				to: new Date('3/1/2017').getTime()
+			}).then((league) => {
+				console.log('Checking win/loss records in league object.');
+				console.log(league.users);
+			});
+
+			Database.getLeagueData({
+				leagueid: LEAGUE_ID
+			}).then((leagueData) => {
+				console.log('Checking win/loss records in leagueData object.');
+				console.log(leagueData.users);
+			});
 
 		</script>
 	

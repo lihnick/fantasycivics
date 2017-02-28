@@ -393,8 +393,7 @@ Promise bearing data or error.
 		testuser0001: {
 			wins: 0,
 			losses: 0,
-			team: 'Test Team',
-			name: 'Fake Player'
+			team: 'Test Team'
 		}
 		...
 	},
@@ -469,6 +468,7 @@ Promise bearing data or error.
 
 * In the `rankings` list, users are sorted in order of rank, where index `0` is first place.
 * In the future, tiebreakers will be implemented.
+* If you already have the `league` object for the given league, you can accelerate this query like so: `Database.getLeaderboard({...}, league)`.
 
 ## Players
 
