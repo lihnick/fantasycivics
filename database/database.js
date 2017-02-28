@@ -408,7 +408,12 @@ var Database = {
 					}
 				}
 				var rankings = Object.keys(records).map((userKey) => {
+					records[userKey].userid = userKey;
 					return records[userKey];
+				}).sort((a, b) => {
+					var winDiff = b.wins.length - a.wins.length;
+					var loseDiff = a.wins.length - b.wins.length;
+					return winDiff;
 				});
 				resolve({
 					records: records,
