@@ -58,6 +58,17 @@ var Database = {
 					});
 				});
 				break;
+			case 'people_join':
+				if(!params.inviteid){
+					throw new Error('Must specify {inviteid}.');
+				}
+				var ref = db.ref('invitations/' + params.inviteid + '/members');
+				ref.on('child_added', (snapshot) => {
+					callback({
+						changed: true
+					});
+				});
+				break;
 			default:
 				throw new Error('No such event listener: ' + eventType);
 				break;
@@ -76,6 +87,7 @@ var Database = {
 				if(snapshot.exists()){
 					var userData = snapshot.val();
 					var newData = {
+						userid: userData.userid || params.userid, // Reversed in case world explodes
 						name: params.name || userData.name,
 						image: params.image || userData.image,
 						email: params.email || userData.image
