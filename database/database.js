@@ -391,6 +391,43 @@ var Database = {
 		});
 	},
 
+	updateRoster: (params) => {
+		if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+		else if(!params.leagueid){
+			throw new Error('Must specify {leagueid}.');
+		}
+		else if(!params.roster){
+			throw new Error('Must specify {roster}.');
+		}
+		else if(!params.change){
+			throw new Error('Must specify {change}.');
+		}
+		else if(Database.IN_SIMULATED_TIME && !params.timestamp){
+			throw new Error('Must specify {timestamp} in simulated time.');
+		}
+		else if(!Database.IN_SIMULATED_TIME){
+			params.timestamp = Date.now();
+		}
+
+		var roster = params.roster;
+		roster.timestamp = params.timestamp;
+		var changes = ['sit', 'start', 'add', 'drop'];
+		for(var c = 0; c < changes.length; c++){
+			var action = changes[c];
+			if(params.change[action]){
+				roster[action] = params.change[action];
+			}
+		}
+
+		return new Promise((resolve, reject) => {
+			var ref = db.ref('rosters/' + params.leagueid + '/' + params.userid);
+			var prom = ref.push(roster);
+			console.log(prom, roster);
+		});
+	},
+
 	getPlayer: (params, inLeague) => {
 		if(!params.playerid){
 			throw new Error('Must specify {playerid}.');
