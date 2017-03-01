@@ -66,13 +66,19 @@ function login(user){
 }
 
 function createLeagueInvitation(){
-	Database.createLeagueInvitation({
-		userid: USER.userid,
-		name: 'ChiHackNight Demo League'
-	}).then((res) => {
-		console.log('Join League with Code: ' + res.inviteid);
-		renderUserLeagues();
-	}).catch(displayError);
+	var nameInput = document.getElementById('league-name');
+	if(nameInput.value){
+		Database.createLeagueInvitation({
+			userid: USER.userid,
+			name: nameInput.value
+		}).then((res) => {
+			console.log('Join League with Code: ' + res.inviteid);
+			renderUserLeagues();
+		}).catch(displayError);
+	}
+	else{
+		displayError('No league name given.');
+	}
 }
 
 function getQueryParams(qs) {
@@ -185,7 +191,7 @@ function startLeague(inviteid){
 			weeks: 3
 		}).then((res) => {
 			displayMessage('Created League: ' + res.leagueid);
-			// Insert redirect to main app here
+			document.location = 'app.html';
 		}).catch(displayError);
 	}
 	catch(err){

@@ -16,6 +16,14 @@ var debug = (item) => {
 }
 if (!Verbose) console.log("Debugging has been turned off.");
 
+function viewOutcome(){
+	var leagueid = USER.leagueid;
+	var sim = USER.rosterdate;
+	var timestamp = sim.thisfrom + (0.5 * (sim.thisto - sim.thisfrom));
+	var url = document.location.origin + '/app/scores.html' + '?time=' + timestamp + '&league=' + leagueid
+	document.location = url;
+}
+
 // App APIs
 function Application() {
 
