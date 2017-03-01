@@ -656,10 +656,7 @@ function Application() {
 		// this function is specific to the items needed at the roster page
 		loadRosterPage: () => {
 
-			Database.when('rosters_change', {
-				leagueid: USER.leagueid
-			}, (change) => {
-				console.log(change);
+			var loadRosterPageCallBack = () => {
 				Application().getLeagueData({
 					leagueid: USER['leagueid']
 				}).then(() => {
@@ -680,6 +677,15 @@ function Application() {
 				}).catch((err) => {
 					log("Thrown, " + err);
 				});
+			}
+
+			loadRosterPageCallBack();
+
+			Database.when('rosters_change', {
+				leagueid: USER.leagueid
+			}, (change) => {
+				console.log(change);
+				loadRosterPageCallBack();
 			});
 
 		}
