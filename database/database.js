@@ -862,13 +862,13 @@ var Database = {
 				on: params.on
 			}).then((match) => {
 				var awayProm = Database.getHistoricalRoster({
-					leagueid: LEAGUE_ID,
+					leagueid: params.leagueid,
 					userid: match.away,
 					from: match.start,
 					to: match.end
 				});
 				var homeProm = Database.getHistoricalRoster({
-					leagueid: LEAGUE_ID,
+					leagueid: params.leagueid,
 					userid: match.home,
 					from: match.start,
 					to: match.end

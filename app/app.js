@@ -375,6 +375,7 @@ function Application() {
 				USER['_userRoster'] = new Vue({
 					el: '#userRoster',
 					data: {
+						leaguename: USER['selectedleague']['name'],
 						players: USER['roster']['players'],
 						// update aggregator, reference scoring.js
 						aggregator: Object.keys(USER['roster']['players']).map(function(id) {
@@ -619,6 +620,27 @@ function Application() {
 			};
 			log(tmpdata);
 			Database.getMatch(tmpdata).then(console.log);
+		},
+
+		setMatchOutcome: () => {
+			if (!USER['userid']) 
+				throw new Error("UI - userid not found.");
+			if (!USER['leagueid'])
+				throw new Error("UI - leagueid not found.");
+			if (!USER['rosterdate']['prevfrom'] || !USER['rosterdate']['prevto'])
+				throw new Error("UI - date range not found.")
+			log((USER.rosterdate.thisto - USER.rosterdate.thisfrom)/2 + USER.rosterdate.thisfrom);
+			Database.setMatchOutcome({
+				userid: USER['userid'],
+				leagueid: USER['leagueid'],
+				on: (USER.rosterdate.thisto - USER.rosterdate.thisfrom)/2 + USER.rosterdate.thisfrom
+			}).then((matchOutcome) => {
+				if (matchOutcome.success) {
+					log("Success");
+				}
+			}).catch((err) => {
+				log(err);
+			});
 		},
 
 		// this function is specific to the items needed at the roster page
