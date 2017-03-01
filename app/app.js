@@ -25,7 +25,7 @@ function viewOutcome(){
 }
 
 // App APIs
-function Application() {
+function InitApplication() {
 
 	// Private Variables
 	//		These variables are function scoped
@@ -48,7 +48,7 @@ function Application() {
 	};
 
 	// Public Variables
-	return {
+	var Application = {
 
 		// Write Functions
 
@@ -252,7 +252,7 @@ function Application() {
 		},
 
 		displayUserLeagues: () => {
-			Application().getUserLeagues().then(() => {
+			Application.getUserLeagues().then(() => {
 				Vue.component('league-list', {
 					props: ['row'],
 					template: '<tr>\
@@ -357,7 +357,7 @@ function Application() {
 			else if(!USER.rosterdate.prevto)
 				throw new Error('ending date not found');
 
-			Application().getRoster({
+			Application.getRoster({
 				userid: USER.userid,
 				leagueid: USER.leagueid,
 				from: USER.rosterdate.prevfrom,
@@ -496,7 +496,7 @@ function Application() {
 			else if(!USER.rosterdate.prevto)
 				throw new Error('UI - ending date not found');
 
-			Application().getAllPlayers({
+			Application.getAllPlayers({
 				leagueid: USER.leagueid,
 				from: USER.rosterdate.prevfrom,
 				to: USER.rosterdate.prevto
@@ -563,7 +563,7 @@ function Application() {
 									if (Database.IN_SIMULATED_TIME) {
 										move['timestamp'] = (USER.rosterdate.prevto - USER.rosterdate.prevfrom)/2 + USER.rosterdate.prevfrom;
 									}
-									// it would be nice, if I can just recall the Application().getRoster() function, but freezes the UI
+									// it would be nice, if I can just recall the Application.getRoster() function, but freezes the UI
 									// Updates to add/drop player will also affect the roster
 									Database.acquirePlayer(move).then(function(acquirePlayer) {
 										if (acquirePlayer.success) {
@@ -657,10 +657,10 @@ function Application() {
 		loadRosterPage: () => {
 
 			var loadRosterPageCallBack = () => {
-				Application().getLeagueData({
+				Application.getLeagueData({
 					leagueid: USER['leagueid']
 				}).then(() => {
-					Application().getLeague({
+					Application.getLeague({
 						userid: USER.userid,
 						leagueid: USER.leagueid,
 						from: USER.rosterdate.prevfrom,
@@ -669,8 +669,8 @@ function Application() {
 						log(userSelect);
 						USER['selectedleague'] = userSelect;
 						log(USER);
-						Application().displayRoster();
-						Application().displayAllPlayers();
+						Application.displayRoster();
+						Application.displayAllPlayers();
 					}).catch((err) => {
 						log("Thrown, " + err);
 					});
@@ -690,4 +690,7 @@ function Application() {
 
 		}
 	}; // end of return
+
+	return Application;
+	
 } // end of factory function
