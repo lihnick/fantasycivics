@@ -8,10 +8,13 @@
 		<script type="text/javascript" src="../assets/promise.min.js"></script>
 		<script type="text/javascript" src="../assets/moment.min.js"></script>
 		<script type="text/javascript" src="../assets/jquery-3.1.1.min.js"></script>
+		<script src="/jquery/jquery-1.11.1.min.js"></script>
 	</head>
 	<body>
 		<h1>Roster</h1>
-		<p>Insert roster page, and fancy tables</p>
+		<p>
+
+		</p>
 		<a href="index.html">Home</a>
 		<a href="app.html">App</a>
 		<a href="#">Roster</a>
@@ -25,7 +28,7 @@
 			<!-- <img id="image" style="width:64px;height:64px;" alt="No Image"></img> -->
 			<button onclick="Application().userLogout()">Logout</button>
 		</div>
-
+		<h2> userRoster</h2>
 		<div id="userRoster">
 			<h3>{{ leaguename }}</h3>
 			<table>
@@ -40,11 +43,12 @@
 				</tr>
 			</table>
 		</div>
-
+        <h2>allPlayers</h2>>
 		<div id="allPlayers">
-			<table>
+			<table border="1">
 				<th>Players</th><th>Graffiti</th><th>Pot Holes</th><th>Street Lights</th><th>Score</th><th>League</th><th>Actions</th><th>Pending</th>
 				<tr is="player-list" v-for="(player, index) in players" v-bind:row="player" v-bind:swap="rosters" v-on:acquire="acquirePlayer(index)"></tr>
+                <script>Application().displayAllPlayers()</script>
 			</table>
 		</div>
 
@@ -57,14 +61,26 @@
 		<script type="text/javascript" src="../database/auth.js"></script>
 		<script type="text/javascript" src="../database/database.js"></script>
 		<script type="text/javascript" src="app.js"></script>
+		<script src="/jquery/jquery-1.11.1.min.js"></script>
 		<script type="text/javascript">
 			// Instantiate app
 			var app = Application();
 			app.getUser();
 			app.displayUser();
 			app.loadRosterPage();
-			//app.displayRoster();
-			//app.displayAllPlayers();
+			app.displayRoster();
+			app.displayAllPlayers();
 		</script>
+	    <script type="text/javascript">
+             function show_popup()
+             {
+             var p=window.createPopup()
+             var pbody=p.document.body
+             pbody.style.backgroundColor="lime"
+             pbody.style.border="solid black 1px"
+             pbody.innerHTML="Error! You must have 3 starting players and 2 bench players."
+			 p.show(150,150,200,50,document.body)
+             }
+        </script>
 	</body>
 </html>
