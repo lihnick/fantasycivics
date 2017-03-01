@@ -27,7 +27,7 @@ function Application() {
 		leagueRedirect: 'roster.html',
 		pending: 'Pending',
 		pendingBench: 'Benching',
-		pendingStart: 'starting',
+		pendingStart: 'Starting',
 		pendingAcquire: 'Acquiring',
 		pendingDrop: 'Dropping',
 		userIdTag: 'userid',
@@ -253,7 +253,7 @@ function Application() {
 						<td>{{ momentDate(row.start, \"MM/DD/YY\") }}</td>\
 						<td>{{ momentDate(row.end, \"MM/DD/YY\") }}</td>\
 						<td><div v-for="(user, idx) in row.users">\
-							<pre>Team: {{ user.team}}	Wins: {{ user.wins}}	Losses: {{ user.losses }}</pre>\
+							<pre>Team: {{ user.team }}	Wins: {{ user.wins}}	Losses: {{ user.losses }}</pre>\
 						</div></td>\
 					</tr>',
 					methods: {
@@ -415,8 +415,9 @@ function Application() {
 										start: (!p1.starter)? p1.playerid : p2.playerid
 									}
 									// temporarily disable the toggle buttons
-									log(move);
-									test = move;
+									if (Database.IN_SIMULATED_TIME) {
+										move['timestamp'] = (USER.rosterdate.prevto - USER.rosterdate.prevfrom)/2 + USER.rosterdate.prevfrom;
+									}
 									Database.movePlayer(move).then(function(movePlayer) {
 										if (movePlayer.success){
 											p1.starter = p2.starter;
@@ -549,6 +550,9 @@ function Application() {
 										leagueid: USER['leagueid'],
 										add: (!p1.owner)? p1.playerid : p2.playerid,
 										drop: (p1.owner)? p1.playerid : p2.playerid
+									}
+									if (Database.IN_SIMULATED_TIME) {
+										move['timestamp'] = (USER.rosterdate.prevto - USER.rosterdate.prevfrom)/2 + USER.rosterdate.prevfrom;
 									}
 									// it would be nice, if I can just recall the Application().getRoster() function, but freezes the UI
 									// Updates to add/drop player will also affect the roster
