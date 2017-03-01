@@ -79,7 +79,7 @@ function main(){
 		login.style.display = 'none';
 
 	var params = getQueryParams(document.location.search);
-	SIMULATION_TIME = params.time
+	SIMULATION_TIME = parseInt(params.time, 10);
 	LEAGUE_ID = params.league;
 
 	if(LEAGUE_ID && SIMULATION_TIME){
@@ -99,47 +99,51 @@ function main(){
 
 function render(){
 
-		Database.getMatchScore({
-			userid: USER.userid,
+	Database.getMatchScore({
+		userid: USER.userid,
+		leagueid: LEAGUE_ID,
+		on: SIMULATION_TIME
+	}).then((score) => {
+
+		var match = score.match;
+			match.winner = score.winner;
+
+		Database.getLeague({
 			leagueid: LEAGUE_ID,
-			on: SIMULATION_TIME
-		}).then((score) => {
+			from: match.start,
+			to: match.end
+		}).then((league) => {
 
-			var match = score.match;
-			console.log(score);
-
-			Database.getLeague({
-				leagueid: LEAGUE_ID,
+			var p1 = Database.getRoster({
+				userid: match.home,
+				leagueid: league.leagueid,
 				from: match.start,
 				to: match.end
-			}).then((league) => {
-
-				var p1 = Database.getRoster({
-					userid: match.home,
-					leagueid: league.leagueid,
-					from: match.start,
-					to: match.end
-				});
-				var p2 = Database.getRoster({
-					userid: match.away,
-					leagueid: league.leagueid,
-					from: match.start,
-					to: match.end
-				});
-				Promise.all([
-					p1,
-					p2
-				]).then((participants) => {
-					var homeUser = participants[0];
-					var awayUser = participants[1];
-					var boxScoreDiv = renderBoxScore(match, homeUser, awayUser, league);
-					var parent = document.getElementById('box-score');
-					parent.appendChild(boxScoreDiv);
-				});
+			});
+			var p2 = Database.getRoster({
+				userid: match.away,
+				leagueid: league.leagueid,
+				from: match.start,
+				to: match.end
+			});
+			Promise.all([
+				p1,
+				p2
+			]).then((participants) => {
+				var homeUser = participants[0];
+				var awayUser = participants[1];
+				var boxScoreDiv = renderBoxScore(match, homeUser, awayUser, league);
+				var parent = document.getElementById('box-score');
+				parent.appendChild(boxScoreDiv);
+				var load = document.getElementById('loading-box-score');
+				load.style.display = 'none';
+			});
 
 		}).catch(displayError);
 
 	}).catch(displayError);
+
+
 
 }
 
@@ -239,6 +243,11 @@ function renderBoxScore(match, home, away, league){
 			]);
 	var playerTable = createDOMTable(false, rows);
 	div.appendChild(h2);
+	var p = document.createElement('p');
+	var winTeam = (match.winner === match.home) ? 'home' : 'away';
+	var loseTeam = (match.winner === match.home) ? 'away' : 'home';
+	p.innerText = league.users[match.winner].name + ' wins ' + scores[winTeam].lineup + ' - ' + scores[loseTeam].lineup + '.'
+	div.appendChild(p);
 	div.appendChild(playerTable);
 	return div;
 }
