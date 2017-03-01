@@ -139,6 +139,16 @@ function render(){
 				load.style.display = 'none';
 			});
 
+			Database.getLeaderboard({
+				leagueid: league.leagueid
+			}, league).then((leaderboard) => {
+				var boardDiv = renderLeaderboard(leaderboard.rankings, leaderboard.records, league);
+				var parent2 = document.getElementById('leaderboard');
+				parent2.appendChild(boardDiv);
+				var load2 = document.getElementById('loading-leaderboard');
+				load2.style.display = 'none';
+			}).catch(displayError);
+
 		}).catch(displayError);
 
 	}).catch(displayError);
@@ -250,4 +260,26 @@ function renderBoxScore(match, home, away, league){
 	div.appendChild(p);
 	div.appendChild(playerTable);
 	return div;
+}
+
+function renderLeaderboard(rankings, records, league){
+	var div = document.createElement('div');
+	var h2 = document.createElement('h2');
+		h2.innerText = league.name + ' Leaderboard';
+	var headers = [
+		'Rank',
+		'Name',
+		'Record'
+	];
+	var rows = rankings.map((user, i) => {
+		return [
+			(i + 1),
+			user.name,
+			'(' + user.wins.length + '-' + user.losses.length + ')'
+		];
+	})
+	var playerTable = createDOMTable(headers, rows);
+	div.appendChild(h2);
+	div.appendChild(playerTable);
+	return div;	
 }
