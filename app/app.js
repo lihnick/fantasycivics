@@ -645,6 +645,8 @@ function Application() {
 			}).then((matchOutcome) => {
 				if (matchOutcome.success) {
 					log("Success");
+					var otc = document.getElementById('outcome');
+					otc.disabled = false;
 				}
 			}).catch((err) => {
 				log(err);

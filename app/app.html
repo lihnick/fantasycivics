@@ -45,7 +45,6 @@
 
 			<button v-on:click="inviteUsers" :disabled="(!invite)? true : false">Invite</button>
 			<button v-on:click="finalizeLeague" :disabled="(!name || !range)? true : false">Create League</button>
-			<button onclick="viewOutcome();">View Score</button>
 			<ul>
 				<li is="invite-list" v-for="(user, index) in users" v-bind:invite="user" v-on:pop="users.splice(index, 1)"></li>
 			</ul>
