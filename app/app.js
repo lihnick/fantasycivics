@@ -681,13 +681,13 @@ function InitApplication() {
 
 			loadRosterPageCallBack();
 
-			Database.when('rosters_change', {
+			/*Database.when('rosters_change', {
 				leagueid: USER.leagueid
 			}, (change) => {
 				console.log(change);
 				loadRosterPageCallBack();
 			});
-
+*/
 		}
 	}; // end of return
 
