@@ -658,7 +658,8 @@ function Application() {
 
 			Database.when('rosters_change', {
 				leagueid: USER.leagueid
-			}, () => {
+			}, (change) => {
+				console.log(change);
 				Application().getLeagueData({
 					leagueid: USER['leagueid']
 				}).then(() => {
