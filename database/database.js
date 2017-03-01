@@ -90,7 +90,7 @@ var Database = {
 						userid: userData.userid || params.userid, // Reversed in case world explodes
 						name: params.name || userData.name,
 						image: params.image || userData.image,
-						email: params.email || userData.image
+						email: params.email || userData.email
 					}
 					ref.set(newData).then(() => {
 						resolve({

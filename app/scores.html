@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Fantasy Civics</title>
+
+		<script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
+		<script type="text/javascript" src="../assets/promise.min.js"></script>
+		<script type="text/javascript" src="../assets/moment.min.js"></script>
+		<script type="text/javascript" src="../assets/jquery-3.1.1.min.js"></script>
+
+		<style>
+
+			section#page {
+				display: none;
+			}
+
+			div#message-container {
+				display: none;
+			}
+
+			span.spacer {
+				width: 50px;
+				display: block;
+			}
+
+			table td {
+				padding-right: 10px;
+			}
+
+			.center {
+				text-align: center;
+			}
+
+			td.center {
+				width: 90px;
+			}
+
+			td.player-name {
+				width: 180px;
+			}
+
+		</style>
+
+	</head>
+	<body>
+		
+		<!-- Header -->
+
+		<h1>Fantasy Civics</h1>
+
+		<div id="message-container">
+			<p><span id="message"></span> <span id="close-message">[Close]</span></p>
+		</div>
+
+		<section id="login">
+			<h2>Login</h2>
+			<button id="login-button">Google Login</button>
+		</section>
+
+		<section id="page">
+
+			<h2>Box Score</h2>
+			<div id="box-score"></div>
+			<h2>Return to App</h2>
+			<a href="app.html"><button>Back</button></a>
+
+		</section>
+
+		<!-- Footer -->
+
+		<!-- script -->
+
+		<script type="text/javascript" src="../lib/util.js"></script>
+		<script type="text/javascript" src="../database/player.js"></script>
+		<script type="text/javascript" src="../database/league.js"></script>
+		<script type="text/javascript" src="../database/scoring.js"></script>
+		<script type="text/javascript" src="../database/auth.js"></script>
+		<script type="text/javascript" src="../database/database.js"></script>
+		<script type="text/javascript" src="scores.js"></script>
+		<script type="text/javascript">
+
+		</script>
+	</body>
+</html>
