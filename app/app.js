@@ -49,6 +49,8 @@ function InitApplication() {
 		seletedLeagueEnd: 'leagueend'
 	};
 
+
+
 	// Public Variables
 	var Application = {
 
@@ -367,13 +369,13 @@ function InitApplication() {
 			}).then(() => {
 				if (!USER['_roster-list']) {
 					USER['_roster-list'] = Vue.component('roster-list', {
-						props: ['row'],
+						props: ['row', 'header'],
 						template: '<tr>\
 							<td>{{ row.name }}</td>\
-							<td>{{ row.scores.graffiti }}</td>\
-							<td>{{ row.scores.pot_holes }}</td>\
-							<td>{{ row.scores.street_lights }}</td>\
-							<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
+							<td>{{ row.scores[Object.keys(header)[0]] }}</td>\
+							<td>{{ row.scores[Object.keys(header)[1]] }}</td>\
+							<td>{{ row.scores[Object.keys(header)[2]] }}</td>\
+							<td>{{ row.scores[Object.keys(header)[0]] + row.scores[Object.keys(header)[1]] + row.scores[Object.keys(header)[2]] }}</td>\
 							<td>{{ (row.starter)? \'Starter\' : \'Benched\' }}</td>\
 							<td><button v-on:click="$emit(\'toggle\')">Toggle</button></td>\
 							<td>{{ row.pending }}</td>\
@@ -385,6 +387,7 @@ function InitApplication() {
 				USER['_userRoster'] = new Vue({
 					el: '#userRoster',
 					data: {
+						headers: Database.Scoring.DATASET_NAMES,
 						leaguename: USER['selectedleague']['name'],
 						players: USER['roster']['players'],
 						// update aggregator, reference scoring.js
@@ -392,17 +395,19 @@ function InitApplication() {
 							if (!USER['roster']['players'][id].starter){
 								return 0;
 							}
-							return USER['roster']['players'][id].scores.graffiti + USER['roster']['players'][id].scores.pot_holes + USER['roster']['players'][id].scores.street_lights;
+							var cols = Object.keys(Database.Scoring.DATASET_NAMES);
+							return USER['roster']['players'][id].scores[cols[0]] + USER['roster']['players'][id].scores[cols[1]] + USER['roster']['players'][id].scores[cols[2]];
 						}).reduce((a, b) => a + b, 0),
 						toggle: {}
 					},
 					methods: {
 						updateAggregator: () => {
 							USER['_userRoster'].aggregator = Object.keys(USER['_userRoster'].players).map(function(id) {
-								if (!USER['_userRoster'].players[id].starter){
-									return 0;
-								}
-								return USER['_userRoster'].players[id].scores.graffiti + USER['_userRoster'].players[id].scores.pot_holes + USER['_userRoster'].players[id].scores.street_lights;
+							if (!USER['roster']['players'][id].starter){
+								return 0;
+							}
+							var cols = Object.keys(Database.Scoring.DATASET_NAMES);
+							return USER['roster']['players'][id].scores[cols[0]] + USER['roster']['players'][id].scores[cols[1]] + USER['roster']['players'][id].scores[cols[2]];
 							}).reduce((a, b) => a + b, 0);
 						},
 						togglePlayer: (idx) => { 
@@ -505,13 +510,13 @@ function InitApplication() {
 			}).then(() => {
 				if (!USER['_player-list']) {
 					USER['_player-list'] = Vue.component('player-list', {
-						props: ['row'],
+						props: ['row', 'header'],
 						template: '<tr>\
 							<td> {{ row.name }} </td>\
-							<td>{{ row.scores.graffiti }}</td>\
-							<td>{{ row.scores.pot_holes }}</td>\
-							<td>{{ row.scores.street_lights }}</td>\
-							<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
+							<td>{{ row.scores[Object.keys(header)[0]] }}</td>\
+							<td>{{ row.scores[Object.keys(header)[1]] }}</td>\
+							<td>{{ row.scores[Object.keys(header)[2]] }}</td>\
+							<td>{{ row.scores[Object.keys(header)[0]] + row.scores[Object.keys(header)[1]] + row.scores[Object.keys(header)[2]] }}</td>\
 							<td>{{ (!row.owner)? \'None\' : checkName(row.owner) }}</td>\
 							<td><button v-on:click="$emit(\'acquire\')" :disabled="(!row.owner || checkUser(row))? false : true">{{ (checkUser(row)) ? \'Drop\' : \'Acquire\' }}</button></td>\
 							<td>{{ row.pending }}</td>\
@@ -538,6 +543,7 @@ function InitApplication() {
 				USER['_allPlayers'] = new Vue({
 					el: '#allPlayers',
 					data: {
+						headers: Database.Scoring.DATASET_NAMES,
 						players: workingPlayers,
 						rosters: userRosters
 					},
@@ -680,16 +686,8 @@ function InitApplication() {
 			}
 
 			loadRosterPageCallBack();
-
-			/*Database.when('rosters_change', {
-				leagueid: USER.leagueid
-			}, (change) => {
-				console.log(change);
-				loadRosterPageCallBack();
-			});
-*/
 		}
-	}; // end of return
+	}; // end of application variable
 
 	return Application;
 	
