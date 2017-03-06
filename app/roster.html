@@ -23,7 +23,7 @@
 			<p id="email"></p>
 			<p id="name"></p>
 			<!-- <img id="image" style="width:64px;height:64px;" alt="No Image"></img> -->
-			<button onclick="Application().userLogout()">Logout</button>
+			<button onclick="app.userLogout()">Logout</button>
 		</div>
 
 		<div id="userRoster">
@@ -34,7 +34,7 @@
 				</tr>
 				<tr is="roster-list" v-for="(player, index) in players" v-bind:row="player" v-bind:swap="players" v-on:toggle="togglePlayer(index)"></tr>
 				<tr>
-					<td><button onclick="Application().setMatchOutcome()">Finalize</button></td><td></td><td></td><td></td>
+					<td><button onclick="app.setMatchOutcome()">Finalize</button></td><td></td><td></td><td></td>
 					<td>{{ aggregator }}</td>
 					<td></td><td></td><td></td>
 				</tr>
