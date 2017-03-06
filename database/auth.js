@@ -13,7 +13,7 @@
 });*/
 
 
-function DatabaseAuth(FirebaseInstance){
+function DatabaseAuth(FirebaseInstance, DatabaseInstance){
 	
 	var Auth = {
 
@@ -22,6 +22,7 @@ function DatabaseAuth(FirebaseInstance){
 				var provider = new firebase.auth.GoogleAuthProvider();
 				FirebaseInstance.auth().signInWithPopup(provider).then((data) => {
 					var result = data.user;
+					localStorage.setItem('fantasy-civics-userid', result.uid);
 					resolve({
 						userid: result.uid,
 						name: result.displayName,
@@ -33,18 +34,16 @@ function DatabaseAuth(FirebaseInstance){
 		},
 
 		signOutUser: () => {
+			localStorage.removeItem('fantasy-civics-userid');
 			return FirebaseInstance.auth().signOut();
 		},
 
 		getCurrentUser: () => {
 			return new Promise((resolve, reject) => {
-				var result = FirebaseInstance.auth().currentUser;
-				if(result){
+				var userid = localStorage.getItem('fantasy-civics-userid');
+				if(userid){
 					resolve({
-						userid: result.uid,
-						name: result.displayName,
-						email: result.email,
-						image: result.photoURL
+						userid: userid
 					});
 				}
 				else{

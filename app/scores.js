@@ -108,36 +108,32 @@ function render(){
 		var match = score.match;
 			match.winner = score.winner;
 
+		var homeUser = {
+			userid: match.home,
+			leagueid: LEAGUE_ID,
+			players: score.rosters[match.home],
+			from: match.start,
+			to: match.end
+		}
+		var awayUser = {
+			userid: match.away,
+			leagueid: LEAGUE_ID,
+			players: score.rosters[match.away],
+			from: match.start,
+			to: match.end
+		}
+
 		Database.getLeague({
 			leagueid: LEAGUE_ID,
 			from: match.start,
 			to: match.end
 		}).then((league) => {
 
-			var p1 = Database.getRoster({
-				userid: match.home,
-				leagueid: league.leagueid,
-				from: match.start,
-				to: match.end
-			});
-			var p2 = Database.getRoster({
-				userid: match.away,
-				leagueid: league.leagueid,
-				from: match.start,
-				to: match.end
-			});
-			Promise.all([
-				p1,
-				p2
-			]).then((participants) => {
-				var homeUser = participants[0];
-				var awayUser = participants[1];
-				var boxScoreDiv = renderBoxScore(match, homeUser, awayUser, league);
-				var parent = document.getElementById('box-score');
-				parent.appendChild(boxScoreDiv);
-				var load = document.getElementById('loading-box-score');
-				load.style.display = 'none';
-			});
+			var boxScoreDiv = renderBoxScore(match, homeUser, awayUser, league);
+			var parent = document.getElementById('box-score');
+			parent.appendChild(boxScoreDiv);
+			var load = document.getElementById('loading-box-score');
+			load.style.display = 'none';
 
 			Database.getLeaderboard({
 				leagueid: league.leagueid
