@@ -83,7 +83,7 @@ Sign out user.
 Promise representing success or bearing error.
 
 ### Database.Auth.getCurrentUser()
-Get data for the user who is currently authenticated, if any.
+Get the userid for the user who is currently authenticated, if any. Call `Database.getUser()` with the userid to get additional information.
 
 **Parameters**
 `void`
@@ -92,10 +92,7 @@ Get data for the user who is currently authenticated, if any.
 Promise bearing data or error.
 ```
 {
-	userid: 'testuser0001',
-	name: 'Test User',
-	email: 'test@fantasycivics.edu',
-	image: 'https://fantasycivics.edu/image.png'
+	userid: 'testuser0001'
 }
 ```
 
