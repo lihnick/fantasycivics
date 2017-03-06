@@ -20,7 +20,9 @@ function viewOutcome(){
 	var leagueid = USER.leagueid;
 	var sim = USER.rosterdate;
 	var timestamp = sim.thisfrom + (0.5 * (sim.thisto - sim.thisfrom));
-	var url = document.location.origin + '/app/scores.html' + '?time=' + timestamp + '&league=' + leagueid
+	var uParts = document.location.pathname.split('/');
+	var pathname = '/' + uParts.slice(0, uParts.length - 1).join('/');
+	var url = document.location.origin + pathname + '/scores.html' + '?time=' + timestamp + '&league=' + leagueid;
 	document.location = url;
 }
 
@@ -645,8 +647,6 @@ function InitApplication() {
 			}).then((matchOutcome) => {
 				if (matchOutcome.success) {
 					log("Success");
-					var otc = document.getElementById('outcome');
-					otc.disabled = false;
 				}
 			}).catch((err) => {
 				log(err);
