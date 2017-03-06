@@ -5,7 +5,11 @@ var WATCH_LEAGUES = {};
 var YOUR_LEAGUES = {}
 
 Database.Auth.getCurrentUser().then((user) => {
-	login(user);
+	Database.getUser({
+		userid: user.userid
+	}).then((userData) => {
+		login(userData);
+	}).catch(displayError);
 }).catch((err) => {
 	if(err === 'No user currently authenticated.'){
 		displayMessage('Log in in to play Fantasy Civics!');
