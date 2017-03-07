@@ -805,11 +805,15 @@ function InitApplication() {
 											from: USER.rosterdate.prevfrom,
 											to: USER.rosterdate.prevto
 										}).then(() => {
-											log("getting result from DB");
+											log("Updates after an error");
 											if (USER['_allPlayers']) {
+												var currentOrder = USER['_allPlayers'].order;
+												USER['_allPlayers'].reverse = 1;
+												USER['_allPlayers'].ordering(1);
 												for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
 													USER._allPlayers.players[i] = Object.assign({}, USER._allPlayers.players[i], USER.allPlayers[i]);
 												}
+												USER['_allPlayers'].ordering(currentOrder);
 											}
 										}).catch((err) => {
 											log(err);
