@@ -623,8 +623,30 @@ function InitApplication() {
 						}
 					}
 				});
-
 			}); 
+
+			Database.when('rosters_change', {
+				leagueid: USER['leagueid']
+			}, (change) => {
+				if (change.changed) {
+					Application.getAllPlayers({
+						leagueid: USER.leagueid,
+						from: USER.rosterdate.prevfrom,
+						to: USER.rosterdate.prevto
+					}).then(() => {
+						log("Player List updated");
+						if (USER['_allPlayers']) {
+							for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
+								if (USER.allPlayers[i].owner != USER['_allPlayers'].players[i].owner)
+									USER._allPlayers.players[i] = Object.assign({}, USER._allPlayers.players[i], {owner: USER.allPlayers[i].owner});
+								// 	Vue.set(USER['_allPlayers'].players[i], 'owner', USER.allPlayers[i].owner);
+							}
+						}
+					}).catch((err) => {
+						log(err);
+					});
+				}
+			});
 		},
 
 		getMatch: () => {
