@@ -72,7 +72,7 @@
 			<p>With a league selected, go the roster page to start playing.</p>
 			<table>
 				<th>Status</th><th>Selection</th><th>League Name</th><th>Start</th><th>End</th><th>Users</th>
-				<tr is="league-list" v-for="(league, index) in leagues" v-bind:row="league" v-on:select="loadLeague(index)"></tr>
+				<tr is="league-list" v-for="(league, index) in leagues" v-repeat="players | orderBy field reverse" v-bind:row="league" v-on:select="loadLeague(index)"></tr>
 			</table>
 		</div>
 

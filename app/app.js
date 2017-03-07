@@ -537,8 +537,6 @@ function InitApplication() {
 			});			
 		},
 
-
-
 		displayRoster: () => {
 			if(!USER.userid)
 				throw new Error('userid not found.');
@@ -652,8 +650,6 @@ function InitApplication() {
 			});
 		},
 
-
-
 		displayAllPlayers: () => {
 			if(!USER.leagueid)
 				throw new Error('UI - leagueid not found.');
@@ -693,6 +689,8 @@ function InitApplication() {
 						}
 					});
 				}
+				// Save point
+				// In order for sorting to work, the _player-list template needs to enclose the whole table element
 
 				var workingPlayers = jQuery.extend(true, {}, USER['allPlayers']);
 				var userRosters = USER['allPlayers'].filter(function(item) {
