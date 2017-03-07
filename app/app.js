@@ -233,16 +233,117 @@ function InitApplication() {
 		}).catch((err) => {
 			log(err);
 		});
-	}
+	};
+
+	var acquirePlayer = (p1, p2) => {
+		if (!USER['userid'])
+			throw new Error("Must specify {userid}");
+		if (!USER['leagueid'])
+			throw new Error("Must specify {leagueid}");
+		if (!USER['_userRoster'])
+			throw new Error("User roster not loaded");
+
+		p2.pending = (p2.owner)? Constants.pendingDrop : Constants.pendingAcquire;
+		var move = {
+			userid: USER['userid'],
+			leagueid: USER['leagueid'],
+			add: (!p1.owner)? p1.playerid : p2.playerid,
+			drop: (p1.owner)? p1.playerid : p2.playerid
+		}
+		if (Database.IN_SIMULATED_TIME) {
+			move['timestamp'] = (USER.rosterdate.prevto - USER.rosterdate.prevfrom)/2 + USER.rosterdate.prevfrom;
+		}
+		Database.acquirePlayer(move).then(function(acquire) {
+			if (acquire.success) {
+				p1.pending = p2.pending = "";
+				if (p1.owner == false) {
+					p1.owner = p2.owner;
+					p2.owner = false;
+					if (USER['_userRoster']) {
+						USER['_userRoster'].players.filter(function(item) {
+							if (item.playerid == p2.playerid) {
+								item.name = p1.name;
+								item.playerid = p1.playerid;
+								item.scores = p1.scores;
+								item.ward = p1.ward;
+							}
+						});
+						USER['_userRoster'].updateAggregator();
+					}
+				} else {
+					p2.owner = p1.owner;
+					p1.owner = false;
+					if (USER['_userRoster']) {
+						USER['_userRoster'].players.filter(function(item) {
+							if (item.playerid == p1.playerid) {
+								item.name = p2.name;
+								item.playerid = p2.playerid;
+								item.scores = p2.scores;
+								item.ward = p2.ward;
+							}
+						});
+						USER['_userRoster'].updateAggregator();
+					}
+				}
+				USER['workingPlayers'] = null;
+				
+			}
+		}).catch((err) => {
+			log(err);
+			alert("Player Taken");
+			p1.pending = p2.pending = "";
+			USER['workingPlayers'] = null;
+		});
+	};
+
+	var movePlayer = (p1, p2) => {
+		if (!USER['userid'])
+			throw new Error("Must specify {userid}");
+		if (!USER['leagueid'])
+			throw new Error("Must specify {leagueid}");
+
+		p2.pending = (p2.starter)? Constants.pendingBench : Constants.pendingStart;
+		var move = {
+			userid: USER['userid'],
+			leagueid: USER['leagueid'],
+			sit: (p1.starter)? p1.playerid : p2.playerid,
+			start: (!p1.starter)? p1.playerid : p2.playerid
+		}
+		// temporarily disable the toggle buttons
+		if (Database.IN_SIMULATED_TIME) {
+			// attribute that needs to be added when playing in simulated time
+			move['timestamp'] = (USER.rosterdate.prevto - USER.rosterdate.prevfrom)/2 + USER.rosterdate.prevfrom;
+		}
+		Database.movePlayer(move).then(function(movePlayer) {
+			if (movePlayer.success){
+				//svar save = p1.starter;
+				//log("saving var: " + save);
+				//p1 = Object.assign({}, p1, {starter: p2.starter});
+				//log("seeing var: " + save);
+				//p2 = Object.assign({}, p2, {starter: save});
+				p1.starter = p2.starter;
+				p2.starter = !p2.starter;
+				USER['roster']['players'] = p2; // temporary fix, use the Object.assign function
+				p1.pending = p2.pending = "";
+				USER['workingPlayers'] = null;
+			}
+		}).catch(function(err) {
+			log(err);
+			alert("Cannot Move");
+			p1.pending = p2.pending = "";
+			USER['workingPlayers'] = null;
+		});
+	};
+
 
 
 	private = [Constants];
 
 
+
 	// Public Variables
 	var Application = {
 
-		// Write Functions
 		createLeague: () => {
 			getLeagueInvites({
 				userid: USER['userid']
@@ -414,8 +515,6 @@ function InitApplication() {
 				log(err);
 			});
 		},
-
-		// Read Functions
 
 		// displays user info in html elements
 		displayUser: () => {
@@ -599,50 +698,42 @@ function InitApplication() {
 						togglePlayer: (idx) => { 
 							var tmp = USER['_userRoster'];
 
-							if (USER['workingRoster']) {
+							if (USER['workingPlayers']) {
 								// makes sure the selected is not the same, if so undo select
-								if (USER['workingRoster'].playerid == tmp.players[idx].playerid) {
+								if (USER['workingPlayers'].playerid == tmp.players[idx].playerid) {
 									tmp.players[idx].pending = "";
-									USER['workingRoster'] = null;
+									USER['workingPlayers'] = null;
 								} 
-								// if everything checks out with the player move, then update database
-								else if (USER['workingRoster'].starter != tmp.players[idx].starter) {
-									tmp.players[idx].pending = (tmp.players[idx].starter)? Constants.pendingBench : Constants.pendingStart;
-									var p1 = USER['workingRoster'];
-									var p2 = tmp.players[idx];
-									var move = {
-										userid: USER['userid'],
-										leagueid: USER['leagueid'],
-										sit: (p1.starter)? p1.playerid : p2.playerid,
-										start: (!p1.starter)? p1.playerid : p2.playerid
-									}
-									// temporarily disable the toggle buttons
-									if (Database.IN_SIMULATED_TIME) {
-										move['timestamp'] = (USER.rosterdate.prevto - USER.rosterdate.prevfrom)/2 + USER.rosterdate.prevfrom;
-									}
-									Database.movePlayer(move).then(function(movePlayer) {
-										if (movePlayer.success){
-											p1.starter = p2.starter;
-											p2.starter = !p2.starter;
-											p1.pending = p2.pending = "";
-											USER['roster']['players'] = tmp.players; // temporary fix
-											USER['workingRoster'] = null;
-										}
-									}).catch(function(err) {
-										log(err);
-									});
+								// one of the selected is not owned by the player and the other is
+								// When selecting an acquire from players and then a toggle in roster
+								// cannot select an drop from players and then toggle in roster
+								else if (USER['workingPlayers'].owner === false && tmp.players[idx].owner == USER['userid']) {
+									log("Adding players - last from roster");
+									acquirePlayer(USER['workingPlayers'], tmp.players[idx]);
+								
+								}
+								// if user owns both players and the starter is not the same for both player
+								// when selecting an toggle(benched|starter) and then another toggle!(benched|starter)
+								else if (	USER['workingPlayers'].owner == USER['userid'] && tmp.players[idx].owner == USER['userid'] &&
+											USER['workingPlayers'].starter != tmp.players[idx].starter) {
+									log("Moving rosters - last from roster");
+									movePlayer(USER['workingPlayers'], tmp.players[idx]);
+
 								}
 								// otherwise, revert and show error in user's movement
 								else {
+									log(USER['workingPlayers']);
+									log(tmp.players[idx]);
 									log("Invalid player movement!");
-									tmp.players[idx].pending = USER['workingRoster'].pending = "";
-									USER['workingRoster'] = null;
+									tmp.players[idx].pending = USER['workingPlayers'].pending = "";
+									USER['workingPlayers'] = null;
 								}
 							}
 							// adds pending update to the UI
 							else {
-								tmp.players[idx].pending = (tmp.players[idx].starter)? Constants.pendingBench : Constants.pendingStart;
-								USER['workingRoster'] = tmp.players[idx];
+								//tmp.players[idx].pending = (tmp.players[idx].starter)? Constants.pendingBench : Constants.pendingStart;
+								tmp.players[idx].pending = Constants.pending;
+								USER['workingPlayers'] = tmp.players[idx];
 							}
 						}
 					}
@@ -744,61 +835,11 @@ function InitApplication() {
 									tmp.players[idx].pending = "";
 									USER['workingPlayers'] = null;
 								}
-								else if (USER['workingPlayers'].owner ==  USER['userid'] && tmp.players[idx].owner == false ||
-										 USER['workingPlayers'].owner ==  false && tmp.players[idx].owner == USER['userid']) {
-									tmp.players[idx].pending = (tmp.players[idx].owner)? Constants.pendingDrop : Constants.pendingAcquire;
-									var p1 = USER['workingPlayers'];
-									var p2 = tmp.players[idx];
-									var move = {
-										userid: USER['userid'],
-										leagueid: USER['leagueid'],
-										add: (!p1.owner)? p1.playerid : p2.playerid,
-										drop: (p1.owner)? p1.playerid : p2.playerid
-									}
-									if (Database.IN_SIMULATED_TIME) {
-										move['timestamp'] = (USER.rosterdate.prevto - USER.rosterdate.prevfrom)/2 + USER.rosterdate.prevfrom;
-									}
-									Database.acquirePlayer(move).then(function(acquirePlayer) {
-										if (acquirePlayer.success) {
-											p1.pending = p2.pending = "";
-											if (p1.owner == false) {
-												p1.owner = p2.owner;
-												p2.owner = false;
-												if (USER['_userRoster']) {
-													USER['_userRoster'].players.filter(function(item) {
-														if (item.playerid == p2.playerid) {
-															item.name = p1.name;
-															item.playerid = p1.playerid;
-															item.scores = p1.scores;
-															item.ward = p1.ward;
-														}
-													});
-													USER['_userRoster'].updateAggregator();
-												}
-											} else {
-												p2.owner = p1.owner;
-												p1.owner = false;
-												if (USER['_userRoster']) {
-													USER['_userRoster'].players.filter(function(item) {
-														if (item.playerid == p1.playerid) {
-															item.name = p2.name;
-															item.playerid = p2.playerid;
-															item.scores = p2.scores;
-															item.ward = p2.ward;
-														}
-													});
-													USER['_userRoster'].updateAggregator();
-												}
-											}
-											USER['workingPlayers'] = null;
-											
-										}
-									}).catch((err) => {
-										log(err);
-										alert("Player Taken");
-										tmp.players[idx].pending = "";
-										USER['workingPlayers'] = null;
-									});
+								else if (USER['workingPlayers'].owner == USER['userid'] && tmp.players[idx].owner === false ||
+										 USER['workingPlayers'].owner === false && tmp.players[idx].owner == USER['userid']) {
+									log("Adding players – last from players");
+									acquirePlayer(USER['workingPlayers'], tmp.players[idx]);
+
 								}
 								else {
 									log("Invalid Add/Drop of players");
@@ -825,12 +866,19 @@ function InitApplication() {
 						to: USER.rosterdate.prevto
 					}).then(() => {
 						log("Player List updated");
+						// updates player list if it exists
 						if (USER['_allPlayers']) {
 							for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
-								if (USER.allPlayers[i].owner != USER['_allPlayers'].players[i].owner)
+								if (USER.allPlayers[i].owner === false || USER['_allPlayers'].players[i].owner === false || USER.allPlayers[i].owner != USER['_allPlayers'].players[i].owner) 
 									USER._allPlayers.players[i] = Object.assign({}, USER._allPlayers.players[i], {owner: USER.allPlayers[i].owner});
 								// 	Vue.set(USER['_allPlayers'].players[i], 'owner', USER.allPlayers[i].owner);
 							}
+						}
+						// updates roster list if it exists
+						if (USER['_userRoster']) {
+							var userRoster = Object.keys(USER['allPlayers']).filter((itm) => {
+								
+							});							
 						}
 					}).catch((err) => {
 						log(err);
