@@ -796,7 +796,7 @@ function InitApplication() {
 									}).catch((err) => {
 										log(err);
 										alert("Player Taken");
-										tmp.players[idx].pending = "";
+										USER['workingPlayers'] = tmp.players[idx].pending = "";
 										USER['workingPlayers'] = null;
 									});
 								}
