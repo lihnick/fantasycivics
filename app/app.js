@@ -716,9 +716,7 @@ function InitApplication() {
 												(a, b) => {return (a.scores[header[1]] > b.scores[header[1]])? 1 : ((b.scores[header[1]] > a.scores[header[1]])? -1 : 0);},
 												(a, b) => {return (a.scores[header[2]] > b.scores[header[2]])? 1 : ((b.scores[header[2]] > a.scores[header[2]])? -1 : 0);},
 												(a, b) => {return ( (a.scores[header[0]] + a.scores[header[1]] + a.scores[header[2]]) > (b.scores[header[0]] + b.scores[header[1]] + b.scores[header[2]]) )? 1 : (( (b.scores[header[0]] + b.scores[header[1]] + b.scores[header[2]]) > (a.scores[header[0]] + a.scores[header[1]] + a.scores[header[2]]) )? -1 : 0);},
-												(a, b) => {
-													return (b.owner == false || a.owner > b.owner)? 1 : ((a.owner == false || b.owner > a.owner)? -1 : 0);
-												},
+												(a, b) => {return (b.owner == false || a.owner > b.owner)? 1 : ((a.owner == false || b.owner > a.owner)? -1 : 0);},
 												(a, b) => {return (a.ward > b.ward)? 1 : ((b.ward > a.ward)? -1 : 0);}	];
 
 							var sorted = USER.allPlayers.sort(comparator[orderBy]);
@@ -726,14 +724,22 @@ function InitApplication() {
 								sorted.reverse();
 							
 							for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
-								USER._allPlayers.players[i] = Object.assign({}, USER._allPlayers.players[i], sorted[i]);
+								USER._allPlayers.players[i] = Object.assign({}, USER._allPlayers.players[i], {
+									ward: sorted[i].ward,
+									name: sorted[i].name,
+									owner: sorted[i].owner,
+									playerid: sorted[i].playerid,
+									starter: sorted[i].starter,
+									scores: sorted[i].scores,
+									pending: (USER['workingPlayers'] && USER['workingPlayers'].playerid == sorted[i].playerid)? USER['workingPlayers'].pending : sorted[i].pending
+								});
 							}
 						},
 						acquirePlayer: (idx) => {
 							var tmp = USER['_allPlayers'];
 
 							if (USER['workingPlayers']) {
-								// makes sure the selected is not the same, if so undo select
+								// makes sure the selected is not the same, if so undo the selected
 								if (USER['workingPlayers'].playerid == tmp.players[idx].playerid) {
 									tmp.players[idx].pending = "";
 									USER['workingPlayers'] = null;
@@ -790,7 +796,7 @@ function InitApplication() {
 									}).catch((err) => {
 										log(err);
 										alert("Player Taken");
-										tmp.players[idx].pending = "";
+										USER['workingPlayers'] = tmp.players[idx].pending = "";
 										USER['workingPlayers'] = null;
 									});
 								}
@@ -798,7 +804,9 @@ function InitApplication() {
 									log("Invalid Add/Drop of players");
 								}
 							}
+							// selecting the first player to add or drop
 							else {
+								log(idx);
 								tmp.players[idx].pending = (tmp.players[idx].owner)? Constants.pendingDrop : Constants.pendingAcquire;
 								USER['workingPlayers'] = tmp.players[idx];
 							}
