@@ -208,6 +208,32 @@ function InitApplication() {
 		Database.getMatch(tmpdata).then(console.log);
 	};
 
+	var getLeagueInvites = (params) => {
+		if(!params.userid)
+			throw new Error('Must specify {userid}.');
+		return Database.getLeagueInvitations(params).then((invitation) => {
+			if (invitation.success) {
+				USER['invites'] = [];
+				Object.keys(invitation).map((id) => {
+					var membersList = [];
+					Object.keys(invitation[id].members).map((usrid) => {
+						membersList.push({
+							userid: invitation[id].members[usrid].userid,
+							accepted: invitation[id].members[usrid].accepted
+						});
+					});
+					USER['invites'].push({
+						leagueid: id,
+						league: invitation[id].league,
+						members: membersList
+					});
+				});
+				log(USER['invites']);
+			}
+		}).catch((err) => {
+			log(err);
+		});
+	}
 
 
 	private = [Constants];
@@ -218,132 +244,175 @@ function InitApplication() {
 
 		// Write Functions
 		createLeague: () => {
-			Vue.component('invite-list', {
-				props: ['invite'],
-				template: '<li>{{ invite }}<button v-on:click="$emit(\'pop\')">X</button></li>'
-			});
+			getLeagueInvites({
+				userid: USER['userid']
+			}).then(() => {
 
-			USER['_newLeague'] = new Vue({
-				el: '#newLeague',
-				data: {
-					sim: true,
-					name: "",
-					start: -1,
-					end: -1,
-					users: [],
-					invite: ''
-				}, 
-				methods: {
-					createLeague: () => {
-						if (USER['_newLeague'].sim) {
-							log("Creating League");
-						} else {
-							alert("Normal game is currently unavailable, please use simulated game.");
-						}
-					},
-					inviteUsers: () => {
-						var tmp = USER['_newLeague'];
-						debug(USER);
-						if (tmp.invite) {
-							tmp.users.push(tmp.invite);
-							tmp.invite = "";
-						} else {
-							alert("No Inputs");
-						}
-					},
-					finalizeLeague: () => {
-						var tmp = USER['_newLeague'];
-						if (tmp.name && tmp.users.length > 0) {
-							var result = {
-								name: tmp.name,
-								start: tmp.start,
-								end: tmp.end,
-								users: tmp.users
+				USER['_invite-list'] = Vue.component('invite-list', {
+					props: ['invite'],
+					template: '<li>{{ invite }}<button v-on:click="$emit(\'pop\')">X</button></li>'
+				});
+
+				USER['_newLeague'] = new Vue({
+					el: '#newLeague',
+					data: {
+						sim: true,
+						name: "",
+						start: -1,
+						end: -1,
+						users: [],
+						invites: []
+					}, 
+					methods: {
+						validate: () => {
+							if (!USER['_newLeague'].name)
+								return false;
+							if (USER['_newLeague'].sim) { 
+								if (USER['_newLeague'].end <= USER['_newLeague'].start && USER['_newLeague'].start < 0)
+									return false;
+							} else {
+								if (USER['_newLeague'].end <= new Date().getTime() && USER['_newLeague'].start < 0)
+									return false;
 							}
-							log("Starting Game (Without the current user, current user info is retrieved from userLogin())");
-							debug(result);
-						} else {
-							alert("Invalid Game");
+							return true;
+						},
+						getInviteURL: () => {
+							Database.createLeagueInvitation({
+								userid: USER['userid'],
+								name: USER['_newLeague'].name
+							}).then((invitation) => {
+								if (invitation.success) {
+									log(invitation.inviteid);
+								}
+							}).catch((err) => {
+								log(err);
+							});
+
+
+							// if (!USER['_newLeague'].sim) 
+							// 	alert("Normal game is currently unavailable, please use simulated game.");
+							// else if (!USER['_newLeague'].validate()) {
+							// 	alert("Invalid League Information.");
+							// }
+							// else {
+							// 	log("start: " + moment(USER['_newLeague'].start).format("MM/DD/YY"));
+							// 	log("end: " + moment(USER['_newLeague'].end).format("MM/DD/YY"));
+							// 	Database.createLeagueInvitation({
+							// 		userid: USER['userid'],
+							// 		name: USER['_newLeague'].name
+							// 	}).then((invitation) => {
+							// 		test = invitation;
+							// 	}).catch((err) => {
+							// 		log(err);
+							// 	});
+							// }
+
+						},
+						inviteUsers: () => {
+							var tmp = USER['_newLeague'];
+							debug(USER);
+							if (tmp.invite) {
+								tmp.users.push(tmp.invite);
+								tmp.invite = "";
+							} else {
+								alert("No Inputs");
+							}
+						},
+						finalizeLeague: () => {
+							var tmp = USER['_newLeague'];
+							if (tmp.name && tmp.users.length > 0) {
+								var result = {
+									name: tmp.name,
+									start: tmp.start,
+									end: tmp.end,
+									users: tmp.users
+								}
+								log("Starting Game (Without the current user, current user info is retrieved from userLogin())");
+								debug(result);
+							} else {
+								alert("Invalid Game");
+							}
 						}
 					}
-				}
-			});
-
-
-			$(function() {
-				var dateFormat = "mm/dd/yy",
-				start = $( "#startSim" ).datepicker({
-					showOtherMonths: true,
-					selectOtherMonths: true,
-					defaultDate: "+1w",
-					changeMonth: true,
-					maxDate: 0
-				})
-				.on( "change", function() { // executes when the end datepicker is updated
-					end.datepicker( "option", "minDate", getDate( this ) );
-
-					log($(this).datepicker('getDate'));
-					log($(this).datepicker('getDate').getTime());
-
-					USER['_newLeague'].start = $(this).datepicker('getDate').getTime();
-				}),
-				end = $( "#endSim" ).datepicker({
-					showOtherMonths: true,
-					selectOtherMonths: true,
-					defaultDate: "+1w",
-					changeMonth: true,
-					maxDate: 0
-				})
-				.on( "change", function() { // executes when start datepicker is updated
-					start.datepicker( "option", "maxDate", getDate( this ) );
-
-					log($(this).datepicker('getDate'));
-					log($(this).datepicker('getDate').getTime());
-
-					USER['_newLeague'].end = $(this).datepicker('getDate').getTime();
 				});
 
-				function getDate( element ) {
-					var date;
-					try {
-						date = $.datepicker.parseDate(dateFormat, element.value);
-					} catch( error ) {
-						date = null;
-					}
-					return date;
-				}
-			});
 
-			// Datepicker format for creating a normal game from now to a future date
-			$(function() {
-				$("#datepicker").datepicker({
-					showOtherMonths: true,
-					selectOtherMonths: true,
-					altField: "#endGame",
-					altFormat: "'Ending on' DD, d MM, yy",
-					minDate: 0,
-					beforeShowDay: (date) => {
-						var day = date.getDay();
-						return [(day == new Date().getDay()), ''];
-					},
-					onSelect: function() { // debugging purposes
-						var start = new Date();
-						var end = $(this).datepicker('getDate');
-						log(start + " -- " + end);
-						log(start.getTime() + " (Floored: " + Util.floorTimestamp(start.getTime()) + ") -- " + end.getTime());
-						log(start.toLocaleDateString() + " -- " + end.toLocaleDateString());
+				$(function() {
+					var dateFormat = "mm/dd/yy",
+					start = $( "#startSim" ).datepicker({
+						showOtherMonths: true,
+						selectOtherMonths: true,
+						defaultDate: "+1w",
+						changeMonth: true,
+						maxDate: 0
+					})
+					.on( "change", function() { // executes when the end datepicker is updated
+						end.datepicker( "option", "minDate", getDate( this ) );
 
-						if ((Math.floor(( end - start ) / 86400000) + 1) < 1) 
-							log("Invalid Date: " +  (Math.floor(( end - start ) / 86400000) + 1) + " days in duration.");
-						else
-							log("Duration: " + (Math.floor(( end - start ) / 86400000) + 1) + " days.");
+						log($(this).datepicker('getDate'));
+						log($(this).datepicker('getDate').getTime());
 
-						USER['_newLeague'].start = Util.floorTimestamp(new Date().getTime());
+						USER['_newLeague'].start = $(this).datepicker('getDate').getTime();
+					}),
+					end = $( "#endSim" ).datepicker({
+						showOtherMonths: true,
+						selectOtherMonths: true,
+						defaultDate: "+1w",
+						changeMonth: true,
+						maxDate: 0
+					})
+					.on( "change", function() { // executes when start datepicker is updated
+						start.datepicker( "option", "maxDate", getDate( this ) );
+
+						log($(this).datepicker('getDate'));
+						log($(this).datepicker('getDate').getTime());
+
 						USER['_newLeague'].end = $(this).datepicker('getDate').getTime();
+					});
+
+					function getDate( element ) {
+						var date;
+						try {
+							date = $.datepicker.parseDate(dateFormat, element.value);
+						} catch( error ) {
+							date = null;
+						}
+						return date;
 					}
 				});
-			});
 
+				// Datepicker format for creating a normal game from now to a future date
+				$(function() {
+					$("#datepicker").datepicker({
+						showOtherMonths: true,
+						selectOtherMonths: true,
+						altField: "#endGame",
+						altFormat: "'Ending on' DD, d MM, yy",
+						minDate: 0,
+						beforeShowDay: (date) => {
+							var day = date.getDay();
+							return [(day == new Date().getDay()), ''];
+						},
+						onSelect: function() { // debugging purposes
+							var start = new Date();
+							var end = $(this).datepicker('getDate');
+							log(start + " -- " + end);
+							log(start.getTime() + " (Floored: " + Util.floorTimestamp(start.getTime()) + ") -- " + end.getTime());
+							log(start.toLocaleDateString() + " -- " + end.toLocaleDateString());
+
+							if ((Math.floor(( end - start ) / 86400000) + 1) < 1) 
+								log("Invalid Date: " +  (Math.floor(( end - start ) / 86400000) + 1) + " days in duration.");
+							else
+								log("Duration: " + (Math.floor(( end - start ) / 86400000) + 1) + " days.");
+
+							USER['_newLeague'].start = Util.floorTimestamp(new Date().getTime());
+							USER['_newLeague'].end = $(this).datepicker('getDate').getTime();
+						}
+					});
+				});
+			}).catch((err) => {
+				log(err);
+			});
 		},
 
 		// Read Functions

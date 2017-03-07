@@ -38,6 +38,17 @@
 			<label>Simulation - Play a game using historic data (for debugging or demo purposes)</label>
 			<h3>League Name: {{ name }}</h3>
 			<input v-model="name" type="text" placeholder="League Name">
+			<button v-on:click="getInviteURL" :disabled="(!name)? true : false">Start League</button>
+
+			<div>
+				<h3>Leagues you started</h3>
+				<p>Invite your friends to join your leagues. When you have everyone, click Begin to start playing!</p>
+				<ul>
+					<li is="invite-list" v-for="(user, index) in users" v-bind:invite="user" v-on:pop="users.splice(index, 1)"></li>
+				</ul>
+			</div>
+
+
 			<!-- <input v-model="invite" v-on:keyup.enter="inviteUsers" placeholder="Invite User"><br> -->
 
 			<div id="datepicker" v-show="!sim">
@@ -53,10 +64,7 @@
 			<!-- <div id="displayDate"></div> -->
 
 			<!-- <button v-on:click="inviteUsers" :disabled="(!invite)? true : false">Invite</button> -->
-			<button v-on:click="createLeague" :disabled="(!name || range != -1)? true : false">Create League</button>
-			<ul>
-				<li is="invite-list" v-for="(user, index) in users" v-bind:invite="user" v-on:pop="users.splice(index, 1)"></li>
-			</ul>
+			
 		</div>
 
 		<h2>Current Leagues</h2>
