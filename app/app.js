@@ -667,7 +667,8 @@ function InitApplication() {
 					USER['_player-list'] = Vue.component('player-list', {
 						props: ['row', 'header'],
 						template: '<tr>\
-							<td> {{ row.name }} </td>\
+							<td>{{ row.ward }}</td>\
+							<td>{{ row.name }} </td>\
 							<td>{{ row.scores[Object.keys(header)[0]] }}</td>\
 							<td>{{ row.scores[Object.keys(header)[1]] }}</td>\
 							<td>{{ row.scores[Object.keys(header)[2]] }}</td>\
@@ -702,9 +703,30 @@ function InitApplication() {
 					data: {
 						headers: Database.Scoring.DATASET_NAMES,
 						players: workingPlayers,
-						rosters: userRosters
+						rosters: userRosters,
+						reverse: 1
 					},
 					methods: {
+						ordering: (orderBy) => {
+							USER['_allPlayers'].reverse *= -1;
+							var header = Object.keys(Database.Scoring.DATASET_NAMES);
+							var comparator = [	(a, b) => {return (a.ward > b.ward) ? 1 : ((b.ward > a.ward)? -1 : 0);},
+												(a, b) => {return (a.name > b.name)? 1 : ((b.name > a.name)? -1 : 0);},
+												(a, b) => {return (a.scores[header[0]] > b.scores[header[0]])? 1 : ((b.scores[header[0]] > a.scores[header[0]])? -1 : 0);},
+												(a, b) => {return (a.scores[header[1]] > b.scores[header[1]])? 1 : ((b.scores[header[1]] > a.scores[header[1]])? -1 : 0);},
+												(a, b) => {return (a.scores[header[2]] > b.scores[header[2]])? 1 : ((b.scores[header[2]] > a.scores[header[2]])? -1 : 0);},
+												(a, b) => {return ( (a.scores[header[0]] + a.scores[header[1]] + a.scores[header[2]]) > (b.scores[header[0]] + b.scores[header[1]] + b.scores[header[2]]) )? 1 : (( (b.scores[header[0]] + b.scores[header[1]] + b.scores[header[2]]) > (a.scores[header[0]] + a.scores[header[1]] + a.scores[header[2]]) )? -1 : 0);},
+												(a, b) => {return (a.owner > b.owner)? 1 : ((b.owner > a.owner)? -1 : 0);},
+												(a, b) => {return (a.ward > b.ward)? 1 : ((b.ward > a.ward)? -1 : 0);}	];
+
+							var sorted = USER.allPlayers.sort(comparator[orderBy]);
+							if (USER['_allPlayers'].reverse == -1)
+								sorted.reverse();
+							
+							for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
+								USER._allPlayers.players[i] = Object.assign({}, USER._allPlayers.players[i], sorted[i]);
+							}
+						},
 						acquirePlayer: (idx) => {
 							var tmp = USER['_allPlayers'];
 
