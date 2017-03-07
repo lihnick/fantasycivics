@@ -704,11 +704,13 @@ function InitApplication() {
 						headers: Database.Scoring.DATASET_NAMES,
 						players: workingPlayers,
 						rosters: userRosters,
+						order: 0,
 						reverse: 1
 					},
 					methods: {
 						ordering: (orderBy) => {
 							USER['_allPlayers'].reverse *= -1;
+							USER['_allPlayers'].order = orderBy;
 							var header = Object.keys(Database.Scoring.DATASET_NAMES);
 							var comparator = [	(a, b) => {return (a.ward > b.ward) ? 1 : ((b.ward > a.ward)? -1 : 0);},
 												(a, b) => {return (a.name > b.name)? 1 : ((b.name > a.name)? -1 : 0);},
@@ -798,6 +800,20 @@ function InitApplication() {
 										alert("Player Taken");
 										USER['workingPlayers'] = tmp.players[idx].pending = "";
 										USER['workingPlayers'] = null;
+										getAllPlayers({
+											leagueid: USER.leagueid,
+											from: USER.rosterdate.prevfrom,
+											to: USER.rosterdate.prevto
+										}).then(() => {
+											log("getting result from DB");
+											if (USER['_allPlayers']) {
+												for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
+													USER._allPlayers.players[i] = Object.assign({}, USER._allPlayers.players[i], USER.allPlayers[i]);
+												}
+											}
+										}).catch((err) => {
+											log(err);
+										});
 									});
 								}
 								else {
@@ -826,11 +842,15 @@ function InitApplication() {
 					}).then(() => {
 						log("Player List updated");
 						if (USER['_allPlayers']) {
+							var currentOrder = USER['_allPlayers'].order;
+							USER['_allPlayers'].reverse = 1;
+							USER['_allPlayers'].ordering(1);
 							for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
 								if (USER.allPlayers[i].owner != USER['_allPlayers'].players[i].owner)
 									USER._allPlayers.players[i] = Object.assign({}, USER._allPlayers.players[i], {owner: USER.allPlayers[i].owner});
 								// 	Vue.set(USER['_allPlayers'].players[i], 'owner', USER.allPlayers[i].owner);
 							}
+							USER['_allPlayers'].ordering(currentOrder);
 						}
 					}).catch((err) => {
 						log(err);
