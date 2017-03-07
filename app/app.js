@@ -1,12 +1,16 @@
 
 // Global Variables
-var Verbose = true;
 var USER = {}; // stores data related to the user that's logged in
 // Database as a global variable during development mode
 var Database = InitDatabase(); // Moved to private variables, when in production mode
 Database.IN_SIMULATED_TIME = true;
-var test; // each time debug is called, the parameter is updated to test, for debugging
 
+
+var test; // each time debug is called, the parameter is updated to test, for debugging
+var private;
+
+
+var Verbose = true;
 var log = console.log;
 var debug = (item) => {
 	if (Verbose) {
@@ -49,78 +53,366 @@ function InitApplication() {
 		seletedLeagueEnd: 'leagueend'
 	};
 
+	var getLeague = (params) => {
+		if(!params.userid)
+			throw new Error('Must specify {userid}.');
+		else if(!params.leagueid)
+			throw new Error('Must specify {leagueid}.');
+		else if(!params.from)
+			throw new Error('Must specify {from}.');
+		else if(!params.to)
+			throw new Error('Must specify {to}.');
+
+		return Database.getLeague(params).then(function(result) {
+			log(result);
+			return result; // this return is used by loadRosterPage()
+		}, function(err) {
+			log(err);
+		});
+	};
+
+	// Gets the user's roster based on a selected league
+	var getRoster = (params) => {
+		if(!params.userid)
+			throw new Error('Must specify {userid}.');
+		else if(!params.leagueid)
+			throw new Error('Must specify {leagueid}.');
+		else if(!params.from)
+			throw new Error('Must specify {from}.');
+		else if(!params.to)
+			throw new Error('Must specify {to}.');
+
+		return Database.getRoster(params).then(function(rosterData) {
+			test = rosterData;
+			var playerList = Object.keys(rosterData.players).map(function(id) {
+				return {
+					playerid: id,
+					name: rosterData.players[id].name,
+					owner: rosterData.players[id].owner,
+					starter: rosterData.players[id].starter,
+					ward: rosterData.players[id].ward,
+					scores: rosterData.players[id].scores,
+					pending: ""
+				};
+			});
+			USER['roster'] = {
+				userid: rosterData.userid,
+				leagueid: rosterData.leagueid,
+				from: rosterData.from,
+				to: rosterData.to,
+				players: playerList
+			};
+			log(USER['roster']);
+
+		}).catch((err) => {
+			log("Error thrown, " + err);
+		});
+	};
+
+	var getLeagueData = () => {
+		if (!USER['leagueid'])
+			throw new Error("Leagueid not found.");
+		return Database.getLeagueData({leagueid: USER['leagueid']}).then((leagueData) => {
+			var tmp = leagueData.users[Object.keys(leagueData.users)[0]];
+			var idx = parseInt(tmp.losses) + parseInt(tmp.wins);
+			var obj = leagueData.schedule[idx][0]
+			USER['rosterdate'] = {
+				prevfrom: obj.start - (obj.end - obj.start),
+				prevto: obj.start,
+				thisfrom: obj.start,
+				thisto: obj.end,
+				week: idx
+			};
+			log(leagueData);
+			test = leagueData;
+		}).catch((err) => {
+			log("Error thrown, " + err);
+		});
+	};
+
+	var getUserLeagues = () => {
+		if (!USER['userid']) 
+			throw new Error("Userid not found.");
+		return Database.getUserLeagues({userid: USER.userid}).then(function(userLeagueList) {
+			log(userLeagueList);
+			test = userLeagueList;
+			if (Object.keys(userLeagueList.leagues).length == 0) {
+				log("No League available, create one above.");
+				return;
+			}
+			USER['userLeagues'] = Object.keys(userLeagueList.leagues).map(function(key) {
+				var usrLst = Object.keys(userLeagueList.leagues[key].users).map(function(usrs) {
+					return {
+						userid: usrs,
+						team: userLeagueList.leagues[key].users[usrs].team,
+						losses: userLeagueList.leagues[key].users[usrs].losses,
+						wins: userLeagueList.leagues[key].users[usrs].wins
+					}
+				});
+				return {
+					leagueid: key,
+					name: userLeagueList.leagues[key].name,
+					start: userLeagueList.leagues[key].start,
+					end: userLeagueList.leagues[key].end,
+					users: usrLst
+				}
+			});
+			log(USER.userLeagues);
+
+		}, function(err) {
+			log(err);
+			return err;
+		});
+	};
+
+	var getAllPlayers = (params) => {
+		if(!params.leagueid)
+			throw new Error('DB - leagueid not found.');
+		else if(!params.from)
+			throw new Error('DB - starting date not found');
+		else if(!params.to)
+			throw new Error('DB - ending date not found');
+
+		 //-KdqV4iI8CRGl3GiB24P, -KdIiWEUj7_toD3MKMO_
+
+		return Database.getAllPlayers(params).then(function(result) {
+			USER['allPlayers'] = [];
+			log(result);
+			Object.keys(result).sort().map(function(id) {
+				USER['allPlayers'].push({
+					name: result[id].name,
+					owner: result[id].owner,
+					playerid: result[id].playerid,
+					scores: result[id].scores,
+					starter: result[id].starter,
+					ward: result[id].ward,
+					pending: ""
+				});
+			});
+			log(USER.allPlayers);
+
+		}).catch((err) => {
+			log("Thrown, " + err);
+		});
+	};
+
+
+	var getMatch = () => {
+		log("Get Match has a 1 offset to account for the greater, but not equal operator");
+		var tmpdata = {
+			userid: USER['userid'],
+			leagueid: USER['leagueid'],
+			on: parseInt(USER['leaguestart'] + 1)
+		};
+		log(tmpdata);
+		Database.getMatch(tmpdata).then(console.log);
+	};
+
+	var getLeagueInvites = (params) => {
+		if(!params.userid)
+			throw new Error('Must specify {userid}.');
+		return Database.getLeagueInvitations(params).then((invitation) => {
+			if (invitation.success) {
+				USER['invites'] = [];
+				Object.keys(invitation).map((id) => {
+					var membersList = [];
+					Object.keys(invitation[id].members).map((usrid) => {
+						membersList.push({
+							userid: invitation[id].members[usrid].userid,
+							accepted: invitation[id].members[usrid].accepted
+						});
+					});
+					USER['invites'].push({
+						leagueid: id,
+						league: invitation[id].league,
+						members: membersList
+					});
+				});
+				log(USER['invites']);
+			}
+		}).catch((err) => {
+			log(err);
+		});
+	}
+
+
+	private = [Constants];
+
+
 	// Public Variables
 	var Application = {
 
 		// Write Functions
-
 		createLeague: () => {
-			Vue.component('invite-list', {
-				props: ['invite'],
-				template: '<li>{{ invite }}<button v-on:click="$emit(\'pop\')">X</button></li>'
-			});
+			getLeagueInvites({
+				userid: USER['userid']
+			}).then(() => {
 
-			USER['_newLeague'] = new Vue({
-				el: '#newLeague',
-				data: {
-					name: "",
-					range: "",
-					start: -1,
-					end: -1,
-					users: [],
-					invite: ''
-				}, 
-				methods: {
-					inviteUsers: () => {
-						var tmp = USER['_newLeague'];
-						debug(USER);
-						if (tmp.invite) {
-							tmp.users.push(tmp.invite);
-							tmp.invite = "";
-						} else {
-							alert("No Inputs");
-						}
-					},
-					finalizeLeague: () => {
-						var tmp = USER['_newLeague'];
-						if (tmp.name && tmp.users.length > 0) {
-							var result = {
-								name: tmp.name,
-								start: tmp.start,
-								end: tmp.end,
-								users: tmp.users
+				USER['_invite-list'] = Vue.component('invite-list', {
+					props: ['invite'],
+					template: '<li>{{ invite }}<button v-on:click="$emit(\'pop\')">X</button></li>'
+				});
+
+				USER['_newLeague'] = new Vue({
+					el: '#newLeague',
+					data: {
+						sim: true,
+						name: "",
+						start: -1,
+						end: -1,
+						users: [],
+						invites: []
+					}, 
+					methods: {
+						validate: () => {
+							if (!USER['_newLeague'].name)
+								return false;
+							if (USER['_newLeague'].sim) { 
+								if (USER['_newLeague'].end <= USER['_newLeague'].start && USER['_newLeague'].start < 0)
+									return false;
+							} else {
+								if (USER['_newLeague'].end <= new Date().getTime() && USER['_newLeague'].start < 0)
+									return false;
 							}
-							log("Starting Game (Without the current user, current user info is retrieved from userLogin())");
-							debug(result);
-						} else {
-							alert("Invalid Game");
+							return true;
+						},
+						getInviteURL: () => {
+							Database.createLeagueInvitation({
+								userid: USER['userid'],
+								name: USER['_newLeague'].name
+							}).then((invitation) => {
+								if (invitation.success) {
+									log(invitation.inviteid);
+								}
+							}).catch((err) => {
+								log(err);
+							});
+
+
+							// if (!USER['_newLeague'].sim) 
+							// 	alert("Normal game is currently unavailable, please use simulated game.");
+							// else if (!USER['_newLeague'].validate()) {
+							// 	alert("Invalid League Information.");
+							// }
+							// else {
+							// 	log("start: " + moment(USER['_newLeague'].start).format("MM/DD/YY"));
+							// 	log("end: " + moment(USER['_newLeague'].end).format("MM/DD/YY"));
+							// 	Database.createLeagueInvitation({
+							// 		userid: USER['userid'],
+							// 		name: USER['_newLeague'].name
+							// 	}).then((invitation) => {
+							// 		test = invitation;
+							// 	}).catch((err) => {
+							// 		log(err);
+							// 	});
+							// }
+
+						},
+						inviteUsers: () => {
+							var tmp = USER['_newLeague'];
+							debug(USER);
+							if (tmp.invite) {
+								tmp.users.push(tmp.invite);
+								tmp.invite = "";
+							} else {
+								alert("No Inputs");
+							}
+						},
+						finalizeLeague: () => {
+							var tmp = USER['_newLeague'];
+							if (tmp.name && tmp.users.length > 0) {
+								var result = {
+									name: tmp.name,
+									start: tmp.start,
+									end: tmp.end,
+									users: tmp.users
+								}
+								log("Starting Game (Without the current user, current user info is retrieved from userLogin())");
+								debug(result);
+							} else {
+								alert("Invalid Game");
+							}
 						}
-					}
-				}
-			});
-
-			$(function() {
-				$("#datepicker").datepicker({
-					showOtherMonths: true,
-					selectOtherMonths: true,
-					altField: "#displayDate",
-					altFormat: "'Ending on' DD, d MM, yy",
-					onSelect: function() { // debugging purposes
-						var start = new Date();
-						var end = $(this).datepicker('getDate');
-						log(start + " -- " + end);
-						log(start.getTime() + " (Floored: " + Util.floorTimestamp(start.getTime()) + ") -- " + end.getTime());
-						log(start.toLocaleDateString() + " -- " + end.toLocaleDateString());
-
-						if ((Math.floor(( end - start ) / 86400000) + 1) < 1) 
-							log("Invalid Date: " +  (Math.floor(( end - start ) / 86400000) + 1) + " days in duration.");
-						else
-							log("Duration: " + (Math.floor(( end - start ) / 86400000) + 1) + " days.");
-						USER['_newLeague'].range = $(this).datepicker('getDate');
 					}
 				});
-			});
 
+
+				$(function() {
+					var dateFormat = "mm/dd/yy",
+					start = $( "#startSim" ).datepicker({
+						showOtherMonths: true,
+						selectOtherMonths: true,
+						defaultDate: "+1w",
+						changeMonth: true,
+						maxDate: 0
+					})
+					.on( "change", function() { // executes when the end datepicker is updated
+						end.datepicker( "option", "minDate", getDate( this ) );
+
+						log($(this).datepicker('getDate'));
+						log($(this).datepicker('getDate').getTime());
+
+						USER['_newLeague'].start = $(this).datepicker('getDate').getTime();
+					}),
+					end = $( "#endSim" ).datepicker({
+						showOtherMonths: true,
+						selectOtherMonths: true,
+						defaultDate: "+1w",
+						changeMonth: true,
+						maxDate: 0
+					})
+					.on( "change", function() { // executes when start datepicker is updated
+						start.datepicker( "option", "maxDate", getDate( this ) );
+
+						log($(this).datepicker('getDate'));
+						log($(this).datepicker('getDate').getTime());
+
+						USER['_newLeague'].end = $(this).datepicker('getDate').getTime();
+					});
+
+					function getDate( element ) {
+						var date;
+						try {
+							date = $.datepicker.parseDate(dateFormat, element.value);
+						} catch( error ) {
+							date = null;
+						}
+						return date;
+					}
+				});
+
+				// Datepicker format for creating a normal game from now to a future date
+				$(function() {
+					$("#datepicker").datepicker({
+						showOtherMonths: true,
+						selectOtherMonths: true,
+						altField: "#endGame",
+						altFormat: "'Ending on' DD, d MM, yy",
+						minDate: 0,
+						beforeShowDay: (date) => {
+							var day = date.getDay();
+							return [(day == new Date().getDay()), ''];
+						},
+						onSelect: function() { // debugging purposes
+							var start = new Date();
+							var end = $(this).datepicker('getDate');
+							log(start + " -- " + end);
+							log(start.getTime() + " (Floored: " + Util.floorTimestamp(start.getTime()) + ") -- " + end.getTime());
+							log(start.toLocaleDateString() + " -- " + end.toLocaleDateString());
+
+							if ((Math.floor(( end - start ) / 86400000) + 1) < 1) 
+								log("Invalid Date: " +  (Math.floor(( end - start ) / 86400000) + 1) + " days in duration.");
+							else
+								log("Duration: " + (Math.floor(( end - start ) / 86400000) + 1) + " days.");
+
+							USER['_newLeague'].start = Util.floorTimestamp(new Date().getTime());
+							USER['_newLeague'].end = $(this).datepicker('getDate').getTime();
+						}
+					});
+				});
+			}).catch((err) => {
+				log(err);
+			});
 		},
 
 		// Read Functions
@@ -197,68 +489,13 @@ function InitApplication() {
 			});
 		},
 
-		getLeagueData: () => {
-			if (!USER['leagueid'])
-				throw new Error("Leagueid not found.");
-			return Database.getLeagueData({leagueid: USER['leagueid']}).then((leagueData) => {
-				var tmp = leagueData.users[Object.keys(leagueData.users)[0]];
-				var idx = parseInt(tmp.losses) + parseInt(tmp.wins);
-				var obj = leagueData.schedule[idx][0]
-				USER['rosterdate'] = {
-					prevfrom: obj.start - (obj.end - obj.start),
-					prevto: obj.start,
-					thisfrom: obj.start,
-					thisto: obj.end,
-					week: idx
-				};
-				log(leagueData);
-				test = leagueData;
-			}).catch((err) => {
-				log("Error thrown, " + err);
-			});
-		},
-
-		getUserLeagues: () => {
-			if (!USER['userid']) 
-				throw new Error("Userid not found.");
-			return Database.getUserLeagues({userid: USER.userid}).then(function(userLeagueList) {
-				log(userLeagueList);
-				test = userLeagueList;
-				if (Object.keys(userLeagueList.leagues).length == 0) {
-					log("No League available, create one above.");
-					return;
-				}
-				USER['userLeagues'] = Object.keys(userLeagueList.leagues).map(function(key) {
-					var usrLst = Object.keys(userLeagueList.leagues[key].users).map(function(usrs) {
-						return {
-							userid: usrs,
-							team: userLeagueList.leagues[key].users[usrs].team,
-							losses: userLeagueList.leagues[key].users[usrs].losses,
-							wins: userLeagueList.leagues[key].users[usrs].wins
-						}
-					});
-					return {
-						leagueid: key,
-						name: userLeagueList.leagues[key].name,
-						start: userLeagueList.leagues[key].start,
-						end: userLeagueList.leagues[key].end,
-						users: usrLst
-					}
-				});
-				log(USER.userLeagues);
-
-			}, function(err) {
-				log(err);
-				return err;
-			});
-		},
-
 		displayUserLeagues: () => {
-			Application.getUserLeagues().then(() => {
+			getUserLeagues().then(() => {
 				Vue.component('league-list', {
 					props: ['row'],
 					template: '<tr>\
-						<td><button v-on:click="$emit(\'info\')">info</button></td>\
+						<td>{{ (selectedLeague(row.leagueid))? \"Selected\" : \"\" }}</td>\
+						<td><button v-on:click="$emit(\'select\')">Select</button></td>\
 						<td>{{ row.name }}</td>\
 						<td>{{ momentDate(row.start, \"MM/DD/YY\") }}</td>\
 						<td>{{ momentDate(row.end, \"MM/DD/YY\") }}</td>\
@@ -269,6 +506,13 @@ function InitApplication() {
 					methods: {
 						momentDate: (date, format) => {
 							return moment(date).format(format);
+						},
+						selectedLeague: (curLeague) => {
+							if (!USER.leagueid)
+								return false;
+							if (USER.leagueid != curLeague)
+								return false;
+							return true;
 						}
 					}
 				});
@@ -293,62 +537,6 @@ function InitApplication() {
 			});			
 		},
 
-		getLeague: (params) => {
-			if(!params.userid)
-				throw new Error('Must specify {userid}.');
-			else if(!params.leagueid)
-				throw new Error('Must specify {leagueid}.');
-			else if(!params.from)
-				throw new Error('Must specify {from}.');
-			else if(!params.to)
-				throw new Error('Must specify {to}.');
-
-			return Database.getLeague(params).then(function(result) {
-				log(result);
-				return result; // this return is used by loadRosterPage()
-			}, function(err) {
-				log(err);
-			});
-		},
-
-		// Gets the user's roster based on a selected league
-		getRoster: (params) => {
-			if(!params.userid)
-				throw new Error('Must specify {userid}.');
-			else if(!params.leagueid)
-				throw new Error('Must specify {leagueid}.');
-			else if(!params.from)
-				throw new Error('Must specify {from}.');
-			else if(!params.to)
-				throw new Error('Must specify {to}.');
-
-			return Database.getRoster(params).then(function(rosterData) {
-				test = rosterData;
-				var playerList = Object.keys(rosterData.players).map(function(id) {
-					return {
-						playerid: id,
-						name: rosterData.players[id].name,
-						owner: rosterData.players[id].owner,
-						starter: rosterData.players[id].starter,
-						ward: rosterData.players[id].ward,
-						scores: rosterData.players[id].scores,
-						pending: ""
-					};
-				});
-				USER['roster'] = {
-					userid: rosterData.userid,
-					leagueid: rosterData.leagueid,
-					from: rosterData.from,
-					to: rosterData.to,
-					players: playerList
-				};
-				log(USER['roster']);
-
-			}).catch((err) => {
-				log("Error thrown, " + err);
-			});
-		},
-
 		displayRoster: () => {
 			if(!USER.userid)
 				throw new Error('userid not found.');
@@ -359,7 +547,7 @@ function InitApplication() {
 			else if(!USER.rosterdate.prevto)
 				throw new Error('ending date not found');
 
-			Application.getRoster({
+			getRoster({
 				userid: USER.userid,
 				leagueid: USER.leagueid,
 				from: USER.rosterdate.prevfrom,
@@ -367,13 +555,13 @@ function InitApplication() {
 			}).then(() => {
 				if (!USER['_roster-list']) {
 					USER['_roster-list'] = Vue.component('roster-list', {
-						props: ['row'],
+						props: ['row', 'header'],
 						template: '<tr>\
 							<td>{{ row.name }}</td>\
-							<td>{{ row.scores.graffiti }}</td>\
-							<td>{{ row.scores.pot_holes }}</td>\
-							<td>{{ row.scores.street_lights }}</td>\
-							<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
+							<td>{{ row.scores[Object.keys(header)[0]] }}</td>\
+							<td>{{ row.scores[Object.keys(header)[1]] }}</td>\
+							<td>{{ row.scores[Object.keys(header)[2]] }}</td>\
+							<td>{{ row.scores[Object.keys(header)[0]] + row.scores[Object.keys(header)[1]] + row.scores[Object.keys(header)[2]] }}</td>\
 							<td>{{ (row.starter)? \'Starter\' : \'Benched\' }}</td>\
 							<td><button v-on:click="$emit(\'toggle\')">Toggle</button></td>\
 							<td>{{ row.pending }}</td>\
@@ -385,6 +573,7 @@ function InitApplication() {
 				USER['_userRoster'] = new Vue({
 					el: '#userRoster',
 					data: {
+						headers: Database.Scoring.DATASET_NAMES,
 						leaguename: USER['selectedleague']['name'],
 						players: USER['roster']['players'],
 						// update aggregator, reference scoring.js
@@ -392,17 +581,19 @@ function InitApplication() {
 							if (!USER['roster']['players'][id].starter){
 								return 0;
 							}
-							return USER['roster']['players'][id].scores.graffiti + USER['roster']['players'][id].scores.pot_holes + USER['roster']['players'][id].scores.street_lights;
+							var cols = Object.keys(Database.Scoring.DATASET_NAMES);
+							return USER['roster']['players'][id].scores[cols[0]] + USER['roster']['players'][id].scores[cols[1]] + USER['roster']['players'][id].scores[cols[2]];
 						}).reduce((a, b) => a + b, 0),
 						toggle: {}
 					},
 					methods: {
 						updateAggregator: () => {
 							USER['_userRoster'].aggregator = Object.keys(USER['_userRoster'].players).map(function(id) {
-								if (!USER['_userRoster'].players[id].starter){
-									return 0;
-								}
-								return USER['_userRoster'].players[id].scores.graffiti + USER['_userRoster'].players[id].scores.pot_holes + USER['_userRoster'].players[id].scores.street_lights;
+							if (!USER['roster']['players'][id].starter){
+								return 0;
+							}
+							var cols = Object.keys(Database.Scoring.DATASET_NAMES);
+							return USER['roster']['players'][id].scores[cols[0]] + USER['roster']['players'][id].scores[cols[1]] + USER['roster']['players'][id].scores[cols[2]];
 							}).reduce((a, b) => a + b, 0);
 						},
 						togglePlayer: (idx) => { 
@@ -459,37 +650,6 @@ function InitApplication() {
 			});
 		},
 
-		getAllPlayers: (params) => {
-			if(!params.leagueid)
-				throw new Error('DB - leagueid not found.');
-			else if(!params.from)
-				throw new Error('DB - starting date not found');
-			else if(!params.to)
-				throw new Error('DB - ending date not found');
-
-			 //-KdqV4iI8CRGl3GiB24P, -KdIiWEUj7_toD3MKMO_
-
-			return Database.getAllPlayers(params).then(function(result) {
-				USER['allPlayers'] = [];
-				log(result);
-				Object.keys(result).sort().map(function(id) {
-					USER['allPlayers'].push({
-						name: result[id].name,
-						owner: result[id].owner,
-						playerid: result[id].playerid,
-						scores: result[id].scores,
-						starter: result[id].starter,
-						ward: result[id].ward,
-						pending: ""
-					});
-				});
-				log(USER.allPlayers);
-
-			}).catch((err) => {
-				log("Thrown, " + err);
-			});
-		},
-
 		displayAllPlayers: () => {
 			if(!USER.leagueid)
 				throw new Error('UI - leagueid not found.');
@@ -498,20 +658,20 @@ function InitApplication() {
 			else if(!USER.rosterdate.prevto)
 				throw new Error('UI - ending date not found');
 
-			Application.getAllPlayers({
+			getAllPlayers({
 				leagueid: USER.leagueid,
 				from: USER.rosterdate.prevfrom,
 				to: USER.rosterdate.prevto
 			}).then(() => {
 				if (!USER['_player-list']) {
 					USER['_player-list'] = Vue.component('player-list', {
-						props: ['row'],
+						props: ['row', 'header'],
 						template: '<tr>\
 							<td> {{ row.name }} </td>\
-							<td>{{ row.scores.graffiti }}</td>\
-							<td>{{ row.scores.pot_holes }}</td>\
-							<td>{{ row.scores.street_lights }}</td>\
-							<td>{{ row.scores.graffiti + row.scores.pot_holes + row.scores.street_lights }}</td>\
+							<td>{{ row.scores[Object.keys(header)[0]] }}</td>\
+							<td>{{ row.scores[Object.keys(header)[1]] }}</td>\
+							<td>{{ row.scores[Object.keys(header)[2]] }}</td>\
+							<td>{{ row.scores[Object.keys(header)[0]] + row.scores[Object.keys(header)[1]] + row.scores[Object.keys(header)[2]] }}</td>\
 							<td>{{ (!row.owner)? \'None\' : checkName(row.owner) }}</td>\
 							<td><button v-on:click="$emit(\'acquire\')" :disabled="(!row.owner || checkUser(row))? false : true">{{ (checkUser(row)) ? \'Drop\' : \'Acquire\' }}</button></td>\
 							<td>{{ row.pending }}</td>\
@@ -529,6 +689,8 @@ function InitApplication() {
 						}
 					});
 				}
+				// Save point
+				// In order for sorting to work, the _player-list template needs to enclose the whole table element
 
 				var workingPlayers = jQuery.extend(true, {}, USER['allPlayers']);
 				var userRosters = USER['allPlayers'].filter(function(item) {
@@ -538,6 +700,7 @@ function InitApplication() {
 				USER['_allPlayers'] = new Vue({
 					el: '#allPlayers',
 					data: {
+						headers: Database.Scoring.DATASET_NAMES,
 						players: workingPlayers,
 						rosters: userRosters
 					},
@@ -565,7 +728,7 @@ function InitApplication() {
 									if (Database.IN_SIMULATED_TIME) {
 										move['timestamp'] = (USER.rosterdate.prevto - USER.rosterdate.prevfrom)/2 + USER.rosterdate.prevfrom;
 									}
-									// it would be nice, if I can just recall the Application.getRoster() function, but freezes the UI
+									// it would be nice, if I can just recall the getRoster() function, but freezes the UI
 									// Updates to add/drop player will also affect the roster
 									Database.acquirePlayer(move).then(function(acquirePlayer) {
 										if (acquirePlayer.success) {
@@ -617,19 +780,30 @@ function InitApplication() {
 						}
 					}
 				});
-
 			}); 
-		},
 
-		getMatch: () => {
-			log("Get Match has a 1 offset to account for the greater, but not equal operator");
-			var tmpdata = {
-				userid: USER['userid'],
-				leagueid: USER['leagueid'],
-				on: parseInt(USER['leaguestart'] + 1)
-			};
-			log(tmpdata);
-			Database.getMatch(tmpdata).then(console.log);
+			Database.when('rosters_change', {
+				leagueid: USER['leagueid']
+			}, (change) => {
+				if (change.changed) {
+					getAllPlayers({
+						leagueid: USER.leagueid,
+						from: USER.rosterdate.prevfrom,
+						to: USER.rosterdate.prevto
+					}).then(() => {
+						log("Player List updated");
+						if (USER['_allPlayers']) {
+							for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
+								if (USER.allPlayers[i].owner != USER['_allPlayers'].players[i].owner)
+									USER._allPlayers.players[i] = Object.assign({}, USER._allPlayers.players[i], {owner: USER.allPlayers[i].owner});
+								// 	Vue.set(USER['_allPlayers'].players[i], 'owner', USER.allPlayers[i].owner);
+							}
+						}
+					}).catch((err) => {
+						log(err);
+					});
+				}
+			});
 		},
 
 		setMatchOutcome: () => {
@@ -657,10 +831,10 @@ function InitApplication() {
 		loadRosterPage: () => {
 
 			var loadRosterPageCallBack = () => {
-				Application.getLeagueData({
+				getLeagueData({
 					leagueid: USER['leagueid']
 				}).then(() => {
-					Application.getLeague({
+					getLeague({
 						userid: USER.userid,
 						leagueid: USER.leagueid,
 						from: USER.rosterdate.prevfrom,
@@ -671,25 +845,15 @@ function InitApplication() {
 						log(USER);
 						Application.displayRoster();
 						Application.displayAllPlayers();
-					}).catch((err) => {
-						log("Thrown, " + err);
-					});
+					})
 				}).catch((err) => {
 					log("Thrown, " + err);
 				});
 			}
 
 			loadRosterPageCallBack();
-
-			/*Database.when('rosters_change', {
-				leagueid: USER.leagueid
-			}, (change) => {
-				console.log(change);
-				loadRosterPageCallBack();
-			});
-*/
 		}
-	}; // end of return
+	}; // end of application variable
 
 	return Application;
 	
