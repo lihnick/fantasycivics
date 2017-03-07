@@ -728,8 +728,6 @@ function InitApplication() {
 									if (Database.IN_SIMULATED_TIME) {
 										move['timestamp'] = (USER.rosterdate.prevto - USER.rosterdate.prevfrom)/2 + USER.rosterdate.prevfrom;
 									}
-									// it would be nice, if I can just recall the getRoster() function, but freezes the UI
-									// Updates to add/drop player will also affect the roster
 									Database.acquirePlayer(move).then(function(acquirePlayer) {
 										if (acquirePlayer.success) {
 											p1.pending = p2.pending = "";
@@ -767,6 +765,9 @@ function InitApplication() {
 										}
 									}).catch((err) => {
 										log(err);
+										alert("Player Taken");
+										tmp.players[idx].pending = "";
+										USER['workingPlayers'] = null;
 									});
 								}
 								else {
