@@ -32,19 +32,28 @@
 			<button onclick="app.userLogout()">Logout</button>
 		</div>
 
-		<h2>Create Leagues</h2>
+		<h2>Create Leagues</h2>		
 		<div id="newLeague">
+			<input v-model="sim" type="checkbox">
+			<label>Simulation - Play a game using historic data (for debugging or demo purposes)</label>
 			<h3>League Name: {{ name }}</h3>
 			<input v-model="name" type="text" placeholder="League Name">
-			<input v-model="invite" v-on:keyup.enter="inviteUsers" placeholder="Invite User"><br>
+			<!-- <input v-model="invite" v-on:keyup.enter="inviteUsers" placeholder="Invite User"><br> -->
 
-			<div id="datepicker">
-				<input id="displayDate" type="text" size="45" disabled>
+			<div id="datepicker" v-show="!sim">
+				<input type="text" id="endGame" size="45" disabled>
 			</div>
+			<div v-show="sim">
+				<label>From</label>
+				<input type="text" id="startSim">
+				<label>To</label>
+				<input type="text" id="endSim">
+			</div>
+
 			<!-- <div id="displayDate"></div> -->
 
-			<button v-on:click="inviteUsers" :disabled="(!invite)? true : false">Invite</button>
-			<button v-on:click="finalizeLeague" :disabled="(!name || !range)? true : false">Create League</button>
+			<!-- <button v-on:click="inviteUsers" :disabled="(!invite)? true : false">Invite</button> -->
+			<button v-on:click="createLeague" :disabled="(!name || range != -1)? true : false">Create League</button>
 			<ul>
 				<li is="invite-list" v-for="(user, index) in users" v-bind:invite="user" v-on:pop="users.splice(index, 1)"></li>
 			</ul>

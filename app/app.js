@@ -209,6 +209,10 @@ function InitApplication() {
 	};
 
 
+
+	private = [Constants];
+
+
 	// Public Variables
 	var Application = {
 
@@ -222,14 +226,21 @@ function InitApplication() {
 			USER['_newLeague'] = new Vue({
 				el: '#newLeague',
 				data: {
+					sim: true,
 					name: "",
-					range: "",
 					start: -1,
 					end: -1,
 					users: [],
 					invite: ''
 				}, 
 				methods: {
+					createLeague: () => {
+						if (USER['_newLeague'].sim) {
+							log("Creating League");
+						} else {
+							alert("Normal game is currently unavailable, please use simulated game.");
+						}
+					},
 					inviteUsers: () => {
 						var tmp = USER['_newLeague'];
 						debug(USER);
@@ -258,12 +269,63 @@ function InitApplication() {
 				}
 			});
 
+
+			$(function() {
+				var dateFormat = "mm/dd/yy",
+				start = $( "#startSim" ).datepicker({
+					showOtherMonths: true,
+					selectOtherMonths: true,
+					defaultDate: "+1w",
+					changeMonth: true,
+					maxDate: 0
+				})
+				.on( "change", function() { // executes when the end datepicker is updated
+					end.datepicker( "option", "minDate", getDate( this ) );
+
+					log($(this).datepicker('getDate'));
+					log($(this).datepicker('getDate').getTime());
+
+					USER['_newLeague'].start = $(this).datepicker('getDate').getTime();
+				}),
+				end = $( "#endSim" ).datepicker({
+					showOtherMonths: true,
+					selectOtherMonths: true,
+					defaultDate: "+1w",
+					changeMonth: true,
+					maxDate: 0
+				})
+				.on( "change", function() { // executes when start datepicker is updated
+					start.datepicker( "option", "maxDate", getDate( this ) );
+
+					log($(this).datepicker('getDate'));
+					log($(this).datepicker('getDate').getTime());
+
+					USER['_newLeague'].end = $(this).datepicker('getDate').getTime();
+				});
+
+				function getDate( element ) {
+					var date;
+					try {
+						date = $.datepicker.parseDate(dateFormat, element.value);
+					} catch( error ) {
+						date = null;
+					}
+					return date;
+				}
+			});
+
+			// Datepicker format for creating a normal game from now to a future date
 			$(function() {
 				$("#datepicker").datepicker({
 					showOtherMonths: true,
 					selectOtherMonths: true,
-					altField: "#displayDate",
+					altField: "#endGame",
 					altFormat: "'Ending on' DD, d MM, yy",
+					minDate: 0,
+					beforeShowDay: (date) => {
+						var day = date.getDay();
+						return [(day == new Date().getDay()), ''];
+					},
 					onSelect: function() { // debugging purposes
 						var start = new Date();
 						var end = $(this).datepicker('getDate');
@@ -275,7 +337,9 @@ function InitApplication() {
 							log("Invalid Date: " +  (Math.floor(( end - start ) / 86400000) + 1) + " days in duration.");
 						else
 							log("Duration: " + (Math.floor(( end - start ) / 86400000) + 1) + " days.");
-						USER['_newLeague'].range = $(this).datepicker('getDate');
+
+						USER['_newLeague'].start = Util.floorTimestamp(new Date().getTime());
+						USER['_newLeague'].end = $(this).datepicker('getDate').getTime();
 					}
 				});
 			});
