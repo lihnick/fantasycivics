@@ -494,7 +494,8 @@ function InitApplication() {
 				Vue.component('league-list', {
 					props: ['row'],
 					template: '<tr>\
-						<td><button v-on:click="$emit(\'info\')">info</button></td>\
+						<td>{{ (selectedLeague(row.leagueid))? \"Selected\" : \"\" }}</td>\
+						<td><button v-on:click="$emit(\'select\')">Select</button></td>\
 						<td>{{ row.name }}</td>\
 						<td>{{ momentDate(row.start, \"MM/DD/YY\") }}</td>\
 						<td>{{ momentDate(row.end, \"MM/DD/YY\") }}</td>\
@@ -505,6 +506,13 @@ function InitApplication() {
 					methods: {
 						momentDate: (date, format) => {
 							return moment(date).format(format);
+						},
+						selectedLeague: (curLeague) => {
+							if (!USER.leagueid)
+								return false;
+							if (USER.leagueid != curLeague)
+								return false;
+							return true;
 						}
 					}
 				});

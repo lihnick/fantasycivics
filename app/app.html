@@ -69,10 +69,10 @@
 
 		<h2>Current Leagues</h2>
 		<div id="userLeagues">
-			
+			<p>With a league selected, go the roster page to start playing.</p>
 			<table>
-				<th>Info</th><th>League Name</th><th>Start</th><th>End</th><th>Users</th>
-				<tr is="league-list" v-for="(league, index) in leagues" v-bind:row="league" v-on:info="loadLeague(index)"></tr>
+				<th>Status</th><th>Selection</th><th>League Name</th><th>Start</th><th>End</th><th>Users</th>
+				<tr is="league-list" v-for="(league, index) in leagues" v-bind:row="league" v-on:select="loadLeague(index)"></tr>
 			</table>
 		</div>
 
