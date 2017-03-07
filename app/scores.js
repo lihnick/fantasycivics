@@ -7,6 +7,7 @@ var USER = false;
 var KNOWN_USERS = {};
 var SIMULATION_TIME = false;
 var LEAGUE_ID = false;
+var NEED_FIRST_RENDER = true;
 
 Database.Auth.getCurrentUser().then((user) => {
 	login(user);
@@ -82,27 +83,21 @@ function main(){
 	SIMULATION_TIME = parseInt(params.time, 10);
 	LEAGUE_ID = params.league;
 
-	if(LEAGUE_ID && SIMULATION_TIME){
-		render();
+	if(LEAGUE_ID){
+		render(SIMULATION_TIME);
 	}
-	else if(!LEAGUE_ID && !SIMULATION_TIME){
-		displayError('Missing {league} and {time}.');
-	}
-	else if(!LEAGUE_ID){
+	else{
 		displayError('Missing {league}.');
-	}
-	else if(!SIMULATION_TIME){
-		displayError('Missing {time}.');
 	}
 
 }
 
-function render(){
+function render(simulationTime){
 
 	Database.getMatchScore({
 		userid: USER.userid,
 		leagueid: LEAGUE_ID,
-		on: SIMULATION_TIME
+		on: simulationTime
 	}).then((score) => {
 
 		var match = score.match;
@@ -129,28 +124,78 @@ function render(){
 			to: match.end
 		}).then((league) => {
 
+			console.log(match)
+			console.log(league)
+
+			var selectOptions = renderWeekSelector(league.schedule)
+			var select = document.getElementById('week-select');
+				select.innerHTML = selectOptions;
+
+			select.addEventListener('change', (e) => {
+				var ts = parseInt(e.target.value, 10);
+				render(ts);
+			})
+
 			var boxScoreDiv = renderBoxScore(match, homeUser, awayUser, league);
 			var parent = document.getElementById('box-score');
-			parent.appendChild(boxScoreDiv);
+			console.log('boxscore', parent.childNodes)
+			if(parent.childNodes.length < 2){
+				parent.appendChild(boxScoreDiv);	
+			}
+			else{
+				parent.replaceChild(boxScoreDiv, parent.childNodes[2]);
+			}
 			var load = document.getElementById('loading-box-score');
 			load.style.display = 'none';
 
-			Database.getLeaderboard({
-				leagueid: league.leagueid
-			}, league).then((leaderboard) => {
-				var boardDiv = renderLeaderboard(leaderboard.rankings, leaderboard.records, league);
-				var parent2 = document.getElementById('leaderboard');
-				parent2.appendChild(boardDiv);
-				var load2 = document.getElementById('loading-leaderboard');
-				load2.style.display = 'none';
-			}).catch(displayError);
+			if(NEED_FIRST_RENDER){
+				Database.getLeaderboard({
+					leagueid: LEAGUE_ID
+				}, league).then((leaderboard) => {
+					var boardDiv = renderLeaderboard(leaderboard.rankings, leaderboard.records, league);
+					var parent2 = document.getElementById('leaderboard');
+					// Beware of Magic Numbers!!
+					console.log('leader', parent2.childNodes)
+					if(parent2.childNodes.length < 2){
+						parent2.appendChild(boardDiv);	
+					}
+					else{
+						parent2.replaceChild(boardDiv, parent2.childNodes[2]);
+					}
+					var load2 = document.getElementById('loading-leaderboard');
+					load2.style.display = 'none';
+					NEED_FIRST_RENDER = false;
+				}).catch(displayError);
+			}
 
 		}).catch(displayError);
 
 	}).catch(displayError);
 
+}
 
-
+function renderWeekSelector(schedule){
+	var options = [];
+	for(var w = 0; w < schedule.length; w++){
+		for(var g = 0; g < schedule[w].length; g++){
+			var match = schedule[w][g];
+			if(match.winner){
+				options.push({
+					time: (0.5 * (match.end - match.start)) + match.start,
+					label: 'Week ' + (w+1)
+				});
+				console.log('Week ' + (w+1) + ' has a winner')
+				break;
+			}
+		}
+	}
+	console.log(options)
+	var html = '';
+	for(var i = 0; i < options.length; i++){
+		var opt = options[i];
+		html += '<option value="' + opt.time + '">' + opt.label + '</option>'
+	}
+	return html;
 }
 
 function createDOMTable(headers, rows){
