@@ -28,12 +28,12 @@
 			<p id="email"></p>
 			<p id="name"></p>
 			<!-- <img id="image" style="width:64px;height:64px;" alt="No Image"></img> -->
-			<button onclick="Application().userLogout()">Logout</button>
+			<button onclick="app.userLogout()">Logout</button>
 		</div>
 		
 		<h2>Login</h2>
 
-		<input type="button" value="Google Authentication" onclick="Application().userLogin()">
+		<input type="button" value="Google Authentication" onclick="app.userLogin()">
 
 		<!-- Footer -->
 
@@ -48,7 +48,7 @@
 		<script type="text/javascript" src="app.js"></script>
 		<script type="text/javascript">
 			// Instantiate app
-			var app = Application();
+			var app = InitApplication();
 			app.getUser();
 		</script>
 	</body>
