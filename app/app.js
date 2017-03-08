@@ -881,9 +881,10 @@ function InitApplication() {
 			}).then((matchOutcome) => {
 				if (matchOutcome.success) {
 					log("Success");
+					alert('Match Finalized!');
 				}
 			}).catch((err) => {
-				log(err);
+				console.error(err)
 			});
 		},
 
