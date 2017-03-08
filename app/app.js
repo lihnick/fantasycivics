@@ -793,7 +793,6 @@ function InitApplication() {
 												}
 											}
 											USER['workingPlayers'] = null;
-											
 										}
 									}).catch((err) => {
 										log(err);
