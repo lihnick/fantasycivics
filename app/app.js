@@ -808,11 +808,13 @@ function InitApplication() {
 											log("Updates after an error");
 											if (USER['_allPlayers']) {
 												var currentOrder = USER['_allPlayers'].order;
+												var currentReverse = USER['_allPlayers'].reverse * -1;
 												USER['_allPlayers'].reverse = 1;
 												USER['_allPlayers'].ordering(1);
 												for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
 													USER._allPlayers.players[i] = Object.assign({}, USER._allPlayers.players[i], USER.allPlayers[i]);
 												}
+												USER['_allPlayers'].reverse = currentReverse;
 												USER['_allPlayers'].ordering(currentOrder);
 											}
 										}).catch((err) => {
@@ -847,6 +849,7 @@ function InitApplication() {
 						log("Player List updated");
 						if (USER['_allPlayers']) {
 							var currentOrder = USER['_allPlayers'].order;
+							var currentReverse = USER['_allPlayers'].reverse * -1;
 							USER['_allPlayers'].reverse = 1;
 							USER['_allPlayers'].ordering(1);
 							for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
@@ -854,6 +857,7 @@ function InitApplication() {
 									USER._allPlayers.players[i] = Object.assign({}, USER._allPlayers.players[i], {owner: USER.allPlayers[i].owner});
 								// 	Vue.set(USER['_allPlayers'].players[i], 'owner', USER.allPlayers[i].owner);
 							}
+							USER['_allPlayers'].reverse = currentReverse;
 							USER['_allPlayers'].ordering(currentOrder);
 						}
 					}).catch((err) => {
