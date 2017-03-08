@@ -195,7 +195,8 @@ function startLeague(inviteid){
 			weeks: 3
 		}).then((res) => {
 			displayMessage('Created League: ' + res.leagueid);
-			document.location = 'app.html';
+			var url = document.location.origin + pathname + '/app.html';
+			document.location = url;
 		}).catch(displayError);
 	}
 	catch(err){
