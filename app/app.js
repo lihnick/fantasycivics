@@ -883,7 +883,7 @@ function InitApplication() {
 					log("Success");
 				}
 			}).catch((err) => {
-				log(err);
+				console.error(err)
 			});
 		},
 
