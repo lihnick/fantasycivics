@@ -881,6 +881,7 @@ function InitApplication() {
 			}).then((matchOutcome) => {
 				if (matchOutcome.success) {
 					log("Success");
+					alert('Match Finalized!');
 				}
 			}).catch((err) => {
 				console.error(err)

@@ -15,7 +15,8 @@
 		<a href="index.html">Home</a>
 		<a href="app.html">App</a>
 		<a href="#">Roster</a>
-		<button id="outcome" onclick="viewOutcome();">Leaderboard</button>
+		<button id="outcome" onclick="viewOutcome();">View Leaderboard</button>
+		<button onclick="app.setMatchOutcome()">Finalize Match</button>
 
 		<h2>User Info</h2>
 		<div>
@@ -35,7 +36,7 @@
 				</tr>
 				<tr is="roster-list" v-for="(player, index) in players" v-bind:row="player" v-bind:header="headers" v-on:toggle="togglePlayer(index)"></tr>
 				<tr>
-					<td><button onclick="app.setMatchOutcome()">Finalize</button></td><td></td><td></td><td></td>
+					<td></td><td></td><td></td><td></td>
 					<td>{{ aggregator }}</td>
 					<td></td><td></td><td></td>
 				</tr>
