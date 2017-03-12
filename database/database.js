@@ -824,7 +824,7 @@ var Database = {
 								res.end = game.end;
 								res.home = game.home;
 								res.away = game.away;
-								res.week = (parseInt(week, 10) + 1);
+								res.week = parseInt(week, 10); // Correctly numbered
 								break;
 							}
 						}
@@ -937,7 +937,7 @@ var Database = {
 				var ref = db.ref('leagues/' + params.leagueid + '/schedule');
 				ref.once('value', (snapshot) => {
 					var schedule = snapshot.val();
-					var weekKey = (score.match.week - 1);
+					var weekKey = score.match.week;
 					var games = schedule[weekKey];
 					var found = false;
 					var gameKey = false;
