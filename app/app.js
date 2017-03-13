@@ -50,7 +50,12 @@ function InitApplication() {
 		userNameTag: 'name',
 		userSelectedLeague: 'leagueid',
 		seletedLeagueStart: 'leaguestart',
-		seletedLeagueEnd: 'leagueend'
+		seletedLeagueEnd: 'leagueend',
+
+		selectionMatrix: [	["Cannot Swap Two Benched",			"", "", ""],		// Benched Roster - USER Owned
+							["Swapping Benched w/ starter", 	"", "", ""],		// Starter Roster - USER Owned
+							["Use Roster for Bench/Start", 		"", "", ""],		// Player Selected - USER owned (self or other)
+							["Dropping Benched for starter",	"", "", ""]]	// Player Selected - No Owner
 	};
 
 	var getLeague = (params) => {
