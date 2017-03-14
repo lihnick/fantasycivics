@@ -8,12 +8,22 @@
 
 html {
 	background: white;
+	font-family: 'Roboto', sans-serif;
+}
+
+body {
+	margin: 0 auto;
+	padding: 10px;
 }
 
 /* TEXT */
 
 h1, h2, h3, p {
 	margin: 10px auto;
+}
+
+h1, h2, h3, p, button {
+	font-family: 'Roboto', sans-serif;
 }
 
 h1, h2, h3 {
@@ -40,19 +50,28 @@ h3 {
 /* TABLES */
 
 th, td {
-	padding: 5px;
+	padding: 7.5px;
+	font-size: 15px;
 	text-align: left;
 	vertical-align: middle;
 }
 
 th {
 	font-weight: bold;
-	background: rgba(59, 68, 75, 1);
-	color: white;
+	background: rgba(59, 68, 75, 0.1);
+	color: rgba(59, 68, 75, 1);
 }
 
 td {
-	border-top: 1px solid rgba(59, 68, 75, 1);
+	border-top: 1px solid rgba(59, 68, 75, 0.25);
+}
+
+#userRoster td:nth-child(1), #allPlayers td:nth-child(2) {
+	width: 180px;
+}
+
+#allPlayers td:nth-child(7) {
+	width: 180px;
 }
 
 /* BUTTONS */
@@ -62,20 +81,52 @@ button {
 	border: none;
 	padding: 5px;
 	margin: 0;
+	font-size: 12px;
+	border: 2px solid rgba(44, 140, 153, 1);
+	background: transparent;
+	color: rgba(44, 140, 153, 1);
 }
 
-button:disabled {
-	opacity: 0.25;
+button:hover {
+	background: rgba(44, 140, 153, 1);
+	color: white;
+	cursor: pointer;
 }
 
 td button {
-	background: rgba(44, 140, 153, 1);
+	margin: 0;
 	width: 75px;
+	border: 2px solid rgba(44, 140, 153, 1);
+	background: transparent;
+	color: rgba(44, 140, 153, 1);
+}
+
+td button:hover {
+	background: rgba(44, 140, 153, 1);
 	color: white;
 }
 
 br + button {
-	background: red;
+	border: none;
+	margin: 5px;
+	padding: 5px;
+	background: white;
+	/*width: 35px;
+	height: 35px;
+	border-radius: 20px;
+	background: white;
 	display: inline;
+	text-align: center;*/
+}
 
+br + button:hover {
+
+}
+
+button:disabled {
+	opacity: 0;
+}
+
+button:disabled:hover {
+	cursor: default;
 }
