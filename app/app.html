@@ -12,6 +12,31 @@
 		<script type="text/javascript" src="../assets/moment.min.js"></script>
 		<script type="text/javascript" src="../assets/jquery-3.1.1.min.js"></script>
 		<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> <!-- For datepickers -->
+		<style type="text/css">
+			body {background-color: palegreen}
+			h1 {background-color: mediumslateblue}
+			h2 {background-color: transparent}
+			p {background-color: hotpink}
+			p.no2 {background-color: gray; padding: 20px;}
+		</style>
+		<style>
+			a:link {color:#FF0000;}
+			a:visited {color:#FF0000;}
+			a:hover {color:#FF00FF;}
+			a:active {color:#0000FF;}
+		</style>
+		<style>
+		table, td, th
+        {
+		border:1px solid green;
+        }
+
+        th
+        {
+		background-color:green;
+        color:white;
+        }
+		</style>
 	</head>
 	<body>
 		<h1>Fantasy Civics</h1>
@@ -27,7 +52,7 @@
 			<p id="email"></p>
 			<p id="name"></p>
 			<!-- <img id="image" style="width:64px;height:64px;" alt="No Image"></img> -->
-			<button onclick="app.userLogout()">Logout</button>
+			<button  onclick="app.userLogout()">Logout</button>
 		</div>
 
 		<h2>Create Leagues</h2>	
