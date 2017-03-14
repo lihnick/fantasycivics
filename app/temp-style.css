@@ -69,6 +69,7 @@ th, td {
 }
 
 th {
+	padding: 10px 7.5px;
 	font-weight: bold;
 	background: rgba(59, 68, 75, 0.1);
 	color: rgba(59, 68, 75, 1);
@@ -120,7 +121,7 @@ td button:hover {
 
 br + button {
 	border: none;
-	margin: 5px;
+	margin-top: 5px;
 	padding: 5px;
 	background: white;
 	/*width: 35px;
