@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<br>
 	<head>
 		<title>Roster</title>
 
@@ -8,15 +8,31 @@
 		<script type="text/javascript" src="../assets/promise.min.js"></script>
 		<script type="text/javascript" src="../assets/moment.min.js"></script>
 		<script type="text/javascript" src="../assets/jquery-3.1.1.min.js"></script>
+		<style type="text/css">
+			body {background-color: palegreen}
+			h1 {background-color: mediumslateblue}
+			h2 {background-color: transparent}
+			p {background-color: hotpink}
+			p.no2 {background-color: gray; padding: 20px;}
+		</style>
+		<style>
+			a:link {color:#FF0000;}
+			a:visited {color:#FF0000;}
+			a:hover {color:#FF00FF;}
+			a:active {color:#0000FF;}
+		</style>
 	</head>
-	<body>
+
 		<h1>Roster</h1>
 		<p>Insert roster page, and fancy tables</p>
-		<a href="index.html">Home</a>
-		<a href="app.html">App</a>
-		<a href="#">Roster</a>
-		<button id="outcome" onclick="viewOutcome();">View Leaderboard</button>
-		<button onclick="app.setMatchOutcome()">Finalize Match</button>
+	    <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="app.html">App</a></li>
+        <li><a href="#">Roster</a></li>
+        </ul>
+		<br><br/>
+		<button type="button"  id="outcome" onclick="viewOutcome();">View Leaderboard</button>
+		<button type="button"  onclick="app.setMatchOutcome()">Finalize Match</button>
 
 		<h2>User Info</h2>
 		<div>
@@ -24,7 +40,7 @@
 			<p id="email"></p>
 			<p id="name"></p>
 			<!-- <img id="image" style="width:64px;height:64px;" alt="No Image"></img> -->
-			<button onclick="app.userLogout()">Logout</button>
+			<button type="button" onclick="app.userLogout()">Logout</button>
 		</div>
 
 		<div id="userRoster">
@@ -47,13 +63,13 @@
 			<h3>All Players</h3>
 			<p>Choose two consecutive players to add or drop a player from your roster</p>
 			<table>
-				<th>Ward <br><button v-on:click="ordering(0)">sort</button></th>
-				<th>Players <br><button v-on:click="ordering(1)">sort</button></th>
-				<th>{{ headers[Object.keys(headers)[0]] }} <br><button v-on:click="ordering(2)">sort</button></th>
-				<th>{{ headers[Object.keys(headers)[1]] }} <br><button v-on:click="ordering(3)">sort</button></th>
-				<th>{{ headers[Object.keys(headers)[2]] }} <br><button v-on:click="ordering(4)">sort</button></th>
-				<th>Score <br><button v-on:click="ordering(5)">sort</button></th>
-				<th>League <br><button v-on:click="ordering(6)">sort</button></th>
+				<th>Ward <br><button type="button" class="btn btn-xs btn-default" v-on:click="ordering(0)">sort</button></th>
+				<th>Players <br><button type="button" class="btn btn-xs btn-default" v-on:click="ordering(1)">sort</button></th>
+				<th>{{ headers[Object.keys(headers)[0]] }} <br><button type="button" class="btn btn-xs btn-default" v-on:click="ordering(2)">sort</button></th>
+				<th>{{ headers[Object.keys(headers)[1]] }} <br><button type="button" class="btn btn-xs btn-default" v-on:click="ordering(3)">sort</button></th>
+				<th>{{ headers[Object.keys(headers)[2]] }} <br><button type="button" class="btn btn-xs btn-default" v-on:click="ordering(4)">sort</button></th>
+				<th>Score <br><button type="button" class="btn btn-xs btn-default" v-on:click="ordering(5)">sort</button></th>
+				<th>League <br><button type="button" class="btn btn-xs btn-default" v-on:click="ordering(6)">sort</button></th>
 				<th>Actions</th>
 				<th>Pending</th>
 				<tr is="player-list" v-for="(player, index) in players" v-bind:row="player" v-bind:header="headers" v-on:acquire="acquirePlayer(index)"></tr>
