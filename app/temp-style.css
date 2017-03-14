@@ -18,15 +18,15 @@ body {
 
 /* TEXT */
 
-h1, h2, h3, p {
+h1, h2, h3, h4, p {
 	margin: 10px auto;
 }
 
-h1, h2, h3, p, button {
+h1, h2, h3, h4, p, button {
 	font-family: 'Roboto', sans-serif;
 }
 
-h1, h2, h3 {
+h1, h2, h3, h4 {
 	font-weight: bold;
 }
 
@@ -40,6 +40,10 @@ h2 {
 
 h3 {
 	font-size: 20px;
+}
+
+h4 {
+	font-size: 18px;
 }
 
 h3 {
@@ -57,6 +61,11 @@ a:link, a:visited {
 a:hover, a:active {
 	background: rgba(44, 140, 153, 1);
 	color: white;
+}
+
+ul {
+	list-style: disc inside none;
+	margin: 10px auto;
 }
 
 /* TABLES */
