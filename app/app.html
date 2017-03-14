@@ -94,7 +94,7 @@
 			<p id="email"></p>
 			<p id="name"></p>
 			<!-- <img id="image" style="width:64px;height:64px;" alt="No Image"></img> -->
-			<button  onclick="app.userLogout()">Logout</button>
+			<button class="a_demo_one" onclick="app.userLogout()">Logout</button>
 		</div>
 
 		<h2>Create Leagues</h2>	
@@ -104,7 +104,7 @@
 			<label>Simulation - Play a game using historic data (for debugging or demo purposes)</label>
 			<h3>League Name: {{ name }}</h3>
 			<input v-model="name" type="text" placeholder="League Name">
-			<button v-on:click="getInviteURL" :disabled="(!name)? true : false">Start League</button>
+			<button class="a_demo_one" v-on:click="getInviteURL" :disabled="(!name)? true : false">Start League</button>
 
 			<div>
 				<h3>Leagues you started</h3>

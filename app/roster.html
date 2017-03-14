@@ -85,8 +85,8 @@
         <li><a href="#">Roster</a></li>
         </ul>
 		<br><br/>
-		<button type="button"  id="outcome" onclick="viewOutcome();">View Leaderboard</button>
-		<button type="button"  onclick="app.setMatchOutcome()">Finalize Match</button>
+		<button class="a_demo_one" type="button"  id="outcome" onclick="viewOutcome();">View Leaderboard</button>
+		<button class="a_demo_one" type="button"  onclick="app.setMatchOutcome()">Finalize Match</button>
 
 		<h2>User Info</h2>
 		<div>
@@ -94,7 +94,7 @@
 			<p id="email"></p>
 			<p id="name"></p>
 			<!-- <img id="image" style="width:64px;height:64px;" alt="No Image"></img> -->
-			<button type="button" onclick="app.userLogout()">Logout</button>
+			<button class="a_demo_one" type="button" onclick="app.userLogout()">Logout</button>
 		</div>
 
 		<div id="userRoster">
@@ -117,13 +117,13 @@
 			<h3>All Players</h3>
 			<p>Choose two consecutive players to add or drop a player from your roster</p>
 			<table>
-				<th>Ward <br><button type="button" class="btn btn-xs btn-default" v-on:click="ordering(0)">sort</button></th>
-				<th>Players <br><button type="button" class="btn btn-xs btn-default" v-on:click="ordering(1)">sort</button></th>
-				<th>{{ headers[Object.keys(headers)[0]] }} <br><button type="button" class="btn btn-xs btn-default" v-on:click="ordering(2)">sort</button></th>
-				<th>{{ headers[Object.keys(headers)[1]] }} <br><button type="button" class="btn btn-xs btn-default" v-on:click="ordering(3)">sort</button></th>
-				<th>{{ headers[Object.keys(headers)[2]] }} <br><button type="button" class="btn btn-xs btn-default" v-on:click="ordering(4)">sort</button></th>
-				<th>Score <br><button type="button" class="btn btn-xs btn-default" v-on:click="ordering(5)">sort</button></th>
-				<th>League <br><button type="button" class="btn btn-xs btn-default" v-on:click="ordering(6)">sort</button></th>
+				<th>Ward <br><button type="button" class="a_demo_one" v-on:click="ordering(0)">sort</button></th>
+				<th>Players <br><button type="button" class="a_demo_one" v-on:click="ordering(1)">sort</button></th>
+				<th>{{ headers[Object.keys(headers)[0]] }} <br><button type="button" class="a_demo_one" v-on:click="ordering(2)">sort</button></th>
+				<th>{{ headers[Object.keys(headers)[1]] }} <br><button type="button" class="a_demo_one" v-on:click="ordering(3)">sort</button></th>
+				<th>{{ headers[Object.keys(headers)[2]] }} <br><button type="button" class="a_demo_one" v-on:click="ordering(4)">sort</button></th>
+				<th>Score <br><button type="button" class="a_demo_one" v-on:click="ordering(5)">sort</button></th>
+				<th>League <br><button type="button" class="a_demo_one" v-on:click="ordering(6)">sort</button></th>
 				<th>Actions</th>
 				<th>Pending</th>
 				<tr is="player-list" v-for="(player, index) in players" v-bind:row="player" v-bind:header="headers" v-on:acquire="acquirePlayer(index)"></tr>

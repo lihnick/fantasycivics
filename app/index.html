@@ -17,6 +17,35 @@
 			p {background-color: hotpink}
 			p.no2 {background-color: gray; padding: 20px;}
 		</style>
+		<style>
+			a:link {color:#FF0000;}
+			a:visited {color:#FF0000;}
+			a:hover {color:#FF00FF;}
+			a:active {color:#0000FF;}
+		</style>
+		<style>
+			 .a_demo_one {
+	background-color:#ba2323;
+	padding:10px;
+	position:relative;
+	font-family: 'Open Sans', sans-serif;
+	font-size:12px;
+	text-decoration:none;
+	color:#fff;
+	border: solid 1px #831212;
+	background-image: linear-gradient(bottom, rgb(171,27,27) 0%, rgb(212,51,51) 100%);
+	border-radius: 5px;
+}
+
+.a_demo_one:active {
+	padding-bottom:9px;
+	padding-left:10px;
+	padding-right:10px;
+	padding-top:11px;
+	top:1px;
+	background-image: linear-gradient(bottom, rgb(171,27,27) 100%, rgb(212,51,51) 0%);
+}
+		</style>
 	</head>
 	<body>
 		<!-- Header -->
@@ -35,7 +64,7 @@
 			<p id="email"></p>
 			<p id="name"></p>
 			<!-- <img id="image" style="width:64px;height:64px;" alt="No Image"></img> -->
-			<button onclick="app.userLogout()">Logout</button>
+			<button class="a_demo_one" onclick="app.userLogout()">Logout</button>
 		</div>
 		
 		<h2>Login</h2>
