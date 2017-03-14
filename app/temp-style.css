@@ -47,6 +47,18 @@ h3 {
 	padding: 10px 0;*/
 }
 
+a:link, a:visited {
+	font-weight: bold;
+	color: rgba(44, 140, 153, 1);
+	text-decoration: none;
+	padding: 5px 7.5px;
+}
+
+a:hover, a:active {
+	background: rgba(44, 140, 153, 1);
+	color: white;
+}
+
 /* TABLES */
 
 th, td {
