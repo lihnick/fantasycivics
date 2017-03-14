@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+        <title>Roster</title>
+    </head>
+    <body>
+        <h1>Roster</h1>
+        <p>Insert roster page, and fancy tables</p>
+        <a href="index.html">Home</a>
+        <a href="app.html">App</a>
+        <a href="#">Roster</a>
+        <button id="outcome" onclick="viewOutcome();">View Leaderboard</button>
+        <button onclick="app.setMatchOutcome()">Finalize Match</button>
+        <h2>User Info</h2>
+        <div>
+            <!-- <p id="userid"></p> -->
+            <p id="email">vkannan3@hawk.iit.edu</p>
+            <p id="name">Vinesh Kannan</p>
+            <!-- <img id="image" style="width:64px;height:64px;" alt="No Image"></img> -->
+            <button onclick="app.userLogout()">Logout</button>
+        </div>
+        <div id="userRoster">
+            <h3>ChiHackNight Demo League</h3>
+            <p>Choose two consecutive players to swap from benching and starting in your roster</p>
+            <table>
+                <tbody>
+                    <tr>
+                        <th>Players</th>
+                        <th>Pot Holes</th>
+                        <th>Light Outages</th>
+                        <th>Abandoned Vehicles</th>
+                        <th>Score</th>
+                        <th>lineup</th>
+                        <th>Actions</th>
+                        <th>Pending</th>
+                    </tr>
+                    <tr>
+                        <td>Leslie Hairston</td>
+                        <td>31</td>
+                        <td>2</td>
+                        <td>-2</td>
+                        <td>31</td>
+                        <td>Benched</td>
+                        <td><button>Toggle</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Willie B. Cochran</td>
+                        <td>16</td>
+                        <td>4</td>
+                        <td>-2</td>
+                        <td>18</td>
+                        <td>Starter</td>
+                        <td><button>Toggle</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Patrick J. O'Connor</td>
+                        <td>8</td>
+                        <td>1</td>
+                        <td>-9</td>
+                        <td>0</td>
+                        <td>Starter</td>
+                        <td><button>Toggle</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Thomas M. Tunney</td>
+                        <td>0</td>
+                        <td>2</td>
+                        <td>0</td>
+                        <td>2</td>
+                        <td>Benched</td>
+                        <td><button>Toggle</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>James Cappleman</td>
+                        <td>1</td>
+                        <td>0</td>
+                        <td>-2</td>
+                        <td>-1</td>
+                        <td>Starter</td>
+                        <td><button>Toggle</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>17</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="allPlayers">
+            <h3>All Players</h3>
+            <p>Choose two consecutive players to add or drop a player from your roster</p>
+            <table>
+                <tbody>
+                    <tr>
+                        <th>Ward <br><button>sort</button></th>
+                        <th>Players <br><button>sort</button></th>
+                        <th>Pot Holes <br><button>sort</button></th>
+                        <th>Light Outages <br><button>sort</button></th>
+                        <th>Abandoned Vehicles <br><button>sort</button></th>
+                        <th>Score <br><button>sort</button></th>
+                        <th>League <br><button>sort</button></th>
+                        <th>Actions</th>
+                        <th>Pending</th>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>Joe Moreno </td>
+                        <td>8</td>
+                        <td>0</td>
+                        <td>-3</td>
+                        <td>5</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Brian Hopkins </td>
+                        <td>3</td>
+                        <td>2</td>
+                        <td>-4</td>
+                        <td>1</td>
+                        <td>Hohsin Maider</td>
+                        <td><button disabled="disabled">Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Pat Dowell </td>
+                        <td>5</td>
+                        <td>3</td>
+                        <td>-7</td>
+                        <td>1</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Sophia King </td>
+                        <td>0</td>
+                        <td>-1</td>
+                        <td>-2</td>
+                        <td>-3</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Leslie Hairston </td>
+                        <td>31</td>
+                        <td>2</td>
+                        <td>-2</td>
+                        <td>31</td>
+                        <td>Vinesh Kannan</td>
+                        <td><button>Drop</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>Roderick Sawyer </td>
+                        <td>9</td>
+                        <td>-1</td>
+                        <td>-4</td>
+                        <td>4</td>
+                        <td>Hohsin Maider</td>
+                        <td><button disabled="disabled">Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>Gregory Mitchell </td>
+                        <td>7</td>
+                        <td>6</td>
+                        <td>-2</td>
+                        <td>11</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>Michelle Harris </td>
+                        <td>10</td>
+                        <td>8</td>
+                        <td>-8</td>
+                        <td>10</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>Anthony Beale </td>
+                        <td>25</td>
+                        <td>3</td>
+                        <td>-9</td>
+                        <td>19</td>
+                        <td>Hohsin Maider</td>
+                        <td><button disabled="disabled">Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>10</td>
+                        <td>Susan Sadlowski Garza </td>
+                        <td>11</td>
+                        <td>6</td>
+                        <td>-6</td>
+                        <td>11</td>
+                        <td>Rosa Feliz</td>
+                        <td><button disabled="disabled">Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>11</td>
+                        <td>Patrick Thompson </td>
+                        <td>7</td>
+                        <td>0</td>
+                        <td>-4</td>
+                        <td>3</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>12</td>
+                        <td>George A. Cardenas </td>
+                        <td>20</td>
+                        <td>-1</td>
+                        <td>-8</td>
+                        <td>11</td>
+                        <td>Rosa Feliz</td>
+                        <td><button disabled="disabled">Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>13</td>
+                        <td>Marty Quinn </td>
+                        <td>20</td>
+                        <td>8</td>
+                        <td>-8</td>
+                        <td>20</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>14</td>
+                        <td>Ed Burke </td>
+                        <td>8</td>
+                        <td>-6</td>
+                        <td>-4</td>
+                        <td>-2</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>15</td>
+                        <td>Raymond Lopez </td>
+                        <td>10</td>
+                        <td>6</td>
+                        <td>-6</td>
+                        <td>10</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>16</td>
+                        <td>Touni Foulkes </td>
+                        <td>4</td>
+                        <td>1</td>
+                        <td>-9</td>
+                        <td>-4</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>17</td>
+                        <td>David Moore </td>
+                        <td>21</td>
+                        <td>5</td>
+                        <td>-7</td>
+                        <td>19</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>18</td>
+                        <td>Derrick Curtis </td>
+                        <td>4</td>
+                        <td>-3</td>
+                        <td>-4</td>
+                        <td>-3</td>
+                        <td>Faraz Awad</td>
+                        <td><button disabled="disabled">Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>19</td>
+                        <td>Matthew O'Shea </td>
+                        <td>6</td>
+                        <td>10</td>
+                        <td>-5</td>
+                        <td>11</td>
+                        <td>Faraz Awad</td>
+                        <td><button disabled="disabled">Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>20</td>
+                        <td>Willie B. Cochran </td>
+                        <td>16</td>
+                        <td>4</td>
+                        <td>-2</td>
+                        <td>18</td>
+                        <td>Vinesh Kannan</td>
+                        <td><button>Drop</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>21</td>
+                        <td>Howard Brookins Jr. </td>
+                        <td>30</td>
+                        <td>0</td>
+                        <td>-4</td>
+                        <td>26</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>22</td>
+                        <td>Ricardo Munoz </td>
+                        <td>38</td>
+                        <td>-1</td>
+                        <td>-6</td>
+                        <td>31</td>
+                        <td>Rosa Feliz</td>
+                        <td><button disabled="disabled">Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>23</td>
+                        <td>Michael Zalewski </td>
+                        <td>22</td>
+                        <td>2</td>
+                        <td>-1</td>
+                        <td>23</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>24</td>
+                        <td>Michael Scott Jr. </td>
+                        <td>4</td>
+                        <td>0</td>
+                        <td>-2</td>
+                        <td>2</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>25</td>
+                        <td>Daniel Solis </td>
+                        <td>13</td>
+                        <td>0</td>
+                        <td>-3</td>
+                        <td>10</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>26</td>
+                        <td>Roberto Malonado </td>
+                        <td>13</td>
+                        <td>1</td>
+                        <td>-8</td>
+                        <td>6</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>27</td>
+                        <td>Walter Burnett Jr. </td>
+                        <td>15</td>
+                        <td>2</td>
+                        <td>-6</td>
+                        <td>11</td>
+                        <td>Rosa Feliz</td>
+                        <td><button disabled="disabled">Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>28</td>
+                        <td>Jason Ervin </td>
+                        <td>13</td>
+                        <td>3</td>
+                        <td>-7</td>
+                        <td>9</td>
+                        <td>Faraz Awad</td>
+                        <td><button disabled="disabled">Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>29</td>
+                        <td>Chris Taliaferro </td>
+                        <td>6</td>
+                        <td>0</td>
+                        <td>-7</td>
+                        <td>-1</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>30</td>
+                        <td>Ariel E. Reboyras </td>
+                        <td>2</td>
+                        <td>1</td>
+                        <td>-5</td>
+                        <td>-2</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>31</td>
+                        <td>Milly Santiago </td>
+                        <td>-1</td>
+                        <td>3</td>
+                        <td>-6</td>
+                        <td>-4</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>32</td>
+                        <td>Scott Waguespack </td>
+                        <td>23</td>
+                        <td>4</td>
+                        <td>-7</td>
+                        <td>20</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>33</td>
+                        <td>Deborah Mell </td>
+                        <td>4</td>
+                        <td>1</td>
+                        <td>-5</td>
+                        <td>0</td>
+                        <td>Faraz Awad</td>
+                        <td><button disabled="disabled">Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>34</td>
+                        <td>Carrie Austin </td>
+                        <td>16</td>
+                        <td>0</td>
+                        <td>-3</td>
+                        <td>13</td>
+                        <td>Faraz Awad</td>
+                        <td><button disabled="disabled">Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>35</td>
+                        <td>Carlos Ramirez-Rosa </td>
+                        <td>1</td>
+                        <td>0</td>
+                        <td>-7</td>
+                        <td>-6</td>
+                        <td>Rosa Feliz</td>
+                        <td><button disabled="disabled">Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>36</td>
+                        <td>Gilbert Villegas </td>
+                        <td>6</td>
+                        <td>3</td>
+                        <td>-8</td>
+                        <td>1</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>37</td>
+                        <td>Emma Mitts </td>
+                        <td>0</td>
+                        <td>-2</td>
+                        <td>-5</td>
+                        <td>-7</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>38</td>
+                        <td>Nicholas Sposato </td>
+                        <td>9</td>
+                        <td>3</td>
+                        <td>-9</td>
+                        <td>3</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>39</td>
+                        <td>Margaret Laurino </td>
+                        <td>2</td>
+                        <td>4</td>
+                        <td>-3</td>
+                        <td>3</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>40</td>
+                        <td>Patrick J. O'Connor </td>
+                        <td>8</td>
+                        <td>1</td>
+                        <td>-9</td>
+                        <td>0</td>
+                        <td>Vinesh Kannan</td>
+                        <td><button>Drop</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>41</td>
+                        <td>Anthony Napolitano </td>
+                        <td>1</td>
+                        <td>7</td>
+                        <td>-1</td>
+                        <td>7</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>42</td>
+                        <td>Brendan Reilly </td>
+                        <td>6</td>
+                        <td>-1</td>
+                        <td>-1</td>
+                        <td>4</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>43</td>
+                        <td>Michele Smith </td>
+                        <td>5</td>
+                        <td>1</td>
+                        <td>0</td>
+                        <td>6</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>44</td>
+                        <td>Thomas M. Tunney </td>
+                        <td>0</td>
+                        <td>2</td>
+                        <td>0</td>
+                        <td>2</td>
+                        <td>Vinesh Kannan</td>
+                        <td><button>Drop</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>45</td>
+                        <td>John Arena </td>
+                        <td>4</td>
+                        <td>10</td>
+                        <td>-9</td>
+                        <td>5</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>46</td>
+                        <td>James Cappleman </td>
+                        <td>1</td>
+                        <td>0</td>
+                        <td>-2</td>
+                        <td>-1</td>
+                        <td>Vinesh Kannan</td>
+                        <td><button>Drop</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>47</td>
+                        <td>Ameya Pawar </td>
+                        <td>6</td>
+                        <td>4</td>
+                        <td>-6</td>
+                        <td>4</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>48</td>
+                        <td>Harry Osterman </td>
+                        <td>6</td>
+                        <td>4</td>
+                        <td>-4</td>
+                        <td>6</td>
+                        <td>Hohsin Maider</td>
+                        <td><button disabled="disabled">Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>49</td>
+                        <td>Joseph A. Moore </td>
+                        <td>3</td>
+                        <td>0</td>
+                        <td>-5</td>
+                        <td>-2</td>
+                        <td>Hohsin Maider</td>
+                        <td><button disabled="disabled">Acquire</button></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>50</td>
+                        <td>Debra Silverstein </td>
+                        <td>3</td>
+                        <td>2</td>
+                        <td>-9</td>
+                        <td>-4</td>
+                        <td>None</td>
+                        <td><button>Acquire</button></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- script -->
+        <script type="text/javascript" src="../lib/util.js"></script>
+        <script type="text/javascript" src="../database/player.js"></script>
+        <script type="text/javascript" src="../database/league.js"></script>
+        <script type="text/javascript" src="../database/scoring.js"></script>
+        <script type="text/javascript" src="../database/auth.js"></script>
+        <script type="text/javascript" src="../database/database.js"></script>
+        <script type="text/javascript" src="app.js"></script>
+        <script type="text/javascript">
+            // Instantiate app
+            var app = InitApplication();
+            app.getUser();
+            app.displayUser();
+            app.loadRosterPage();
+            //app.displayRoster();
+            //app.displayAllPlayers();
+        </script>
+    </body>
+</html>
