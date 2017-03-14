@@ -3,6 +3,8 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
         <title>Roster</title>
+        <link rel="stylesheet" type="text/css" href="reset.css">
+        <link rel="stylesheet" type="text/css" href="temp-style.css">
     </head>
     <body>
         <h1>Roster</h1>
@@ -667,22 +669,5 @@
                 </tbody>
             </table>
         </div>
-        <!-- script -->
-        <script type="text/javascript" src="../lib/util.js"></script>
-        <script type="text/javascript" src="../database/player.js"></script>
-        <script type="text/javascript" src="../database/league.js"></script>
-        <script type="text/javascript" src="../database/scoring.js"></script>
-        <script type="text/javascript" src="../database/auth.js"></script>
-        <script type="text/javascript" src="../database/database.js"></script>
-        <script type="text/javascript" src="app.js"></script>
-        <script type="text/javascript">
-            // Instantiate app
-            var app = InitApplication();
-            app.getUser();
-            app.displayUser();
-            app.loadRosterPage();
-            //app.displayRoster();
-            //app.displayAllPlayers();
-        </script>
     </body>
 </html>

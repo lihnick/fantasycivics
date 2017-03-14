@@ -1,0 +1,81 @@
+/*
+	white: rgba(252, 247, 248, 1);
+	blue: rgba(44, 140, 153, 1);
+	gray: rgba(59, 68, 75, 1);
+	red: rgba(255, 113, 91, 1);
+	yellow: rgba(249, 203, 64, 1);
+*/
+
+html {
+	background: white;
+}
+
+/* TEXT */
+
+h1, h2, h3, p {
+	margin: 10px auto;
+}
+
+h1, h2, h3 {
+	font-weight: bold;
+}
+
+h1 {
+	font-size: 30px;
+}
+
+h2 {
+	font-size: 25px;
+}
+
+h3 {
+	font-size: 20px;
+}
+
+h3 {
+	/*background: rgba(44, 140, 153, 1);
+	padding: 10px 0;*/
+}
+
+/* TABLES */
+
+th, td {
+	padding: 5px;
+	text-align: left;
+	vertical-align: middle;
+}
+
+th {
+	font-weight: bold;
+	background: rgba(59, 68, 75, 1);
+	color: white;
+}
+
+td {
+	border-top: 1px solid rgba(59, 68, 75, 1);
+}
+
+/* BUTTONS */
+
+button {
+	outline: none;
+	border: none;
+	padding: 5px;
+	margin: 0;
+}
+
+button:disabled {
+	opacity: 0.25;
+}
+
+td button {
+	background: rgba(44, 140, 153, 1);
+	width: 75px;
+	color: white;
+}
+
+br + button {
+	background: red;
+	display: inline;
+
+}
