@@ -25,9 +25,7 @@
 			a:hover {color:#FF00FF;}
 			a:active {color:#0000FF;}
 		</style>
-		<style>
-            body{text-align:center}
-        </style>
+
 		<style>
 		.style{
          width: 800px;
@@ -38,36 +36,40 @@
          background-color: #EFF7FF
          }
 			</style>
+
+		<style>
+			 .a_demo_one {
+				 background-color:#ba2323;
+				 padding:10px;
+				 position:relative;
+				 font-family: 'Open Sans', sans-serif;
+				 font-size:12px;
+				 text-decoration:none;
+				 color:#fff;
+				 border: solid 1px #831212;
+				 background-image: linear-gradient(bottom, rgb(171,27,27) 0%, rgb(212,51,51) 100%);
+				 border-radius: 5px;
+             }
+
+
+			 .a_demo_one:active {
+				 padding-bottom:9px;
+				 padding-left:10px;
+				 padding-right:10px;
+				 padding-top:11px;
+				 top:1px;
+				 background-image: linear-gradient(bottom, rgb(171,27,27) 100%, rgb(212,51,51) 0%);
+              }
+		</style>
         <style>
-			.center
+            body{text-align:center}
+        </style>
+		<style>
+		.center
         {
         margin-left:auto;
-        margin-right:auto;}
+		margin-right:auto;
 		</style>
-		<style>
-			.a_demo_one {
-	background-color:#ba2323;
-	padding:10px;
-	position:relative;
-	font-family: 'Open Sans', sans-serif;
-	font-size:12px;
-	text-decoration:none;
-	color:#fff;
-	border: solid 1px #831212;
-	background-image: linear-gradient(bottom, rgb(171,27,27) 0%, rgb(212,51,51) 100%);
-	border-radius: 5px;
-}
-
-.a_demo_one:active {
-	padding-bottom:9px;
-	padding-left:10px;
-	padding-right:10px;
-	padding-top:11px;
-	top:1px;
-	background-image: linear-gradient(bottom, rgb(171,27,27) 100%, rgb(212,51,51) 0%);
-}
-		</style>
-
 	</head>
 	<body>
 		<h1 class="center">Fantasy Civics</h1>
@@ -121,7 +123,7 @@
 		<h2  class="center">Current Leagues</h2>
 		<div id="userLeagues">
 			<p>With a league selected, go the roster page to start playing.</p>
-			<table>
+			<table class="center">
 				<th>Status</th><th>Selection</th><th>League Name</th><th>Start</th><th>End</th><th>Users</th>
 				<tr is="league-list" v-for="(league, index) in leagues" v-bind:row="league" v-on:select="loadLeague(index)"></tr>
 			</table>
