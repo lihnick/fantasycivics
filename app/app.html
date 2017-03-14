@@ -25,7 +25,25 @@
 			a:hover {color:#FF00FF;}
 			a:active {color:#0000FF;}
 		</style>
-
+		<style>
+            body{text-align:center}
+        </style>
+		<style>
+		.style{
+         width: 800px;
+         height: 200px;
+         margin: 0px auto;
+         margin-bottom:20px;
+         border:1px solid #96C2F1;
+         background-color: #EFF7FF
+         }
+			</style>
+        <style>
+			.center
+        {
+        margin-left:auto;
+        margin-right:auto;}
+		</style>
 		<style>
 			.a_demo_one {
 	background-color:#ba2323;
@@ -49,17 +67,18 @@
 	background-image: linear-gradient(bottom, rgb(171,27,27) 100%, rgb(212,51,51) 0%);
 }
 		</style>
+
 	</head>
 	<body>
-		<h1>Fantasy Civics</h1>
-		<p>User account stuffs</p>
+		<h1 class="center">Fantasy Civics</h1>
+		<p  class="center">User account stuffs</p>
 
 		<a href="index.html">Home</a>
 		<a href="#">App</a>
 		<a href="roster.html">Roster</a>
 
-		<h2>User Info</h2>
-		<div>
+		<h2 class="center">User Info</h2>
+		<div class="style">
 			<!-- <p id="userid"></p> -->
 			<p id="email"></p>
 			<p id="name"></p>
@@ -67,17 +86,17 @@
 			<button class="a_demo_one" onclick="app.userLogout()">Logout</button>
 		</div>
 
-		<h2>Create Leagues</h2>	
+		<h2  class="center">Create Leagues</h2>
 		<a href="join.html"><button class="a_demo_one">Create a New League</button></a>
-		<div id="newLeague" v-show="false"> <!-- Remove the v-show attribute to show container again -->
+		<div class="style" id="newLeague" v-show="false"> <!-- Remove the v-show attribute to show container again -->
 			<input v-model="sim" type="checkbox">
 			<label>Simulation - Play a game using historic data (for debugging or demo purposes)</label>
-			<h3>League Name: {{ name }}</h3>
+			<h3  class="center">League Name: {{ name }}</h3>
 			<input v-model="name" type="text" placeholder="League Name">
 			<button class="a_demo_one" v-on:click="getInviteURL" :disabled="(!name)? true : false">Start League</button>
 
 			<div>
-				<h3>Leagues you started</h3>
+				<h3  class="center">Leagues you started</h3>
 				<p>Invite your friends to join your leagues. When you have everyone, click Begin to start playing!</p>
 				<ul>
 					<li is="invite-list" v-for="(user, index) in users" v-bind:invite="user" v-on:pop="users.splice(index, 1)"></li>
@@ -86,7 +105,7 @@
 
 			<!-- <input v-model="invite" v-on:keyup.enter="inviteUsers" placeholder="Invite User"><br> -->
 
-			<div id="datepicker" v-show="!sim">
+			<div class="style" id="datepicker" v-show="!sim">
 				<input type="text" id="endGame" size="45" disabled>
 			</div>
 			<div v-show="sim">
@@ -99,7 +118,7 @@
 			<!-- <button v-on:click="inviteUsers" :disabled="(!invite)? true : false">Invite</button> -->
 		</div>
 
-		<h2>Current Leagues</h2>
+		<h2  class="center">Current Leagues</h2>
 		<div id="userLeagues">
 			<p>With a league selected, go the roster page to start playing.</p>
 			<table>
