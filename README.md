@@ -41,9 +41,28 @@ Data Streams, e.g. API, news feeds, data scraping - Javascript or Python
 
 **Requirements**
 
-* List of government members/wards that users can draft
-* App will aggregate relevant information to score points
-* User are scored based on how well the members they chose
+Authentication (A)
+- [x] A1 - Users should be able to login and logout
+
+League Management (L)
+- [x] L1 - Users should be able to create new leagues
+- [ ] L2 - Users should be able to participate in multiple leagues
+- [ ] L3 - Users should be able to invite players to join a league
+
+Roster Management (R)
+- [x] R1 - Users should be able to view all players
+- [ ] R2 - Users should be able to see changes (delta values) in player scores each week
+- [x] R3 - Users should be able to sort players
+- [ ] R4 - Users should be able to bench and start players
+- [ ] R5 - Users should be able to acquire, drop, and trade players
+- [ ] R6 - Users should make their moves anytime they want then agree on when to finalize
+
+Matches (M)
+- [ ] M1 - Users should be able to see past/current match-ups in a league (lineups & scores)
+- [ ] M2 - Users should be able to view leaderboard of league
+- [ ] M3 - Users should be able to play games using historical data
+- [ ] M4 - Users should be able to play games using current data
+- [ ] M5 - Users should enjoy the game
 
 
 **Nice To Haves**
@@ -84,5 +103,4 @@ Chicago APIs
 
 
 ### Preliminary Design Report ###
-- [ ] Due 3/11/17
-Need to discuss in future meeting.
+- [x] Due 3/11/17
