@@ -463,6 +463,7 @@ function renderTicker(players, match){
 					met.classList.add('feed-meta');
 					met.innerText = updateMeta;
 				var upd = document.createElement('p');
+					upd.classList.add('feed-item');
 					upd.innerText = tick;
 				node.appendChild(met);
 				node.appendChild(upd);
