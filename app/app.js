@@ -26,7 +26,7 @@ function viewOutcome(){
 	var timestamp = sim.thisfrom + (0.5 * (sim.thisto - sim.thisfrom));
 	var uParts = document.location.pathname.split('/');
 	var pathname = uParts.slice(0, uParts.length - 1).join('/');
-	var url = document.location.origin + pathname + '/scores.html' + '?time=' + timestamp + '&league=' + leagueid;
+	var url = document.location.origin + pathname + '/live.html' + '?time=' + timestamp + '&league=' + leagueid;
 	document.location = url;
 }
 
@@ -881,7 +881,7 @@ function InitApplication() {
 			}).then((matchOutcome) => {
 				if (matchOutcome.success) {
 					log("Success");
-					alert('Match Finalized!');
+					viewOutcome();
 				}
 			}).catch((err) => {
 				console.error(err)
