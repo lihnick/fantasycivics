@@ -319,14 +319,10 @@ var ticker = {
 function simulateMatch(match, players){
 	var step = (match.end - match.start) / 1;
 	var nextTime = match.start + step;
-	console.log('root call')
 	simulateMatchStep(match, players, match.start, nextTime, step, false);
 }
 
 function simulateMatchStep(match, players, startTime, endTime, step, lastRun){
-
-	var frm = 'M/D hh:mm A';
-	console.log(moment(startTime).format(frm), moment(endTime).format(frm), moment(match.end).format(frm), lastRun)
 
 	var doStep = new Promise((resolve, reject) => {
 		var Scoring = Database.Scoring;
@@ -397,7 +393,12 @@ function prependChild(parent, node){
 function pushToFeed(tick){
 	var feed = document.getElementById('ticker-feed');
 	var fp = document.createElement('p');
-	fp.innerText = tick;
+	if(tick.style){
+		fp.appendChild(tick);
+	}
+	else{
+		fp.innerText = tick;
+	}
 	prependChild(feed, fp);
 	return fp;
 }
@@ -453,10 +454,19 @@ function renderTicker(players, match){
 			gameClock.innerText = Math.floor(hoursLeft) + ':' + leftPad(Math.floor(minutesLeft));
 
 			var word = (next.score > 0) ? 'fixed' : 'missed';
-			var tick = 'Ward ' + players[next.pid].ward + ' ' + word + ' ' + Math.abs(next.score) + ' ' + Database.Scoring.DATASET_NAMES[next.dataset].toLowerCase() + ' (' + players[next.pid].name + ')';
+			var tick = 'Ward ' + players[next.pid].ward + ' ' + word + ' ' + Math.abs(next.score) + ' ' + Database.Scoring.DATASET_NAMES[next.dataset].toLowerCase();
+			var updateMeta = players[next.pid].name;
 			if(next.score !== 0){
 				//console.log(tick);
-				var fp = pushToFeed(tick);
+				var node = document.createElement('div');
+				var met = document.createElement('p');
+					met.classList.add('feed-meta');
+					met.innerText = updateMeta;
+				var upd = document.createElement('p');
+					upd.innerText = tick;
+				node.appendChild(met);
+				node.appendChild(upd);
+				var fp = pushToFeed(node);
 				var feedFlash = (next.score > 0) ? 'green' : 'red';
 				flashDiv(fp, feedFlash);
 				updateScoreFromTick(next, players);
