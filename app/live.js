@@ -129,23 +129,45 @@ function render(){
 			to: match.end
 		}).then((league) => {
 
+			homeUser = zeroScores(homeUser);
+			awayUser = zeroScores(awayUser);
+
 			var boxScoreDiv = renderBoxScore(match, homeUser, awayUser, league);
 			var parent = document.getElementById('box-score');
 			parent.appendChild(boxScoreDiv);
 			var load = document.getElementById('loading-box-score');
 			load.style.display = 'none';
 
+			var frm = 'M/D hh:mm A';
+			console.log(moment(match.start).format(frm), moment(match.end).format(frm), match);
+
+			simulateMatch(match, homeUser.players, true);
+			simulateMatch(match, awayUser.players, false);
+
 		}).catch(displayError);
 
 	}).catch(displayError);
+}
 
-
-
+function zeroScores(team){
+	for(var pid in team.players){
+		for(var sid in team.players[pid].scores){
+			team.players[pid].scores[sid] = 0;
+		}
+	}
+	return team;
 }
 
 function createDOMTable(headers, rows){
 	function listToRow(list){
-		return '<tr>' + list.map((val) => { return '<td>' + val + '</td>'}).join('') + '</tr>';
+		return '<tr>' + list.map((val) => {
+			if(val.id){
+				return '<td id="' + val.id + '">' + val.text + '</td>';
+			}
+			else{
+				return '<td>' + val + '</td>';
+			}
+		}).join('') + '</tr>';
 	}
 	var table = document.createElement('table');
 	var html = '';
@@ -201,10 +223,16 @@ function renderBoxScore(match, home, away, league){
 			startingLineup = false;
 			rows.push([
 				'',
-				scores.home.lineup,
+				{
+					id: 'score-home-lineup',
+					text: scores.home.lineup
+				},
 				'',
 				'',
-				scores.away.lineup
+				{
+					id: 'score-away-lineup',
+					text: scores.away.lineup
+				}
 			]);
 			rows.push([
 				'Bench',
@@ -216,10 +244,16 @@ function renderBoxScore(match, home, away, league){
 		}
 		rows.push([
 			homePlayer.name,
-			scoreFromMap(homePlayer.scores),
+			{
+				id: 'score-' + homePlayer.playerid,
+				text: scoreFromMap(homePlayer.scores)
+			},
 			SPACER,
 			awayPlayer.name,
-			scoreFromMap(awayPlayer.scores)
+			{
+				id: 'score-' + awayPlayer.playerid,
+				text: scoreFromMap(awayPlayer.scores)
+			}
 		]);
 		if(startingLineup){
 			scores.home.lineup += scoreFromMap(homePlayer.scores);
@@ -232,10 +266,16 @@ function renderBoxScore(match, home, away, league){
 	}
 			rows.push([
 				'',
-				scores.home.bench,
+				{
+					id: 'score-home-bench',
+					text: scores.home.bench
+				},
 				'',
 				'',
-				scores.away.bench
+				{
+					id: 'score-away-bench',
+					text: scores.away.bench
+				}
 			]);
 	var playerTable = createDOMTable(false, rows);
 	div.appendChild(h2);
@@ -243,7 +283,136 @@ function renderBoxScore(match, home, away, league){
 	var winTeam = (match.winner === match.home) ? 'home' : 'away';
 	var loseTeam = (match.winner === match.home) ? 'away' : 'home';
 	p.innerText = league.users[match.winner].name + ' wins ' + scores[winTeam].lineup + ' - ' + scores[loseTeam].lineup + '.'
-	div.appendChild(p);
+	//div.appendChild(p);
 	div.appendChild(playerTable);
 	return div;
+}
+
+var LIVE_TIMEOUT = 5000;
+
+var tickerSpace = {
+	home: {
+		done: false,
+		queue: []
+	},
+	away: {
+		done: false,
+		queue: []
+	}
+}
+
+function simulateMatch(match, players, home){
+
+	var step = (match.end - match.start) / 1;
+	var nextTime = match.start + step;
+	simulateMatchStep(match, players, home, match.start, nextTime, step, false);
+
+}
+
+function simulateMatchStep(match, players, home, startTime, endTime, step, lastRun){
+
+	var frm = 'M/D hh:mm A';
+	console.log(moment(startTime).format(frm), moment(endTime).format(frm), moment(match.end).format(frm), lastRun)
+
+	var doStep = new Promise((resolve, reject) => {
+		var Scoring = Database.Scoring;
+		var promises = [];
+		for(dataset in Scoring.DATASETS){
+			for(var pid in players){
+				var p = Scoring.queryDataset(dataset, {
+					'$where': Scoring.buildDateQuery('creation_date', startTime, endTime),
+					'ward': players[pid].ward
+				});
+				p.pid = pid;
+				p.time = endTime;
+				p.dataset = dataset;
+				promises.push(p);
+			}
+		}
+
+		var ticker = home ? tickerSpace.home : tickerSpace.away;
+
+		Promise.all(promises).then((data) => {
+			data.forEach((update, i) => {
+				var meta = promises[i];
+				ticker.queue.push({
+					data: update,
+					score: Scoring.scoreData(update, match.start, meta.time),
+					pid: meta.pid,
+					time: meta.time,
+					dataset: meta.dataset,
+					home: home
+				});
+			});
+			renderTicker(players, home);
+			resolve(true);
+		});
+	});
+	doStep.then(() => {
+		var newTime = endTime + step;
+		var last = false;
+		if(newTime >= match.end){
+			last = true;
+			newTime = match.end;
+		}
+		if(!lastRun){
+			simulateMatchStep(match, players, home, endTime, newTime, step, last);
+		}
+		else{
+			console.log('All game data fetched.')
+		}
+	});
+}
+
+function renderTicker(players, home){
+
+	var ticker = home ? tickerSpace.home : tickerSpace.away;
+
+	setInterval(() => {
+		if(ticker.queue.length > 0){
+			var next = ticker.queue.shift();
+			var tick = players[next.pid].name + ' scored ' + next.score + ' points on ' + Database.Scoring.DATASET_NAMES[next.dataset];
+			if(next.score !== 0){
+				//console.log(tick);
+				updateScoreFromTick(next, players);
+			}
+		}
+	}, LIVE_TIMEOUT);
+	
+}
+
+function updateScoreFromTick(update, players){
+	try{
+	var id = 'score-' + update.pid;
+	var scoreSlot = document.getElementById(id);
+	var currentScore = parseInt(scoreSlot.innerText, 10);
+	var newScore = currentScore + update.score;
+	if(newScore !== currentScore){
+		scoreSlot.innerText = newScore;
+		flashDiv(scoreSlot);
+	}
+	var starter = players[update.pid].starter;
+	var tid = 'score-' + (update.home ? 'home' : 'away') + '-' + (starter ? 'lineup' : 'bench');
+	var teamScoreSlot = document.getElementById(tid);
+	var currentTeamScore = parseInt(teamScoreSlot.innerText, 10);
+	var newTeamScore = currentTeamScore + update.score;
+	if(newTeamScore !== currentTeamScore){
+		teamScoreSlot.innerText = newTeamScore;
+		flashDiv(teamScoreSlot);
+	}
+	}
+	catch(e){
+		console.log(id)
+		console.log(update)
+		console.log(players)
+		console.log(scoreSlot)
+		console.log(document.getElementById(id.trim() + ''))
+	}
+}
+
+function flashDiv(el){
+	el.style.color = 'red';
+	setTimeout(() => {
+		el.style.color = 'black';
+	}, LIVE_TIMEOUT);
 }
