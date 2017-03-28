@@ -47,10 +47,17 @@
 				vertical-align: top;
 			}
 
+			#feed-container {
+				margin: 0 15px;
+			}
+
+			#leaderboard-container {
+				display: none;
+			}
+
 			#back-button {
 				display: inline-block;
 			}
-
 		</style>
 
 	</head>
@@ -58,8 +65,7 @@
 		
 		<!-- Header -->
 
-		<h1>Fantasy Civics</h1>
-		<a id="back-button" href="roster.html"><button>Back</button></a>
+		<h1>Fantasy Civics<a id="back-button" href="roster.html"><button>Back</button></a></h1>
 
 		<div id="message-container">
 			<p><span id="message"></span> <span id="close-message">[Close]</span></p>
@@ -70,20 +76,28 @@
 			<button id="login-button">Google Login</button>
 		</section>
 		
-
 		<section id="page">
 
 			<div class="board-container">
-				<h2>Box Score</h2>
+				<h3>Box Score</h3>
 				<div id="box-score">
 					<p id="loading-box-score">Loading..</p>
 				</div>
 			</div>
 
-			<div class="board-container">
-				<h2>Time Remaining: <span id="game-clock"><span></h2>
-				<h1>Score Feed</h1>
-				<ul id="ticker-feed"></ul>
+			<div class="board-container" id="feed-container">
+				<h3>Game Feed</h3>
+				<h2>Time Remaining: <span id="game-clock">168:00<span></h2>
+				<div id="ticker-feed">
+					<p>Game started.</p>
+				</div>
+			</div>
+
+			<div class="board-container" id="leaderboard-container">
+				<h3>Leaderboard</h3>
+				<div id="leaderboard">
+					<p id="loading-leaderboard">Loading..</p>
+				</div>
 			</div>
 
 		</section>

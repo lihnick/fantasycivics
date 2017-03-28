@@ -151,6 +151,16 @@ function render(){
 
 			simulateMatch(match, allPlayers);
 
+			Database.getLeaderboard({
+				leagueid: league.leagueid
+			}, league).then((leaderboard) => {
+				var boardDiv = renderLeaderboard(leaderboard.rankings, leaderboard.records, league);
+				var parent2 = document.getElementById('leaderboard');
+				parent2.appendChild(boardDiv);
+				var load2 = document.getElementById('loading-leaderboard');
+				load2.style.display = 'none';
+			}).catch(displayError);
+
 		}).catch(displayError);
 
 	}).catch(displayError);
@@ -204,7 +214,7 @@ function renderBoxScore(match, home, away, league){
 	var SPACER = '<span class="spacer"></span>';
 	var div = document.createElement('div');
 	var h2 = document.createElement('h2');
-		h2.innerText = 'Week ' + match.week + ' Matchup';
+		h2.innerText = 'Week ' + (match.week) + ' Matchup';
 	var rows = [];
 	var homeRoster = Object.keys(home.players).map((pid) => { return home.players[pid]; }).sort(rosterSort);
 	var awayRoster = Object.keys(away.players).map((pid) => { return away.players[pid]; }).sort(rosterSort);
@@ -386,7 +396,7 @@ function prependChild(parent, node){
 
 function pushToFeed(tick){
 	var feed = document.getElementById('ticker-feed');
-	var fp = document.createElement('li');
+	var fp = document.createElement('p');
 	fp.innerText = tick;
 	prependChild(feed, fp);
 	return fp;
@@ -457,6 +467,8 @@ function renderTicker(players, match){
 			pushToFeed('Game over.');
 			var gameRes = document.getElementById('game-result');
 			gameRes.style.display = 'block';
+			var ldbd = document.getElementById('leaderboard-container');
+			ldbd.style.display = 'inline-block';
 		}
 	}, LIVE_TIMEOUT);
 	
@@ -500,4 +512,26 @@ function flashDiv(el, color){
 		el.style.background = 'transparent';
 		el.style.color = 'black';
 	}, FLASH_TIMEOUT);
+}
+
+function renderLeaderboard(rankings, records, league){
+	var div = document.createElement('div');
+	var h2 = document.createElement('h2');
+		h2.innerText = league.name;
+	var headers = [
+		'Rank',
+		'Name',
+		'Record'
+	];
+	var rows = rankings.map((user, i) => {
+		return [
+			(i + 1),
+			user.name,
+			'(' + user.wins.length + '-' + user.losses.length + ')'
+		];
+	})
+	var playerTable = createDOMTable(headers, rows);
+	div.appendChild(h2);
+	div.appendChild(playerTable);
+	return div;	
 }
