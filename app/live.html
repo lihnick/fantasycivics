@@ -42,6 +42,15 @@
 				width: 180px;
 			}
 
+			.board-container {
+				display: inline-block;
+				vertical-align: top;
+			}
+
+			#back-button {
+				display: inline-block;
+			}
+
 		</style>
 
 	</head>
@@ -50,6 +59,7 @@
 		<!-- Header -->
 
 		<h1>Fantasy Civics</h1>
+		<a id="back-button" href="roster.html"><button>Back</button></a>
 
 		<div id="message-container">
 			<p><span id="message"></span> <span id="close-message">[Close]</span></p>
@@ -59,20 +69,21 @@
 			<h2>Login</h2>
 			<button id="login-button">Google Login</button>
 		</section>
+		
 
 		<section id="page">
 
-			<h2>Return to Rosters</h2>
-			<a href="roster.html"><button>Back</button></a>
-
-			<h2>Box Score</h2>
-			<div id="box-score">
-				<p id="loading-box-score">Loading..</p>
+			<div class="board-container">
+				<h2>Box Score</h2>
+				<div id="box-score">
+					<p id="loading-box-score">Loading..</p>
+				</div>
 			</div>
 
-			<h2>Score Ticker</h2>
-			<div id="ticker-feed">
-				Loading...
+			<div class="board-container">
+				<h2>Time Remaining: <span id="game-clock"><span></h2>
+				<h1>Score Feed</h1>
+				<ul id="ticker-feed"></ul>
 			</div>
 
 		</section>

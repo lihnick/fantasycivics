@@ -97,6 +97,8 @@ function main(){
 
 }
 
+var allPlayers = {};
+
 function render(){
 
 	Database.getMatchScore({
@@ -129,8 +131,17 @@ function render(){
 			to: match.end
 		}).then((league) => {
 
-			homeUser = zeroScores(homeUser);
-			awayUser = zeroScores(awayUser);
+			//homeUser = zeroScores(homeUser);
+			//awayUser = zeroScores(awayUser);
+
+			for(var hid in homeUser.players){
+				homeUser.players[hid].home = true;
+				allPlayers[hid] = homeUser.players[hid];
+			}
+			for(var aid in awayUser.players){
+				awayUser.players[aid].home = false;
+				allPlayers[aid] = awayUser.players[aid];
+			}
 
 			var boxScoreDiv = renderBoxScore(match, homeUser, awayUser, league);
 			var parent = document.getElementById('box-score');
@@ -138,11 +149,7 @@ function render(){
 			var load = document.getElementById('loading-box-score');
 			load.style.display = 'none';
 
-			var frm = 'M/D hh:mm A';
-			console.log(moment(match.start).format(frm), moment(match.end).format(frm), match);
-
-			simulateMatch(match, homeUser.players, true);
-			simulateMatch(match, awayUser.players, false);
+			simulateMatch(match, allPlayers);
 
 		}).catch(displayError);
 
@@ -225,13 +232,13 @@ function renderBoxScore(match, home, away, league){
 				'',
 				{
 					id: 'score-home-lineup',
-					text: scores.home.lineup
+					text: 0 //scores.home.lineup
 				},
 				'',
 				'',
 				{
 					id: 'score-away-lineup',
-					text: scores.away.lineup
+					text: 0 //scores.away.lineup
 				}
 			]);
 			rows.push([
@@ -246,13 +253,13 @@ function renderBoxScore(match, home, away, league){
 			homePlayer.name,
 			{
 				id: 'score-' + homePlayer.playerid,
-				text: scoreFromMap(homePlayer.scores)
+				text: 0 //scoreFromMap(homePlayer.scores)
 			},
 			SPACER,
 			awayPlayer.name,
 			{
 				id: 'score-' + awayPlayer.playerid,
-				text: scoreFromMap(awayPlayer.scores)
+				text: 0 //scoreFromMap(awayPlayer.scores)
 			}
 		]);
 		if(startingLineup){
@@ -268,13 +275,13 @@ function renderBoxScore(match, home, away, league){
 				'',
 				{
 					id: 'score-home-bench',
-					text: scores.home.bench
+					text: 0 //scores.home.bench
 				},
 				'',
 				'',
 				{
 					id: 'score-away-bench',
-					text: scores.away.bench
+					text: 0 //scores.away.bench
 				}
 			]);
 	var playerTable = createDOMTable(false, rows);
@@ -283,33 +290,30 @@ function renderBoxScore(match, home, away, league){
 	var winTeam = (match.winner === match.home) ? 'home' : 'away';
 	var loseTeam = (match.winner === match.home) ? 'away' : 'home';
 	p.innerText = league.users[match.winner].name + ' wins ' + scores[winTeam].lineup + ' - ' + scores[loseTeam].lineup + '.'
-	//div.appendChild(p);
+	p.id = 'game-result';
+	p.style.display = 'none';
+	div.appendChild(p);
 	div.appendChild(playerTable);
 	return div;
 }
 
-var LIVE_TIMEOUT = 5000;
+var LIVE_TIMEOUT = 3000;
+var FLASH_TIMEOUT = 750;
 
-var tickerSpace = {
-	home: {
-		done: false,
-		queue: []
-	},
-	away: {
-		done: false,
-		queue: []
-	}
+var ticker = {
+	done: false,
+	queue: [],
+	total: 0
 }
 
-function simulateMatch(match, players, home){
-
+function simulateMatch(match, players){
 	var step = (match.end - match.start) / 1;
 	var nextTime = match.start + step;
-	simulateMatchStep(match, players, home, match.start, nextTime, step, false);
-
+	console.log('root call')
+	simulateMatchStep(match, players, match.start, nextTime, step, false);
 }
 
-function simulateMatchStep(match, players, home, startTime, endTime, step, lastRun){
+function simulateMatchStep(match, players, startTime, endTime, step, lastRun){
 
 	var frm = 'M/D hh:mm A';
 	console.log(moment(startTime).format(frm), moment(endTime).format(frm), moment(match.end).format(frm), lastRun)
@@ -326,37 +330,49 @@ function simulateMatchStep(match, players, home, startTime, endTime, step, lastR
 				p.pid = pid;
 				p.time = endTime;
 				p.dataset = dataset;
+				p.home = players[pid].home;
 				promises.push(p);
 			}
 		}
 
-		var ticker = home ? tickerSpace.home : tickerSpace.away;
+		promises = shuffle(promises);
+		ticker.total = promises.length;
 
 		Promise.all(promises).then((data) => {
 			data.forEach((update, i) => {
 				var meta = promises[i];
-				ticker.queue.push({
-					data: update,
-					score: Scoring.scoreData(update, match.start, meta.time),
-					pid: meta.pid,
-					time: meta.time,
-					dataset: meta.dataset,
-					home: home
-				});
+				var score = Scoring.scoreData(update, match.start, meta.time);
+				if(score !== 0){
+					ticker.queue.push({
+						data: update,
+						score: score,
+						pid: meta.pid,
+						time: meta.time,
+						dataset: meta.dataset,
+						home: meta.home
+					});
+				}
 			});
-			renderTicker(players, home);
+			renderTicker(players, match);
 			resolve(true);
 		});
 	});
 	doStep.then(() => {
 		var newTime = endTime + step;
 		var last = false;
-		if(newTime >= match.end){
+		var terminate = false;
+		if(endTime === match.end){
+			terminate = true;
+		}
+		if(newTime > match.end){
 			last = true;
 			newTime = match.end;
 		}
 		if(!lastRun){
-			simulateMatchStep(match, players, home, endTime, newTime, step, last);
+			if(!terminate){
+				console.log('second call')
+				simulateMatchStep(match, players, endTime, newTime, step, last);
+			}
 		}
 		else{
 			console.log('All game data fetched.')
@@ -364,18 +380,83 @@ function simulateMatchStep(match, players, home, startTime, endTime, step, lastR
 	});
 }
 
-function renderTicker(players, home){
+function prependChild(parent, node){
+	parent.insertBefore(node, parent.firstChild);
+}
 
-	var ticker = home ? tickerSpace.home : tickerSpace.away;
+function pushToFeed(tick){
+	var feed = document.getElementById('ticker-feed');
+	var fp = document.createElement('li');
+	fp.innerText = tick;
+	prependChild(feed, fp);
+	return fp;
+}
 
-	setInterval(() => {
+// S/O: http://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+function shuffle(array) {
+	var currentIndex = array.length, temporaryValue, randomIndex;
+
+	// While there remain elements to shuffle...
+	while (0 !== currentIndex) {
+
+		// Pick a remaining element...
+		randomIndex = Math.floor(Math.random() * currentIndex);
+		currentIndex -= 1;
+
+		// And swap it with the current element.
+		temporaryValue = array[currentIndex];
+		array[currentIndex] = array[randomIndex];
+		array[randomIndex] = temporaryValue;
+	}
+
+	return array;
+}
+
+var MINUTES = 1000 * 60;
+var HOURS = MINUTES * 60;
+
+function leftPad(n){
+	if(n === 0){
+		return '00';
+	}
+	else{
+		return n;
+	}
+}
+
+function renderTicker(players, match){
+
+	var lastTick = Date.now();
+
+	var cidx = setInterval(() => {
+		//console.log(((Date.now()-lastTick)/1000).toFixed(1) + ' secs');
+		lastTick = Date.now();
 		if(ticker.queue.length > 0){
+
+			//console.log(ticker.queue.length)
 			var next = ticker.queue.shift();
-			var tick = players[next.pid].name + ' scored ' + next.score + ' points on ' + Database.Scoring.DATASET_NAMES[next.dataset];
+
+			var gameClock = document.getElementById('game-clock');
+			var remaining = (ticker.queue.length / ticker.total) * (match.end - match.start);
+			var hoursLeft = remaining / HOURS;
+			var minutesLeft = (remaining % HOURS) / MINUTES;
+			gameClock.innerText = Math.floor(hoursLeft) + ':' + leftPad(Math.floor(minutesLeft));
+
+			var word = (next.score > 0) ? 'fixed' : 'missed';
+			var tick = 'Ward ' + players[next.pid].ward + ' ' + word + ' ' + Math.abs(next.score) + ' ' + Database.Scoring.DATASET_NAMES[next.dataset].toLowerCase() + ' (' + players[next.pid].name + ')';
 			if(next.score !== 0){
 				//console.log(tick);
+				var fp = pushToFeed(tick);
+				var feedFlash = (next.score > 0) ? 'green' : 'red';
+				flashDiv(fp, feedFlash);
 				updateScoreFromTick(next, players);
 			}
+		}
+		else{
+			clearInterval(cidx);
+			pushToFeed('Game over.');
+			var gameRes = document.getElementById('game-result');
+			gameRes.style.display = 'block';
 		}
 	}, LIVE_TIMEOUT);
 	
@@ -389,7 +470,8 @@ function updateScoreFromTick(update, players){
 	var newScore = currentScore + update.score;
 	if(newScore !== currentScore){
 		scoreSlot.innerText = newScore;
-		flashDiv(scoreSlot);
+		var flash = (newScore > currentScore) ? 'green' : 'red';
+		flashDiv(scoreSlot, flash);
 	}
 	var starter = players[update.pid].starter;
 	var tid = 'score-' + (update.home ? 'home' : 'away') + '-' + (starter ? 'lineup' : 'bench');
@@ -398,7 +480,8 @@ function updateScoreFromTick(update, players){
 	var newTeamScore = currentTeamScore + update.score;
 	if(newTeamScore !== currentTeamScore){
 		teamScoreSlot.innerText = newTeamScore;
-		flashDiv(teamScoreSlot);
+		var teamFlash = (newTeamScore > currentTeamScore) ? 'green' : 'red';
+		flashDiv(teamScoreSlot, teamFlash);
 	}
 	}
 	catch(e){
@@ -410,9 +493,11 @@ function updateScoreFromTick(update, players){
 	}
 }
 
-function flashDiv(el){
-	el.style.color = 'red';
+function flashDiv(el, color){
+	el.style.background = color;
+	el.style.color = 'white';
 	setTimeout(() => {
+		el.style.background = 'transparent';
 		el.style.color = 'black';
-	}, LIVE_TIMEOUT);
+	}, FLASH_TIMEOUT);
 }
