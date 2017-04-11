@@ -139,7 +139,7 @@ function renderScoutingReport(pid, league){
 	});
 
 	Promise.all(promises).then(data => {
-		
+
 		var scores = data.map(playerData => {
 			var sum = 0;
 			for(var sp in playerData.scores){
@@ -152,7 +152,39 @@ function renderScoutingReport(pid, league){
 			}
 		});
 
+		renderGraph(scores);
+
 	});
+
+}
+
+function renderGraph(scores){
+
+	var x_axis = [];
+	var y_axis = [];
+	scores.forEach(data => {
+		var ts = (0.5 * (data.to - data.from)) + data.from;
+		x_axis.push(ts);
+		y_axis.push(data.score);
+	});
+
+	var layout = {
+		yaxis: {
+			title: 'Points Scored'
+		},
+		xaxis: {
+			title: 'Date',
+			tickformat: '%m %d %yy'
+		}
+	}
+
+	var data = [{
+		x: x_axis,
+		y: y_axis,
+		type: 'line'
+	}];
+
+	Plotly.newPlot('plot', data, layout);
 
 }
 
