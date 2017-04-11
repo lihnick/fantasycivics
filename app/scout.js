@@ -168,13 +168,18 @@ function renderGraph(scores){
 		y_axis.push(data.score);
 	});
 
+	x_axis = x_axis.map(ts => {
+		var d = new Date(ts);
+		return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+	});
+
 	var layout = {
 		yaxis: {
 			title: 'Points Scored'
 		},
 		xaxis: {
 			title: 'Date',
-			tickformat: '%m %d %yy'
+			tickformat: '%m/%d'
 		}
 	}
 
