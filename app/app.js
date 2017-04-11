@@ -30,6 +30,16 @@ function viewOutcome(){
 	document.location = url;
 }
 
+function openScoutingModule(){
+	var leagueid = USER.leagueid;
+	var sim = USER.rosterdate;
+	var timestamp = sim.thisfrom + (0.5 * (sim.thisto - sim.thisfrom));
+	var uParts = document.location.pathname.split('/');
+	var pathname = uParts.slice(0, uParts.length - 1).join('/');
+	var url = document.location.origin + pathname + '/scout.html' + '?time=' + timestamp + '&league=' + leagueid;
+	window.open(url, '_blank');
+}
+
 // App APIs
 function InitApplication() {
 
