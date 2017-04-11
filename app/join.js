@@ -190,9 +190,9 @@ function startLeague(inviteid){
 		Database.createLeague({
 			name: stub.league.name,
 			users: Object.keys(stub.members),
-			start: new Date('2/5/2017').getTime(),
-			end: new Date('2/26/2017').getTime(),
-			weeks: 3
+			start: getLatestSunday() - (4 * WEEK),
+			end: getLatestSunday(),
+			weeks: 4
 		}).then((res) => {
 			displayMessage('Created League: ' + res.leagueid);
 			var uParts = document.location.pathname.split('/');
@@ -204,4 +204,20 @@ function startLeague(inviteid){
 	catch(err){
 		displayError(err);
 	}
+}
+
+var MINUTE = 60 * 1000;
+var HOUR = 60 * MINUTE;
+var DAY = 24 * HOUR;
+var WEEK = 7 * DAY;
+
+function getLatestSunday(){
+	var now = Date.now();
+	var d = new Date(now);
+	var date = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+	var ts = date.getTime() - DAY;
+	while(new Date(ts).getDay() !== 0){
+		ts -= DAY;
+	}
+	return ts;
 }
