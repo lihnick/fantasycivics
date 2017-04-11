@@ -115,16 +115,42 @@ var WEEK = 7 * DAY;
 
 function renderScoutingReport(pid, league){
 
-	var weeksAgo = SIMULATION_TIME - (1 * WEEK);
+	console.log(league);
 
-	Database.getPlayer({
-		playerid: pid,
-		leagueid: LEAGUE_ID,
-		from: weeksAgo,
-		to: SIMULATION_TIME
-	}, league).then(data => {
+	var ranges = [];
+	var loopTime = league.start - (4 * WEEK);
+	while(loopTime < SIMULATION_TIME){
+		ranges.push({
+			from: loopTime,
+			to: loopTime + WEEK
+		});
+		loopTime += WEEK;
+	}
 
-		console.log(data);
+	var promises = [];
+	ranges.forEach(range => {
+		var p = Database.getPlayer({
+			playerid: pid,
+			leagueid: LEAGUE_ID,
+			from: range.from,
+			to: range.to
+		});
+		promises.push(p);
+	});
+
+	Promise.all(promises).then(data => {
+		
+		var scores = data.map(playerData => {
+			var sum = 0;
+			for(var sp in playerData.scores){
+				sum += playerData.scores[sp];
+			}
+			return {
+				score: sum,
+				from: playerData.from,
+				to: playerData.to
+			}
+		});
 
 	});
 
