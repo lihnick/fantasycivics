@@ -113,53 +113,66 @@ var HOUR = 60 * MINUTE;
 var DAY = 24 * HOUR;
 var WEEK = 7 * DAY;
 
-function renderScoutingReport(pid, league){
-
-	console.log(league);
-
-	var ranges = [];
-	var loopTime = league.start - (4 * WEEK);
-	while(loopTime < SIMULATION_TIME){
-		ranges.push({
-			from: loopTime,
-			to: loopTime + WEEK
+function getHistoricalScores(pid, league, weeks){
+	var w = weeks || league.schedule.length;
+	return new Promise((resolve, reject) => {
+		var ranges = [];
+		var loopTime = league.start - (w * WEEK);
+		while(loopTime < SIMULATION_TIME){
+			ranges.push({
+				from: loopTime,
+				to: loopTime + WEEK
+			});
+			loopTime += WEEK;
+		}
+		var promises = [];
+		ranges.forEach(range => {
+			var p = Database.getPlayer({
+				playerid: pid,
+				leagueid: LEAGUE_ID,
+				from: range.from,
+				to: range.to
+			});
+			promises.push(p);
 		});
-		loopTime += WEEK;
-	}
-
-	var promises = [];
-	ranges.forEach(range => {
-		var p = Database.getPlayer({
-			playerid: pid,
-			leagueid: LEAGUE_ID,
-			from: range.from,
-			to: range.to
+		Promise.all(promises).then(data => {
+			var scores = data.map(playerData => {
+				var sum = 0;
+				for(var sp in playerData.scores){
+					sum += playerData.scores[sp];
+				}
+				return {
+					score: sum,
+					from: playerData.from,
+					to: playerData.to
+				}
+			});
+			resolve(scores);
 		});
-		promises.push(p);
 	});
-
-	Promise.all(promises).then(data => {
-
-		var scores = data.map(playerData => {
-			var sum = 0;
-			for(var sp in playerData.scores){
-				sum += playerData.scores[sp];
-			}
-			return {
-				score: sum,
-				from: playerData.from,
-				to: playerData.to
-			}
-		});
-
-		renderGraph(scores);
-
-	});
-
 }
 
-function renderGraph(scores){
+function renderScoutingReport(pid, league){
+	getHistoricalScores(pid, league).then(scores => {
+		renderGraph(scores);
+	});
+}
 
+function predictScore(x_axis, y_axis){
+	var dy = y_axis[y_axis.length-1] - y_axis[0];
+	var dx = x_axis[x_axis.length-1] - x_axis[0];
+	var slope = dy / dx;
+	var dt = x_axis[1] - x_axis[0];
+	var predict_y = (slope * dt) + y_axis[y_axis.length-1];
+	var predict_x = dt + x_axis[x_axis.length-1];
+	return {
+		x: predict_x,
+		y: predict_y,
+		slope: slope * DAY
+	}
+}
+
+function getTracesFromScores(scores){
 	var x_axis = [];
 	var y_axis = [];
 	scores.forEach(data => {
@@ -167,6 +180,18 @@ function renderGraph(scores){
 		x_axis.push(ts);
 		y_axis.push(data.score);
 	});
+	return {
+		x: x_axis,
+		y: y_axis
+	}
+}
+
+function renderGraph(scores){
+
+	var traces = getTracesFromScores(scores);
+	var x_axis = traces.x;
+	var y_axis = traces.y;
+	var prediction = predictScore(x_axis, y_axis);
 
 	x_axis = x_axis.map(ts => {
 		var d = new Date(ts);
@@ -180,17 +205,66 @@ function renderGraph(scores){
 		xaxis: {
 			title: 'Date',
 			tickformat: '%m/%d'
-		}
+		},
+		showlegend: true/*,
+		legend: {
+			orientation: 'h'
+		}*/
 	}
 
 	var data = [{
 		x: x_axis,
 		y: y_axis,
-		type: 'line'
+		type: 'line',
+		name: 'Historical Score'
+	}, {
+		x: [x_axis[x_axis.length-1], prediction.x],
+		y: [y_axis[y_axis.length-1], prediction.y],
+		type: 'line',
+		name: 'Fantasy Civics Prediction',
+		dash: 5
 	}];
 
 	Plotly.newPlot('plot', data, layout);
 
+}
+
+function getPlayerNameString(pid){
+	var player = PLAYER_MAP[pid];
+	return player.name + '(Ward ' + player.ward + ')';
+}
+
+function renderPowerRankings(holder, players, league){
+	var promises = [];
+	for(var pid in players){
+		var p = getHistoricalScores(pid, league);
+			p.pid = pid;
+		promises.push(p);
+	}
+	function getPlayerPrediction(scores){
+		var traces = getTracesFromScores(scores);
+		return predictScore(traces.x, traces.y);
+	}
+	Promise.all(promises).then(playerScores => {
+		var list = playerScores.map((ps, idx) => {
+			ps.pid = promises[idx].pid;
+			return ps;
+		});
+		var sorted = list.sort((a, b) => {
+			var ap = getPlayerPrediction(a);
+			var bp = getPlayerPrediction(b);
+			return bp.y - ap.y;
+		});
+		holder.innerHTML = '';
+		for(var i = 0; i < 10; i++){
+			var pred = sorted[i];
+			var name = getPlayerNameString(pred.pid);
+			var sign = pred.y > 0 ? '+' : '';
+			var li = document.createElement('li');
+				li.innerText = sign + pred.y + ' ' + name;
+				holder.appendChild(li);
+		}
+	});
 }
 
 function render(){
@@ -209,13 +283,19 @@ function render(){
 		}, league).then(players => {
 
 			var sel = document.getElementById('player-selector');
-			renderPlayerSelector(sel, players)
+			renderPlayerSelector(sel, players);
+
+			//var ol = document.getElementById('power-rankings');
+			//renderPowerRankings(ol, players, league);
 
 			var but = document.getElementById('scouting-button');
 			but.addEventListener('click', e => {
 				var pid = sel.value;
 				renderScoutingReport(pid, league);
 			});
+
+			var pids = Object.keys(players);
+			renderScoutingReport(pids[0], league);
 
 		});
 
