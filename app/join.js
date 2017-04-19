@@ -114,6 +114,11 @@ function displayError(err){
 
 function presentJoined(){
 	displayMessage('You joined the league!');
+	var pns = document.location.pathname.split('/');
+		pns[pns.length-1] = 'lobby.html';
+	var pathname = pns.join('/');
+	var url = document.location.origin + pathname;
+	window.location = url;
 }
 
 function renderUserLeagues(){
