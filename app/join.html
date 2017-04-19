@@ -21,6 +21,10 @@
 				display: none;
 			}
 
+			div#waiting-league-container {
+				display: none;
+			}
+
 		</style>
 
 	</head>
@@ -41,16 +45,21 @@
 
 		<section id="page">
 
-			<h2>Return to App</h2>
-			<a href="app.html"><button>Back</button></a>
+			<div id="start-league-container">
+				<h2>Start a New League</h2>
+				<input id="league-name" type="text" placeholder="League Name">
+				<button id="create-button">Start League</button>
+				<h2>Choose an Existing League</h2>
+				<select id="league-select"></select>
+				<button id="select-button">Select</button>
+			</div>
 
-			<h2>Start a New League</h2>
-			<input id="league-name" type="text" placeholder="League Name">
-			<button id="create-button">Start League</button>
-
-			<h2>Leagues You Started</h2>
-			<p>Invite your friends to join your leagues. When you have everyone, click Begin to start playing!</p>
-			<div id="waiting-leagues"></div>
+			<div id="waiting-league-container">
+				<h2 id="lwr-name">League Waiting Room</h2>
+				<p><a id="league-invite" target="_blank">Send other players this link so they can join.</a></p>
+				<div id="members"></div>
+				<button id="league-create">Start Game</button>
+			</div>
 
 		</section>
 
