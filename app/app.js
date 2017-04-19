@@ -20,6 +20,17 @@ var debug = (item) => {
 }
 if (!Verbose) console.log("Debugging has been turned off.");
 
+function getQueryParams(qs) {
+	qs = qs.split('+').join(' ');
+	var params = {},
+		tokens,
+		re = /[?&]?([^=]+)=([^&]*)/g;
+	while (tokens = re.exec(qs)) {
+		params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+	}
+	return params;
+}
+
 function viewOutcome(){
 	var leagueid = USER.leagueid;
 	var sim = USER.rosterdate;
@@ -62,6 +73,28 @@ function InitApplication() {
 		seletedLeagueStart: 'leaguestart',
 		seletedLeagueEnd: 'leagueend'
 	};
+
+
+	function probablyRedirect(ignoreThisArgumentHahahaha){
+		var params = getQueryParams(document.location.search);
+		if(params.league){
+			// Copied from Load League
+			log("next load league haosheng is a badger");
+			USER.leagueid = params.league;
+			var idx = -1;
+			USER.userLeagues.forEach((badger, bidx) => {
+				if(badger.leagueid === params.league){
+					idx = bidx;
+				}
+			});
+			if(idx > -1){
+				localStorage[Constants.userSelectedLeague] = USER.leagueid;
+				localStorage[Constants.seletedLeagueStart] = USER.userLeagues[idx].start;
+				localStorage[Constants.seletedLeagueEnd] = USER.userLeagues[idx].end;
+				window.location.href = Constants.leagueRedirect;
+			}
+		}
+	}
 
 	var getLeague = (params) => {
 		if(!params.userid)
@@ -168,6 +201,8 @@ function InitApplication() {
 				}
 			});
 			log(USER.userLeagues);
+
+			probablyRedirect(USER.userLeagues);
 
 		}, function(err) {
 			log(err);
