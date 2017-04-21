@@ -17,6 +17,12 @@
 		<script type="text/javascript" src="./assets/moment.min.js"></script>
 		<script type="text/javascript" src="./assets/jquery-3.1.1.min.js"></script>
 		<link href="https://fonts.googleapis.com/css?family=Roboto:400,900" rel="stylesheet">
+		<!-- Vex Assets -->
+		<script type="text/javascript" src="assets/vex.combined.min.js"></script>
+		<script type="text/javascript">vex.defaultOptions.className = 'vex-theme-plain';</script>
+		<link rel="stylesheet" type="text/css" href="assets/vex.css">
+		<link rel="stylesheet" type="text/css" href="assets/vex-theme-plain.css">
+		<!-- Styles -->
 		<link rel="stylesheet" type="text/css" href="app/reset.css">
 		<link rel="stylesheet" type="text/css" href="app/temp-style.css">
 		<style>
@@ -151,6 +157,19 @@
 			line-height: 20px;
 		}
 
+		.has-scouting-report {
+			font-weight: bold;
+		}
+
+		.has-scouting-report:hover {
+			cursor: pointer;
+		}
+
+		.projected-score {
+			color: rgba(44, 140, 153, 1);
+			font-style: italic;
+		}
+
 		</style>
 
 	</head>
@@ -205,6 +224,7 @@
 		<h2>Try it Out!</h2>
 		<p>When deciding your starting lineup, you see historical scores. Here are some aldermen and their scores for the first week of <span class="insert-month"></span>. Choose the three aldermen who you think will score the most points in the second week of <span class="insert-month"></span>.</p>
 		<h3>Scores from the Week of <span id="insert-past-week"></span></h3>
+		<p class="center-text">Click on a player to view their historical scores.</p>
 		<div class="center-horizontal">
 			<div class="roster">
 				<h4>Your Team</h4>
@@ -222,6 +242,7 @@
 	<section class="landing-pane" id="game-result">
 		<h2>Sample Game Results</h2>
 		<p id="demo-outcome" class="center-text"></p>
+		<p class="center-text">Click on a player to compare their actual scores to the projections.</p>
 		<h3>Scores from the Week of <span id="insert-next-week"></span></h3>
 		<div class="center-horizontal">
 			<div class="roster">
@@ -262,6 +283,7 @@
 		<script type="text/javascript" src="./database/auth.js"></script>
 		<script type="text/javascript" src="./database/database.js"></script>
 		<script type="text/javascript" src="findmyward.js"></script>
+		<script type="text/javascript" src="./lib/scouting.js"></script>
 		<script type="text/javascript" src="home.js"></script>
 		<script type="text/javascript">
 

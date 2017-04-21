@@ -74,7 +74,16 @@ var Scoring = {
 		});
 	},
 
-	scoreData: (data, from, to) => {
+	scoreData: (inData, from, to) => {
+		var data = inData.filter((issue) => {
+			var openOn = issue.creation_date;
+			var inWeek = false;
+			if(openOn){
+				var openTime = new Date(openOn).getTime();
+				inWeek = (openTime > from);
+			}
+			return inWeek;
+		});
 		var open = data.filter((issue) => { return issue.status == 'Open' });
 		var completed = data.filter((issue) => {
 			var comp = issue.status === 'Completed';
