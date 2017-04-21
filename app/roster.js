@@ -7,8 +7,8 @@ function InitLeagueRoster() {
 	if (app.checkUser()) {
 		USER = app.getUser();
 		app.displayUser();
-		console.log("test");
 	}
+	var Database = app.getDatabase();
 
 	var Constants = {
 		logoutRedirect: 'index.html',
@@ -112,8 +112,6 @@ function InitLeagueRoster() {
 			throw new Error('DB - starting date not found');
 		else if(!params.to)
 			throw new Error('DB - ending date not found');
-
-		 //-KdqV4iI8CRGl3GiB24P, -KdIiWEUj7_toD3MKMO_
 
 		return Database.getAllPlayers(params).then(function(result) {
 			USER['allPlayers'] = [];
@@ -469,7 +467,6 @@ function InitLeagueRoster() {
 			});
 		},
 		
-
 		// Executes when user clicks the finalize button on the roster page
 		setMatchOutcome: () => {
 			if (!USER['userid'])
@@ -491,6 +488,30 @@ function InitLeagueRoster() {
 			}).catch((err) => {
 				console.error(err)
 			});
+		},
+
+		viewOutcome: () => {
+			var leagueid = USER.leagueid;
+			var sim = USER.rosterdate;
+			var timestamp = sim.thisfrom + (0.5 * (sim.thisto - sim.thisfrom));
+			var uParts = document.location.pathname.split('/');
+			var pathname = uParts.slice(0, uParts.length - 1).join('/');
+			var url = document.location.origin + pathname + '/live.html' + '?time=' + timestamp + '&league=' + leagueid;
+			document.location = url;
+		},
+
+		openScoutingModule: () => {
+			var leagueid = USER.leagueid;
+			var sim = USER.rosterdate;
+			var timestamp = sim.thisfrom + (0.5 * (sim.thisto - sim.thisfrom));
+			var uParts = document.location.pathname.split('/');
+			var pathname = uParts.slice(0, uParts.length - 1).join('/');
+			var url = document.location.origin + pathname + '/scout.html' + '?time=' + timestamp + '&league=' + leagueid;
+			window.open(url, '_blank');
+		},
+
+		userLogout: () => {
+			app.userLogout();
 		},
 
 		// this function is specific to the items needed at the roster page

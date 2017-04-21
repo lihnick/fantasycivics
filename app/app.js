@@ -44,26 +44,6 @@ function InitApplication() {
 		seletedLeagueEnd: 'leagueend'
 	};
 
-	var viewOutcome = () => {
-		var leagueid = USER.leagueid;
-		var sim = USER.rosterdate;
-		var timestamp = sim.thisfrom + (0.5 * (sim.thisto - sim.thisfrom));
-		var uParts = document.location.pathname.split('/');
-		var pathname = uParts.slice(0, uParts.length - 1).join('/');
-		var url = document.location.origin + pathname + '/live.html' + '?time=' + timestamp + '&league=' + leagueid;
-		document.location = url;
-	};
-
-	var openScoutingModule = () => {
-		var leagueid = USER.leagueid;
-		var sim = USER.rosterdate;
-		var timestamp = sim.thisfrom + (0.5 * (sim.thisto - sim.thisfrom));
-		var uParts = document.location.pathname.split('/');
-		var pathname = uParts.slice(0, uParts.length - 1).join('/');
-		var url = document.location.origin + pathname + '/scout.html' + '?time=' + timestamp + '&league=' + leagueid;
-		window.open(url, '_blank');
-	};
-
 	var getUserLeagues = () => {
 		if (!USER['userid'])
 			throw new Error("Userid not found.");
@@ -158,6 +138,10 @@ function InitApplication() {
 
 		getUser: () => {
 			return USER;
+		},
+
+		getDatabase: () => {
+			return Database;
 		},
 
 		// Check local storage for users that are logged in from previous sessions
