@@ -152,3 +152,7 @@ button:disabled {
 button:disabled:hover {
 	cursor: default;
 }
+
+.vex.vex-theme-plain .vex-dialog-button.vex-dialog-button-primary {
+	background: rgba(44, 140, 153, 1);
+}
