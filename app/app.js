@@ -9,16 +9,7 @@ Database.IN_SIMULATED_TIME = true;
 var test; // each time debug is called, the parameter is updated to test, for debugging
 var private;
 
-
-var Verbose = true;
-var log = console.log;
-var debug = (item) => {
-	if (Verbose) {
-		console.log(item);
-		test = item;
-	}
-}
-if (!Verbose) console.log("Debugging has been turned off.");
+var log = console.log; // shortcut
 
 
 // App APIs
@@ -30,6 +21,7 @@ function InitApplication() {
 		logoutRedirect: 'index.html',
 		loginRedirect: 'app.html',
 		leagueRedirect: 'roster.html',
+		finRedirect: 'fin.html',
 		pending: 'Pending',
 		pendingBench: 'Benching',
 		pendingStart: 'Starting',
@@ -152,6 +144,20 @@ function InitApplication() {
 				return false;
 			}
 			else {
+				Database.Auth.getCurrentUser().then((user) => {
+					USER.userid = user.userid;
+					Database.updateUser({
+						userid: user.userid
+					});
+				}).catch((err) => {
+					if(err === 'No user currently authenticated.'){
+						console.error('Log in in to play Fantasy Civics!');
+					}
+					else{
+						console.error(err);
+					}
+				});
+
 				USER.userid = localStorage[Constants.userIdTag];
 				USER.name = localStorage[Constants.userNameTag];
 				USER.email = localStorage[Constants.userEmailTag];

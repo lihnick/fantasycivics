@@ -14,6 +14,7 @@ function InitLeagueRoster() {
 		logoutRedirect: 'index.html',
 		loginRedirect: 'app.html',
 		leagueRedirect: 'roster.html',
+		finRedirect: 'fin.html',
 		pending: 'Pending',
 		pendingBench: 'Benching',
 		pendingStart: 'Starting',
@@ -28,13 +29,20 @@ function InitLeagueRoster() {
 		seletedLeagueEnd: 'leagueend'
 	};
 
+	// Get information on an selected league
 	var getLeagueData = () => {
 		if (!USER['leagueid'])
 			throw new Error("Leagueid not found.");
 		return Database.getLeagueData({leagueid: USER['leagueid']}).then((leagueData) => {
+			var gameEnd = false;
 			var tmp = leagueData.users[Object.keys(leagueData.users)[0]];
 			var idx = parseInt(tmp.losses) + parseInt(tmp.wins);
+			if (leagueData.schedule.length === idx) {
+				idx--;
+				gameEnd = true;
+			}
 			var obj = leagueData.schedule[idx][0]
+
 			USER['rosterdate'] = {
 				prevfrom: obj.start - (obj.end - obj.start),
 				prevto: obj.start,
@@ -42,8 +50,9 @@ function InitLeagueRoster() {
 				thisto: obj.end,
 				week: idx
 			};
-			log(leagueData);
-			test = leagueData;
+			if (gameEnd) {
+				USER['rosterdate']['ended'] = true;
+			}
 		}).catch((err) => {
 			log("Error thrown, " + err);
 		});
@@ -483,7 +492,7 @@ function InitLeagueRoster() {
 			}).then((matchOutcome) => {
 				if (matchOutcome.success) {
 					log("Success");
-					viewOutcome();
+					LeagueRoster.viewOutcome();
 				}
 			}).catch((err) => {
 				console.error(err)
@@ -531,6 +540,10 @@ function InitLeagueRoster() {
 						log(USER);
 						LeagueRoster.displayRoster();
 						LeagueRoster.displayAllPlayers();
+						// This function is called when roster is being loaded, so only redirect if we are loading from roster
+						if (USER.rosterdate.ended) {
+							window.location.href = Constants.finRedirect;
+						}
 					})
 				}).catch((err) => {
 					log("Thrown, " + err);
