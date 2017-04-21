@@ -2,7 +2,8 @@ var Database = InitDatabase();
 var USER = false;
 var KNOWN_USERS = {};
 var WATCH_LEAGUES = {};
-var YOUR_LEAGUES = {}
+var YOUR_LEAGUES = {};
+var STUB = false;
 
 Database.Auth.getCurrentUser().then((user) => {
 	Database.getUser({
@@ -19,70 +20,12 @@ Database.Auth.getCurrentUser().then((user) => {
 	}
 });
 
-var loginBtn = document.getElementById('login-button')
-loginBtn.addEventListener('click', (e) => {
-	Database.Auth.signInUser().then((user) => {
-		login(user);
-	}).catch(displayError);
-});
-
-function main(){
-	console.log('Logged in as: ', USER);
-
-	var page = document.getElementById('page');
-		page.style.display = 'block';
-	var login = document.getElementById('login');
-		login.style.display = 'none';
-	var createBtn = document.getElementById('create-button')
-	
-	createBtn.addEventListener('click', (e) => {
-		createLeagueInvitation();
-	});
-
-	var params = getQueryParams(document.location.search);
-	var inviteid = params.code;
-
-	if(inviteid){
-		Database.acceptLeagueInvitation({
-			userid: USER.userid,
-			inviteid: inviteid
-		}).then((res) => {
-			presentJoined();
-			render();
-		}).catch(displayError);
-	}
-	else{
-		render();
-	}
-
-}
-
-function render(){
-	renderUserLeagues();
-}
-
 function login(user){
 	USER = user;
 	KNOWN_USERS[USER.userid] = USER;
 	Database.updateUser(user).then((done) => {
 		main();
 	}).catch(displayError);
-}
-
-function createLeagueInvitation(){
-	var nameInput = document.getElementById('league-name');
-	if(nameInput.value){
-		Database.createLeagueInvitation({
-			userid: USER.userid,
-			name: nameInput.value
-		}).then((res) => {
-			console.log('Join League with Code: ' + res.inviteid);
-			renderUserLeagues();
-		}).catch(displayError);
-	}
-	else{
-		displayError('No league name given.');
-	}
 }
 
 function getQueryParams(qs) {
@@ -112,80 +55,132 @@ function displayError(err){
 	displayMessage('Error: ' + err.toString());
 }
 
-function presentJoined(){
-	displayMessage('You joined the league!');
+var loginBtn = document.getElementById('login-button')
+loginBtn.addEventListener('click', (e) => {
+	Database.Auth.signInUser().then((user) => {
+		login(user);
+	}).catch(displayError);
+});
+
+function main(){
+
+	var page = document.getElementById('page');
+		page.style.display = 'block';
+	var login = document.getElementById('login');
+		login.style.display = 'none';
+
+	var params = getQueryParams(document.location.search);
+
+	if(params.code){
+		Database.acceptLeagueInvitation({
+			userid: USER.userid,
+			inviteid: params.code
+		}).then((res) => {
+			render(params.code);
+		}).catch(displayError);
+	}
+	else{
+		renderCreatorView();
+	}
+
 }
 
-function renderUserLeagues(){
+function render(inviteid){
+	var clc = document.getElementById('start-league-container');
+		clc.style.display = 'none';
+	var wlc = document.getElementById('waiting-league-container');
+		wlc.style.display = 'block';
+	var crb = document.getElementById('league-create');
+	crb.addEventListener('click', e => {
+		if(STUB){
+			startLeagueFromStub(STUB);
+		}
+	});
+	Database.when('people_join', {
+		inviteid: inviteid
+	}, (res) => {
+		renderWaitingRoom(inviteid);
+	});
+}
+
+function renderWaitingRoom(inviteid){
 	Database.getLeagueInvitations({
 		userid: USER.userid
-	}).then((res) => {
-		var output = document.getElementById('waiting-leagues');
-		var html = '';
-		if(res){
-			YOUR_LEAGUES = res;
-			var promises = [];
-			for(var iid in res){
-				for(var uid in res[iid].members){
-					var p = new Promise((resolve, reject) => {
-						if(uid in KNOWN_USERS){
-							resolve(KNOWN_USERS[uid]);
-						}
-						else{
-							Database.getUser({
-								userid: uid
-							}).then((user) => {
-								resolve(user);
-							}).catch(reject);
-						}
-					})
-					promises.push(p);
-				}
-			}
-			Promise.all(promises).then((users) => {
-				for(var u = 0; u < users.length; u++){
-					var user = users[u];
-					KNOWN_USERS[user.userid] = user;
-				}
-				for(var inviteid in res){
-					if(!(inviteid in WATCH_LEAGUES)){
-						WATCH_LEAGUES[inviteid] = true;
-						Database.when('people_join', {
-							inviteid: inviteid
-						}, (res) => {
-							renderUserLeagues();
-						});
-					}
-					var stub = res[inviteid];
-					var lh = '';
-						lh += '<h3>' + stub.league.name + '</h3>'
-						if(stub.league.creator === USER.userid){
-							lh += '<h4>Invite URL</h4>'
-							lh += '<p>' + document.location.origin + document.location.pathname + '?code=' + inviteid + '</p>'
-						}
-						lh += '<h4>Members</h4>'
-						lh += '<ul>'
-						for(var userKey in stub.members){
-							lh += '<li>' + KNOWN_USERS[userKey].name + '</li>'
-						}
-						lh += '</ul>'
-						if(stub.league.creator === USER.userid){
-							lh += '<button onclick="startLeague(\'' + inviteid + '\');">Begin League</button>'
-						}
-					html += lh
-				}
-				output.innerHTML = html;
-			}).catch(displayError);
-		}
-		else{
-			html += '<p>No leagues: start one!</p>'
-			output.innerHTML = html;
-		}
-	}).catch(displayError);
+	}).then((userLeagues) => {
+		var stub = userLeagues[inviteid];
+		STUB = stub;
+		var lwrName = document.getElementById('lwr-name');
+			lwrName.innerText = stub.league.name;
+		var link = document.location.origin + document.location.pathname;
+			link += '?code=' + inviteid;
+		var aLink = document.getElementById('league-invite');
+			aLink.href = link;
+		var ul = document.createElement('ul');
+		var promises = [];
+		Object.keys(stub.members).forEach(uid => {
+			var p = Database.getUser({
+				userid: uid
+			});
+			p.userid = uid;
+			promises.push(p);
+		});
+		Promise.all(promises).then(users => {
+			var memDiv = document.getElementById('members');
+				memDiv.innerHTML = '';
+			users.forEach(user => {
+			var li = document.createElement('li');
+				li.innerText = user.name;
+				ul.appendChild(li);
+			});
+			memDiv.appendChild(ul);
+		});
+	});
 }
 
-function startLeague(inviteid){
-	var stub = YOUR_LEAGUES[inviteid];
+function renderCreatorView(){
+
+	var createBtn = document.getElementById('create-button')
+	createBtn.addEventListener('click', (e) => {
+		createLeagueInvitation();
+	});
+	
+	Database.getLeagueInvitations({
+		userid: USER.userid
+	}).then((userLeagues) => {
+		var selector = document.getElementById('league-select');
+		for(var iid in userLeagues){
+			var lg = userLeagues[iid];
+			var opt = document.createElement('option');
+				opt.value = iid;
+				opt.innerText = lg.league.name;
+			selector.appendChild(opt);
+		}
+		var selectBtn = document.getElementById('select-button')
+		selectBtn.addEventListener('click', (e) => {
+			var sel_iid = selector.value;
+			render(sel_iid);
+		});
+	});
+
+}
+
+function createLeagueInvitation(){
+	var nameInput = document.getElementById('league-name');
+	if(nameInput.value){
+		Database.createLeagueInvitation({
+			userid: USER.userid,
+			name: nameInput.value
+		}).then((res) => {
+			console.log('Join League with Code: ' + res.inviteid);
+			render(res.inviteid);
+		}).catch(displayError);
+	}
+	else{
+		displayError('No league name given.');
+	}
+}
+
+function startLeagueFromStub(stub){
 	try{
 		Database.createLeague({
 			name: stub.league.name,

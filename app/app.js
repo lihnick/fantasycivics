@@ -20,6 +20,36 @@ var debug = (item) => {
 }
 if (!Verbose) console.log("Debugging has been turned off.");
 
+function getQueryParams(qs) {
+	qs = qs.split('+').join(' ');
+	var params = {},
+		tokens,
+		re = /[?&]?([^=]+)=([^&]*)/g;
+	while (tokens = re.exec(qs)) {
+		params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+	}
+	return params;
+}
+
+function viewOutcome(){
+	var leagueid = USER.leagueid;
+	var sim = USER.rosterdate;
+	var timestamp = sim.thisfrom + (0.5 * (sim.thisto - sim.thisfrom));
+	var uParts = document.location.pathname.split('/');
+	var pathname = uParts.slice(0, uParts.length - 1).join('/');
+	var url = document.location.origin + pathname + '/live.html' + '?time=' + timestamp + '&league=' + leagueid;
+	document.location = url;
+}
+
+function openScoutingModule(){
+	var leagueid = USER.leagueid;
+	var sim = USER.rosterdate;
+	var timestamp = sim.thisfrom + (0.5 * (sim.thisto - sim.thisfrom));
+	var uParts = document.location.pathname.split('/');
+	var pathname = uParts.slice(0, uParts.length - 1).join('/');
+	var url = document.location.origin + pathname + '/scout.html' + '?time=' + timestamp + '&league=' + leagueid;
+	window.open(url, '_blank');
+}
 
 // App APIs
 function InitApplication() {
@@ -44,14 +74,43 @@ function InitApplication() {
 		seletedLeagueEnd: 'leagueend'
 	};
 
-	var viewOutcome = () => {
-		var leagueid = USER.leagueid;
-		var sim = USER.rosterdate;
-		var timestamp = sim.thisfrom + (0.5 * (sim.thisto - sim.thisfrom));
-		var uParts = document.location.pathname.split('/');
-		var pathname = uParts.slice(0, uParts.length - 1).join('/');
-		var url = document.location.origin + pathname + '/live.html' + '?time=' + timestamp + '&league=' + leagueid;
-		document.location = url;
+	function probablyRedirect(ignoreThisArgumentHahahaha){
+		var params = getQueryParams(document.location.search);
+		if(params.league){
+			// Copied from Load League
+			log("next load league haosheng is a badger");
+			USER.leagueid = params.league;
+			var idx = -1;
+			USER.userLeagues.forEach((badger, bidx) => {
+				if(badger.leagueid === params.league){
+					idx = bidx;
+				}
+			});
+			if(idx > -1){
+				localStorage[Constants.userSelectedLeague] = USER.leagueid;
+				localStorage[Constants.seletedLeagueStart] = USER.userLeagues[idx].start;
+				localStorage[Constants.seletedLeagueEnd] = USER.userLeagues[idx].end;
+				window.location.href = Constants.leagueRedirect;
+			}
+		}
+	}
+
+	var getLeague = (params) => {
+		if(!params.userid)
+			throw new Error('Must specify {userid}.');
+		else if(!params.leagueid)
+			throw new Error('Must specify {leagueid}.');
+		else if(!params.from)
+			throw new Error('Must specify {from}.');
+		else if(!params.to)
+			throw new Error('Must specify {to}.');
+
+		return Database.getLeague(params).then(function(result) {
+			log(result);
+			return result; // this return is used by loadRosterPage()
+		}, function(err) {
+			log(err);
+		});
 	};
 
 	var openScoutingModule = () => {
@@ -92,6 +151,8 @@ function InitApplication() {
 				}
 			});
 			log(USER.userLeagues);
+
+			probablyRedirect(USER.userLeagues);
 
 		}, function(err) {
 			log(err);
