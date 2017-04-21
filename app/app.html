@@ -33,37 +33,8 @@
 			<button onclick="app.userLogout()">Logout</button>
 		</div>
 
-		<h2>Create Leagues</h2>	
+		<h2>Create Leagues</h2>
 		<a href="join.html"><button>Create a New League</button></a>
-		<div id="newLeague" v-show="false"> <!-- Remove the v-show attribute to show container again -->
-			<input v-model="sim" type="checkbox">
-			<label>Simulation - Play a game using historic data (for debugging or demo purposes)</label>
-			<h3>League Name: {{ name }}</h3>
-			<input v-model="name" type="text" placeholder="League Name">
-			<button v-on:click="getInviteURL" :disabled="(!name)? true : false">Start League</button>
-
-			<div>
-				<h3>Leagues you started</h3>
-				<p>Invite your friends to join your leagues. When you have everyone, click Begin to start playing!</p>
-				<ul>
-					<li is="invite-list" v-for="(user, index) in users" v-bind:invite="user" v-on:pop="users.splice(index, 1)"></li>
-				</ul>
-			</div>
-
-			<!-- <input v-model="invite" v-on:keyup.enter="inviteUsers" placeholder="Invite User"><br> -->
-
-			<div id="datepicker" v-show="!sim">
-				<input type="text" id="endGame" size="45" disabled>
-			</div>
-			<div v-show="sim">
-				<label>From</label>
-				<input type="text" id="startSim">
-				<label>To</label>
-				<input type="text" id="endSim">
-			</div>
-
-			<!-- <button v-on:click="inviteUsers" :disabled="(!invite)? true : false">Invite</button> -->
-		</div>
 
 		<h2>Current Leagues</h2>
 		<div id="userLeagues">
@@ -85,13 +56,12 @@
 		<script type="text/javascript" src="../database/database.js"></script>
 		<script type="text/javascript" src="app.js"></script>
 		<script type="text/javascript">
-			
+
 			// Instantiate app
 			var app = InitApplication();
-			app.getUser();
-			app.displayUser();
-			app.createLeague();
-			app.displayUserLeagues();
+			app.checkUser(); // getUser() => true or false based on data cached or not
+			app.displayUser(); // displayUser() => modify html DOM to show users infomation if there are user infos
+			app.displayUserLeagues(); // displays all the leagues one user is a part of
 
 		</script>
 	</body>
