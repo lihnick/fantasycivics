@@ -199,7 +199,8 @@ function renderRosterTable(table, roster, callback, opt){
 		return roster[pid];
 	}).sort((a, b) => {
 		if(a.starter === b.starter){
-			return scout.sumScores(b.scores) - scout.sumScores(a.scores);
+			//return scout.sumScores(b.scores) - scout.sumScores(a.scores);
+			return a.name.localeCompare(b.name);
 		}
 		else{
 			if(a.starter){
