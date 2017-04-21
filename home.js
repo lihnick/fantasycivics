@@ -110,6 +110,12 @@ for(var m = 0; m < monthSpans.length; m++){
 	mSpan.innerText = lastMonthStr;
 }
 
+var pastWeek = document.getElementById('insert-past-week');
+pastWeek.innerText = moment(demoWeeks[0].from).format('M/D');
+
+var nextWeek = document.getElementById('insert-next-week');
+nextWeek.innerText = moment(demoWeeks[1].from).format('M/D');
+
 var demoRosters = false;
 Database.getAllPlayers({
 	leagueid: DEMO_LEAGUEID,
