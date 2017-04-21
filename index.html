@@ -33,11 +33,12 @@
 		div.roster {
 			display: inline-block;
 			text-align: center;
+			margin: 10px;
 		}
 
 		div.roster table {
 			display: block;
-			margin: 10px 10px;
+			margin: 10px;
 			text-align: left;
 		}
 
@@ -57,6 +58,7 @@
 			display: flex;
 			flex-direction: column;
 			justify-content: center;
+			resize: vertical;
 		}
 
 		section:nth-child(odd) {
@@ -69,8 +71,13 @@
 		}
 
 		p {
-			margin: 10px auto;
+			margin: 10px 0;
 			line-height: 20px;
+			text-align: left;
+		}
+
+		.center-text {
+			text-align: center;
 		}
 
 		input {
@@ -108,21 +115,21 @@
 
 	<section>
 		<h1>Fantasy Civics</h1>
-		<p>Fantasy Civics is a Fantasy Football-style game to encourage players to learn more about wards and alderman in Chicago.</p>
+		<p class="center-text">Fantasy Civics is a Fantasy Football-style game to encourage players to learn more about wards and alderman in Chicago.</p>
 	</section>
 
 	<section>
-		<h2>Who's My Alderman?</h2>
-		<p>Enter your address to find out:</p>
+		<h2>Who is My Alderman?</h2>
+		<p class="center-text">Enter your address to find out:</p>
 		<input type="text" id="search-by-address" value="3300 S Federal Street">
 		<button id="search-by-button" class="cta-btn">Search</button>
 	</section>
 
-	<section>
+	<section id="alderman-result">
 		<h2>Your Alderman Is...</h2>
 		<h1 id="your-alderman">...</h1>
 		<h4 id="your-ward">...</h4>
-		<p>...and last week in Fantasy Civics, they scored <span id="your-alderman-score">0</span> points.</p>
+		<p class="center-text">...and last week in Fantasy Civics, they scored <span id="your-alderman-score">0</span> points.</p>
 	</section>
 
 	<section>
@@ -135,6 +142,7 @@
 
 	<section>
 		<h2>How Does the Game Work?</h2>
+		<p>You form a league with your friends and play multiple matches against each other.</p>
 		<p>Each player selects a team of alderman and is then matched up with an opponent to see whose team scores more points. You can have up to five alderman on your team, but only three can be starters.</p>
 		<p>The full game uses all 50 Chicago aldermen: you can acquire aldermen other than those shown above and trade with other players.</p>
 	</section>
@@ -156,9 +164,9 @@
 		<button id="submit-roster" class="cta-btn">Who Wins?</button>
 	</section>
 
-	<section>
+	<section id="game-result">
 		<h2>Sample Game Results</h2>
-		<p id="demo-outcome"></p>
+		<p id="demo-outcome" class="center-text"></p>
 		<div class="center-horizontal">
 			<div class="roster">
 				<h4>Your Scores</h4>
@@ -173,7 +181,7 @@
 
 	<section>
 		<h2>Play Fantasy Civics</h2>
-		<p>Now you know how to play Fantasy Civics! Get some friends, you can play a full game in 15 minutes!</p>
+		<p class="center-text">Now you know how to play Fantasy Civics! Get some friends, you can play a full game in 15 minutes!</p>
 		<button class="cta-btn play-game">Play Now</button>
 	</section>
 

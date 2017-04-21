@@ -7,6 +7,14 @@ var HOUR = 60 * MINUTE;
 var DAY = 24 * HOUR;
 var WEEK = 7 * DAY;
 
+window.scrollToId = (id) => {
+	var el = document.getElementById(id);
+		el.scrollIntoView({
+			block: 'start',
+			behavior: 'smooth'
+		});
+}
+
 // To speed up score loading
 Database.getLeague({
 	leagueid: DEMO_LEAGUEID,
@@ -82,6 +90,7 @@ function showYourAlderman(res){
 		var tli = document.createElement('li');
 			tli.innerText = 'For a grand total of ' + sum + ' points.';
 		breakDown.appendChild(tli);
+		window.scrollToId('alderman-result');
 	}).catch(console.err);
 }
 
@@ -230,7 +239,10 @@ function renderRosterTable(table, roster, callback, opt){
 			td3.innerText = player.starter ? 'Starting' : 'Benched';
 		}
 		else{
-			if(!player.hidden){
+			if(selectedPlayer === player.playerid){
+				td3.innerText = player.starter ? 'Benching' : 'Starting';
+			}
+			else if(!player.hidden){
 				var btn = document.createElement('button');
 				btn.addEventListener('click', callback[pid].fn);
 				btn.innerText = player.starter ? 'Bench' : 'Start';
@@ -319,9 +331,17 @@ submitRoster.addEventListener('click', e => {
 		if(visitorRes.teamScore < robotRes.teamScore){
 			p.innerText = 'Too bad. Your team lost ' + visitorRes.teamScore + ' to ' + robotRes.teamScore + '!';
 		}
+		window.scrollToId('game-result');
 	}).catch(console.error);
 });
 
+var playGameBtns = document.getElementsByClassName('play-game');
+for(var p = 0; p < playGameBtns.length; p++){
+	var btn = playGameBtns[p];
+	btn.addEventListener('click', e => {
+		window.open('https://bit.ly/fantasycivicsform');
+	});
+}
 
 
 
