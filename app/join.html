@@ -61,6 +61,9 @@
 				<button id="league-create">Start Game</button>
 			</div>
 
+			<br>
+			<button id="back-app">Back</button>
+
 		</section>
 
 		<!-- Footer -->
@@ -75,6 +78,11 @@
 		<script type="text/javascript" src="../database/database.js"></script>
 		<script type="text/javascript" src="join.js"></script>
 		<script type="text/javascript">
+
+			var ba = document.getElementById('back-app');
+			ba.addEventListener('click', e => {
+				window.location = 'app.html';
+			})
 
 		</script>
 	</body>
