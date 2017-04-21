@@ -196,7 +196,7 @@ function renderRosterTable(table, roster, callback, opt){
 	var th2 = document.createElement('th');
 		th2.innerText = 'Score';
 	var th3 = document.createElement('th');
-		th3.innerText = 'Action';
+		th3.innerText = 'Lineup';
 		thead.appendChild(th1);
 		thead.appendChild(th2);
 		thead.appendChild(th3);
