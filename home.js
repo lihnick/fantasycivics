@@ -179,14 +179,6 @@ function getRandomRosterPair(){
 	return {visitor: visitor, robot: robot};
 }
 
-function sumScores(scoreMap){
-	var sum = 0;
-	for(var s in scoreMap){
-		sum += scoreMap[s];
-	}
-	return sum;
-}
-
 var scout = ScoutingReport();
 
 function renderRosterTable(table, roster, callback, opt){
@@ -207,7 +199,7 @@ function renderRosterTable(table, roster, callback, opt){
 		return roster[pid];
 	}).sort((a, b) => {
 		if(a.starter === b.starter){
-			return sumScores(b.scores) - sumScores(a.scores);
+			return scout.sumScores(b.scores) - scout.sumScores(a.scores);
 		}
 		else{
 			if(a.starter){
@@ -221,7 +213,7 @@ function renderRosterTable(table, roster, callback, opt){
 	var lineupSum = 0;
 	list.forEach((player, idx) => {
 		if(player.starter){
-			lineupSum += sumScores(player.scores);
+			lineupSum += scout.sumScores(player.scores);
 		}
 		if(idx === 3){
 			var br = document.createElement('tr');
@@ -247,7 +239,7 @@ function renderRosterTable(table, roster, callback, opt){
 			});
 		//}
 		var td2 = document.createElement('td');
-			td2.innerText = sumScores(player.scores);
+			td2.innerText = scout.sumScores(player.scores);
 		var td3 = document.createElement('td');
 		if(options.locked){
 			td3.innerText = player.starter ? 'Starting' : 'Benched';
