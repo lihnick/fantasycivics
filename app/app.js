@@ -185,14 +185,11 @@ function InitApplication() {
 		// userLogin should use google authentication to get the user's id
 		userLogin: () => {
 			Database.Auth.signInUser().then(function(result) {
-				log(result);
 				localStorage[Constants.userIdTag] = result.userid;
 				localStorage[Constants.userNameTag] = result.name;
 				localStorage[Constants.userEmailTag] = result.email;
 				localStorage[Constants.userImageTag] = result.image;
-				log(result);
 				Database.updateUser(result).then(() => {
-					log("test");
 					window.location.href = Constants.loginRedirect;
 				}).catch((err) => {log(err)});
 				log("done");
@@ -238,7 +235,6 @@ function InitApplication() {
 					},
 					methods: {
 						loadLeague: (idx) => {
-							log("next");
 							USER.leagueid = USER.userLeagues[idx].leagueid;
 							localStorage[Constants.userSelectedLeague] = USER.userLeagues[idx].leagueid;
 							localStorage[Constants.seletedLeagueStart] = USER.userLeagues[idx].start;
