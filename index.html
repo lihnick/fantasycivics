@@ -2,6 +2,8 @@
 <html>
 	<head>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="icon" sizes="192x192" href="favicon.ico">
+		<link rel="image_src" href="assets/logo-color.png">
 		<title>Fantasy Civics</title>
 
 		<script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
@@ -73,6 +75,17 @@
 
 		}
 
+		section:nth-child(odd) a:link, section:nth-child(odd) a:visited {
+			color: white;
+			padding: 0;
+		}
+
+		section:nth-child(odd) a:hover, section:nth-child(odd) a:active {
+			background: white;
+			color: rgba(44, 140, 153, 1);
+			padding: 5px 7.5px;
+		}
+
 		p {
 			margin: 10px 0;
 			line-height: 20px;
@@ -126,6 +139,10 @@
 
 		div.splash-pane:nth-child(2) {
 			width: 250px;
+		}
+
+		li {
+			line-height: 20px;
 		}
 
 		</style>
@@ -222,6 +239,10 @@
 		<h2>Frequently Asked Questions</h2>
 		<h4>How do you win?</h4>
 		<p>You win the game by picking a team of high-scoring aldermen and winning the most matches in your league. You win in real life by learning about Chicago wards and getting involved in civics!</p>
+		<h4>Who created this?</h4>
+		<p>Fantasy Civics was created by students at the Illinois Institute of Technology with the help and support of <a href="https://chihacknight.org" target="_blank">ChiHackNight</a>, Chicago's weekly gathering to build, share, and learn about civic tech.</p>
+		<h4>How can I contribute?</h4>
+		<p>Post any feedback or bugs on our <a href="https://github.com/GeliClub/fantasycivics" target="_blank">GitHub repository</a> or fork the codebase! We would also love contributions from writers and designers to help clearly explain the rules of the game.</p>
 	</section>
 
 		<!-- Footer -->
