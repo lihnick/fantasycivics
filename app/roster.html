@@ -75,12 +75,17 @@
 		<script type="text/javascript" src="../database/auth.js"></script>
 		<script type="text/javascript" src="../database/database.js"></script>
 		<script type="text/javascript" src="app.js"></script>
+		<script type="text/javascript" src="roster.js"></script>
+
 		<script type="text/javascript">
 			// Instantiate app
-			var app = InitApplication();
-			app.getUser();
-			app.displayUser();
-			app.loadRosterPage();
+			var roster = InitLeagueRoster();
+			roster.loadRosterPage();
+			//app.checkUser(); // get user information if there are available
+			//app.displayUser(); // display user information on the html DOM
+			//app.loadRosterPage(); // loadRosterPage() 	=> getLeagueData()
+			// 										  	=> getLeagues()
+			//											=> displayRoster
 			//app.displayRoster();
 			//app.displayAllPlayers();
 		</script>
