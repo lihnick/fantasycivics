@@ -13,7 +13,33 @@
 		<link rel="stylesheet" type="text/css" href="app/temp-style.css">
 		<style>
 
+		.center-horizontal {
+			text-align: center;
+		}
 
+		.center-horizontal div {
+			text-align: left;
+		}
+
+		div.roster {
+			display: inline-block;
+			text-align: center;
+		}
+
+		div.roster table {
+			display: block;
+			margin: 0 auto;
+			text-align: left;
+		}
+
+		div.roster table tr td {
+			height: 30px;
+			line-height: 15px;
+		}
+
+		div.roster table tr td:nth-child(1) {
+			width: 150px;
+		}
 
 		</style>
 
@@ -23,7 +49,7 @@
 		<!-- Header -->
 
 		<h1>Fantasy Civics</h1>
-		<p>Fantasy Civics is a Fantasy Football-style game to encourage players to learn more about their wards and alderman in Chicago.</p>
+		<p>Fantasy Civics is a Fantasy Football-style game to encourage players to learn more about wards and alderman in Chicago.</p>
 
 		<h2>Who's My Alderman?</h2>
 		<p>Enter your address to find out:</p>
@@ -32,6 +58,50 @@
 		<h2>Your Alderman Is...</h2>
 		<h3 id="your-alderman">...</h3>
 		<p>...and last week in Fantasy Civics, they scored <span id="your-alderman-score">0</span> points.</p>
+
+		<h2>How Does Scoring Work?</h2>
+		<p>Scores are calculated weekly based on 311 requests. Completed 311 requests are worth +1 points and unfulfilled requests are worth -1 points. Here are the types of issues we score on:</p>
+		<h3>Ward <span id="your-ward-number"></span> Scoring Breakdown</h3>
+		<ul id="ward-score-breakdown"></ul>
+		<p>Your alderman doesn't directly deal with these issues, but this is a fun way to see how your ward responds to citizen requests.</p>
+
+		<h2>How Does the Game Work?</h2>
+		<p>Each player selects a team of alderman and is then matched up with an opponent to see whose team scores more points. You can have up to five alderman on your team, but only three can be starters.</p>
+		<p>When deciding your starting lineup, you see historical scores. Here are some aldermen and their scores for the first week of <span class="insert-month"></span>. Choose the three aldermen who you think will score the most points in the second week of <span class="insert-month"></span>.</p>
+		<div class="center-horizontal">
+			<div class="roster">
+				<h4>Your Roster</h4>
+				<table id="visitor-roster"></table>
+			</div>
+			<div class="roster">
+				<h4>Opponent's Roster</h4>
+				<table id="robot-roster"></table>
+			</div>
+		</div>
+		<p>The full game uses all 50 Chicago aldermen: you can acquire aldermen other than those shown above and trade with other players.</p>
+		<p>When you're happy with your roster, click below to find out how the teams score in the second week of <span class="insert-month"></span>.</p>
+		<button id="submit-roster">Who Wins?</button>
+
+		<h2>Sample Game Results</h2>
+		<p id="demo-outcome"></p>
+		<div>
+			<div class="roster">
+				<h4>Your Scores</h4>
+				<table id="visitor-result"></table>
+			</div>
+			<div class="roster">
+				<h4>Opponent's Scores</h4>
+				<table id="robot-result"></table>
+			</div>
+		</div>
+
+		<h2>Play Fantasy Civics</h2>
+		<p>Now you know how to play Fantasy Civics! Get some friends, you can play a full game in 15 minutes!</p>
+		<button class="play-game">Play Now</button>
+
+		<h2>Frequently Asked Questions</h2>
+		<h4>How do you win?</h4>
+		<p>You win the game by picking a team of high-scoring aldermen and winning the most matches in your league. You win in real life by learning about Chicago wards and getting involved in civics!</p>
 
 		<!-- Footer -->
 
