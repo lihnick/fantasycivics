@@ -19,16 +19,25 @@ Database.getLeague({
 var searchByAddress = document.getElementById('search-by-address');
 searchByAddress.addEventListener('keypress', e => {
 	if(e.charCode === 13){
-		var addr = searchByAddress.value;
-		findMyWard(addr).then(res => {
-			if(res){
-				showYourAlderman(res);
-			}
-		}).catch(err => {
-			console.error(err);
-		});
+		searchForYourAlderman();
 	}
 });
+
+var searchByButton = document.getElementById('search-by-button');
+searchByButton.addEventListener('click', e => {
+	searchForYourAlderman();
+})
+
+function searchForYourAlderman(){
+	var addr = searchByAddress.value;
+	findMyWard(addr).then(res => {
+		if(res){
+			showYourAlderman(res);
+		}
+	}).catch(err => {
+		console.error(err);
+	});
+}
 
 function getAldermanByWard(num){
 	var pnum = '' + num;
@@ -42,6 +51,7 @@ function getAldermanByWard(num){
 }
 
 var yourAlderman = document.getElementById('your-alderman');
+var aldSub = document.getElementById('your-ward');
 var aldScore = document.getElementById('your-alderman-score');
 var wardNum = document.getElementById('your-ward-number');
 var breakDown = document.getElementById('ward-score-breakdown');
@@ -49,6 +59,7 @@ var breakDown = document.getElementById('ward-score-breakdown');
 function showYourAlderman(res){
 	var alderman = getAldermanByWard(res.WARD);
 	yourAlderman.innerText = alderman.name;
+	aldSub.innerText = 'Alderman of Ward ' + alderman.ward;
 	wardNum.innerText = res.WARD;
 	Database.getPlayer({
 		leagueid: DEMO_LEAGUEID,
