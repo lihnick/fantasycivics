@@ -241,7 +241,10 @@ function renderRosterTable(table, roster, callback, opt){
 		var td1 = document.createElement('td');
 			td1.innerText = player.name;
 		if(!options.locked){
-			td1 = scout.attachReport(td1, player);
+			td1 = scout.attachReport(td1, player, {
+				from: demoWeeks[0].to - (4 * WEEK),
+				to: demoWeeks[0].to
+			});
 		}
 		var td2 = document.createElement('td');
 			td2.innerText = sumScores(player.scores);
