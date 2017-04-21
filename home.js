@@ -187,6 +187,8 @@ function sumScores(scoreMap){
 	return sum;
 }
 
+var scout = ScoutingReport();
+
 function renderRosterTable(table, roster, callback, opt){
 	var options = opt || {};
 	table.innerHTML = '';
@@ -238,6 +240,9 @@ function renderRosterTable(table, roster, callback, opt){
 		var tr = document.createElement('tr');
 		var td1 = document.createElement('td');
 			td1.innerText = player.name;
+		if(!options.locked){
+			td1 = scout.attachReport(td1, player);
+		}
 		var td2 = document.createElement('td');
 			td2.innerText = sumScores(player.scores);
 		var td3 = document.createElement('td');
