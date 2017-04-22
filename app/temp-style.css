@@ -22,7 +22,7 @@ h1, h2, h3, h4, p {
 	margin: 10px auto;
 }
 
-h1, h2, h3, h4, p, button {
+h1, h2, h3, h4, p, button, input {
 	font-family: 'Roboto', sans-serif;
 }
 
@@ -151,4 +151,8 @@ button:disabled {
 
 button:disabled:hover {
 	cursor: default;
+}
+
+.vex.vex-theme-plain .vex-dialog-button.vex-dialog-button-primary {
+	background: rgba(44, 140, 153, 1);
 }
