@@ -133,6 +133,7 @@ function InitLeagueRoster() {
 					scores: result[id].scores,
 					starter: result[id].starter,
 					ward: result[id].ward,
+					show: true,
 					pending: ""
 				});
 			});
@@ -142,6 +143,8 @@ function InitLeagueRoster() {
 			log("Thrown, " + err);
 		});
 	};
+
+
 
 	var LeagueRoster = {
 
@@ -273,10 +276,11 @@ function InitLeagueRoster() {
 				from: USER.rosterdate.prevfrom,
 				to: USER.rosterdate.prevto
 			}).then(() => {
+
 				if (!USER['_player-list']) {
 					USER['_player-list'] = Vue.component('player-list', {
 						props: ['row', 'header'],
-						template: '<tr>\
+						template: '<tr v-show=\'row.show\'>\
 							<td>{{ row.ward }}</td>\
 							<td>{{ row.name }} </td>\
 							<td>{{ row.scores[Object.keys(header)[0]] }}</td>\
@@ -302,23 +306,24 @@ function InitLeagueRoster() {
 				}
 				// Save point
 				// In order for sorting to work, the _player-list template needs to enclose the whole table element
-
 				var workingPlayers = jQuery.extend(true, {}, USER['allPlayers']);
-				var userRosters = USER['allPlayers'].filter(function(item) {
-					if (item.owner == "testuser0001") return item;
-				});
 
 				USER['_allPlayers'] = new Vue({
 					el: '#allPlayers',
 					data: {
 						headers: Database.Scoring.DATASET_NAMES,
 						players: workingPlayers,
-						rosters: userRosters,
+						//players: USER['allPlayers'],
 						order: 0,
 						reverse: 1
 					},
 					methods: {
 						ordering: (orderBy) => {
+							var rendering = {};
+							for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
+								rendering[USER['_allPlayers'].players[i].playerid] = USER['_allPlayers'].players[i].show;
+							}
+							log(rendering);
 							USER['_allPlayers'].reverse *= -1;
 							USER['_allPlayers'].order = orderBy;
 							var header = Object.keys(Database.Scoring.DATASET_NAMES);
@@ -343,18 +348,22 @@ function InitLeagueRoster() {
 									playerid: sorted[i].playerid,
 									starter: sorted[i].starter,
 									scores: sorted[i].scores,
+									show: rendering[sorted[i].playerid],
 									pending: (USER['workingPlayers'] && USER['workingPlayers'].playerid == sorted[i].playerid)? USER['workingPlayers'].pending : sorted[i].pending
 								});
 							}
 						},
 						acquirePlayer: (idx) => {
-							var tmp = USER['_allPlayers'];
+							var tmp = USER['_allPlayers']; // used to refer to the list of all players
 
 							if (USER['workingPlayers']) {
 								// makes sure the selected is not the same, if so undo the selected
 								if (USER['workingPlayers'].playerid == tmp.players[idx].playerid) {
 									tmp.players[idx].pending = "";
 									USER['workingPlayers'] = null;
+									for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
+										tmp.players[i].show = true;
+									}
 								}
 								else if (USER['workingPlayers'].owner ==  USER['userid'] && tmp.players[idx].owner == false ||
 										 USER['workingPlayers'].owner ==  false && tmp.players[idx].owner == USER['userid']) {
@@ -423,6 +432,17 @@ function InitLeagueRoster() {
 												for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
 													USER._allPlayers.players[i] = Object.assign({}, USER._allPlayers.players[i], USER.allPlayers[i]);
 												}
+												if (USER['workingPlayers']) { // when error happens when user is selecting
+													for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
+														if (tmp.players[i].owner === false) {
+															tmp.players[i].show = (tmp.players[idx].owner)? true : false;
+														}
+														else {
+															tmp.players[i].show = (tmp.players[idx].owner)? false : true;
+														}
+													}
+													USER['workingPlayers'].show = true;
+												}
 												USER['_allPlayers'].reverse = currentReverse;
 												USER['_allPlayers'].ordering(currentOrder);
 											}
@@ -438,8 +458,18 @@ function InitLeagueRoster() {
 							// selecting the first player to add or drop
 							else {
 								log(idx);
-								tmp.players[idx].pending = (tmp.players[idx].owner)? Constants.pendingDrop : Constants.pendingAcquire;
 								USER['workingPlayers'] = tmp.players[idx];
+								tmp.players[idx].pending = (tmp.players[idx].owner)? Constants.pendingDrop : Constants.pendingAcquire;
+
+								for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
+									if (tmp.players[i].owner === false) {
+										tmp.players[i].show = (tmp.players[idx].owner)? true : false;
+									}
+									else {
+										tmp.players[i].show = (tmp.players[idx].owner)? false : true;
+									}
+								}
+								USER['workingPlayers'].show = true;
 							}
 						}
 					}
@@ -463,8 +493,21 @@ function InitLeagueRoster() {
 							USER['_allPlayers'].ordering(1);
 							for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
 								if (USER.allPlayers[i].owner != USER['_allPlayers'].players[i].owner)
-									USER._allPlayers.players[i] = Object.assign({}, USER._allPlayers.players[i], {owner: USER.allPlayers[i].owner});
+									USER._allPlayers.players[i] = Object.assign({}, USER._allPlayers.players[i], {
+										owner: USER.allPlayers[i].owner
+									});
 								// 	Vue.set(USER['_allPlayers'].players[i], 'owner', USER.allPlayers[i].owner);
+							}
+							if (USER['workingPlayers']) { // if user is selecting when the update happens
+								for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
+									if (tmp.players[i].owner === false) {
+										tmp.players[i].show = (tmp.players[idx].owner)? true : false;
+									}
+									else {
+										tmp.players[i].show = (tmp.players[idx].owner)? false : true;
+									}
+								}
+								USER['workingPlayers'].show = true;
 							}
 							USER['_allPlayers'].reverse = currentReverse;
 							USER['_allPlayers'].ordering(currentOrder);

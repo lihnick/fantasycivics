@@ -15,7 +15,7 @@ import time
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
-limit = 10
+limit = 5
 retries = 0
 web_address = 'http://localhost:8000/app/index.html'
 
@@ -30,21 +30,21 @@ origin = driver1.window_handles[0] # save for later
 driver1.find_element_by_id('authenticate').click()
 
 
-def login(retries, limit):
+def login(retries, limit, browser):
 	time.sleep(1+retries) # wait for popup
-	driver1.implicitly_wait(10)
+	browser.implicitly_wait(10)
 	try:
-		driver1.switch_to.window(driver1.window_handles[1])
-		driver1.find_element_by_id('Email').send_keys(input('Input Email Address: ') + Keys.RETURN)
+		browser.switch_to.window(browser.window_handles[1])
+		browser.find_element_by_id('Email').send_keys(input('Input Email Address: ') + Keys.RETURN)
 	except NoSuchElementException:
 		print("Element may not have been loaded, trying again.")
 		if retries < limit:
-			login(retries+1)
+			login(retries+1, limit, browser)
 	time.sleep(1)
-	driver1.find_element_by_id('Passwd').send_keys(getpass.getpass('Input Email Address: ') + Keys.RETURN)
+	browser.find_element_by_id('Passwd').send_keys(getpass.getpass('Input Email Address: ') + Keys.RETURN)
 	
 
-login(retries, limit)
+login(retries, limit, driver1)
 driver1.switch_to.window(origin)
 retries = 0
 
