@@ -18,8 +18,8 @@
 		<a href="index.html">Home</a>
 		<a href="app.html">App</a>
 		<a href="#">Roster</a>
-		<button id="outcome" onclick="viewOutcome();">View Match</button>
-		<button onclick="app.setMatchOutcome()">Finalize Match</button>
+		<button id="outcome" onclick="roster.viewOutcome();">View Match</button>
+		<button id="setmatch" onclick="roster.setMatchOutcome()">Finalize Match</button>
 
 		<h2>User Info</h2>
 		<div>
@@ -27,7 +27,7 @@
 			<p id="email"></p>
 			<p id="name"></p>
 			<!-- <img id="image" style="width:64px;height:64px;" alt="No Image"></img> -->
-			<button onclick="app.userLogout()">Logout</button>
+			<button id="logout" onclick="roster.userLogout()">Logout</button>
 		</div>
 
 		<div id="userRoster">
@@ -49,7 +49,7 @@
 		<div id="allPlayers">
 			<h3>All Players</h3>
 			<p>Choose two consecutive players to add or drop a player from your roster.</p>
-			<button id="scouting-button" onclick="openScoutingModule();">Scouting Reports</button>
+			<button id="scouting-button" onclick="roster.openScoutingModule();">Scouting Reports</button>
 			<br>
 			<br>
 			<table>
@@ -81,13 +81,7 @@
 			// Instantiate app
 			var roster = InitLeagueRoster();
 			roster.loadRosterPage();
-			//app.checkUser(); // get user information if there are available
-			//app.displayUser(); // display user information on the html DOM
-			//app.loadRosterPage(); // loadRosterPage() 	=> getLeagueData()
-			// 										  	=> getLeagues()
-			//											=> displayRoster
-			//app.displayRoster();
-			//app.displayAllPlayers();
+
 		</script>
 	</body>
 </html>
