@@ -150,6 +150,7 @@ function InitLeagueRoster() {
 
 		// Displays the players the user currently have
 		displayRoster: () => {
+			log('showing loading screen');
 			if(!USER.userid)
 				throw new Error('userid not found.');
 			else if(!USER.leagueid)
@@ -180,13 +181,14 @@ function InitLeagueRoster() {
 						</tr>'
 					});
 				}
-
+				var week = USER['selectedleague'].users[Object.keys(USER['selectedleague'].users)[0]];
 				//var workingRoster = jQuery.extend(true, {}, USER['roster']['players']);
 				USER['_userRoster'] = new Vue({
 					el: '#userRoster',
 					data: {
 						headers: Database.Scoring.DATASET_NAMES,
 						leaguename: USER['selectedleague']['name'],
+						objective: (USER['selectedleague'].schedule === (parseInt(week.losses) + parseInt(week.wins)))? "Game Ended, Redirecting..." : "Choose your lineup for week " + ((parseInt(week.losses) + parseInt(week.wins))+1).toString() + " of " + USER['selectedleague'].schedule.length.toString(),
 						players: USER['roster']['players'],
 						// update aggregator, reference scoring.js
 						aggregator: Object.keys(USER['roster']['players']).map(function(id) {
@@ -327,13 +329,13 @@ function InitLeagueRoster() {
 							USER['_allPlayers'].reverse *= -1;
 							USER['_allPlayers'].order = orderBy;
 							var header = Object.keys(Database.Scoring.DATASET_NAMES);
-							var comparator = [	(a, b) => {return (a.ward > b.ward) ? 1 : ((b.ward > a.ward)? -1 : 0);},
-												(a, b) => {return (a.name > b.name)? 1 : ((b.name > a.name)? -1 : 0);},
-												(a, b) => {return (a.scores[header[0]] > b.scores[header[0]])? 1 : ((b.scores[header[0]] > a.scores[header[0]])? -1 : 0);},
-												(a, b) => {return (a.scores[header[1]] > b.scores[header[1]])? 1 : ((b.scores[header[1]] > a.scores[header[1]])? -1 : 0);},
-												(a, b) => {return (a.scores[header[2]] > b.scores[header[2]])? 1 : ((b.scores[header[2]] > a.scores[header[2]])? -1 : 0);},
-												(a, b) => {return ( (a.scores[header[0]] + a.scores[header[1]] + a.scores[header[2]]) > (b.scores[header[0]] + b.scores[header[1]] + b.scores[header[2]]) )? 1 : (( (b.scores[header[0]] + b.scores[header[1]] + b.scores[header[2]]) > (a.scores[header[0]] + a.scores[header[1]] + a.scores[header[2]]) )? -1 : 0);},
-												(a, b) => {return (b.owner == false || a.owner > b.owner)? 1 : ((a.owner == false || b.owner > a.owner)? -1 : 0);},
+							var comparator = [	(a, b) => {return (a.ward > b.ward)? 1 : ((b.ward > a.ward)? -1 : 0);},
+												(a, b) => {return (a.name > b.name)? 1 : ((b.name > a.name)? -1 : ((a.ward > b.ward)? 1*(USER['_allPlayers'].reverse) : -1*(USER['_allPlayers'].reverse)));},
+												(a, b) => {return (a.scores[header[0]] > b.scores[header[0]])? 1 : ((b.scores[header[0]] > a.scores[header[0]])? -1 : ((a.ward > b.ward)? 1*(USER['_allPlayers'].reverse) : -1*(USER['_allPlayers'].reverse)));},
+												(a, b) => {return (a.scores[header[1]] > b.scores[header[1]])? 1 : ((b.scores[header[1]] > a.scores[header[1]])? -1 : ((a.ward > b.ward)? 1*(USER['_allPlayers'].reverse) : -1*(USER['_allPlayers'].reverse)));},
+												(a, b) => {return (a.scores[header[2]] > b.scores[header[2]])? 1 : ((b.scores[header[2]] > a.scores[header[2]])? -1 : ((a.ward > b.ward)? 1*(USER['_allPlayers'].reverse) : -1*(USER['_allPlayers'].reverse)));},
+												(a, b) => {return ( (a.scores[header[0]] + a.scores[header[1]] + a.scores[header[2]]) > (b.scores[header[0]] + b.scores[header[1]] + b.scores[header[2]]) )? 1 : (( (b.scores[header[0]] + b.scores[header[1]] + b.scores[header[2]]) > (a.scores[header[0]] + a.scores[header[1]] + a.scores[header[2]]) )? -1 : ((a.ward > b.ward)? 1*(USER['_allPlayers'].reverse) : -1*(USER['_allPlayers'].reverse)));},
+												(a, b) => {return (b.owner == false || a.owner > b.owner)? 1 : ((a.owner == false || b.owner > a.owner)? -1 : ((a.ward > b.ward)? 1*(USER['_allPlayers'].reverse) : -1*(USER['_allPlayers'].reverse)));},
 												(a, b) => {return (a.ward > b.ward)? 1 : ((b.ward > a.ward)? -1 : 0);}	];
 
 							var sorted = USER.allPlayers.sort(comparator[orderBy]);
@@ -355,7 +357,6 @@ function InitLeagueRoster() {
 						},
 						acquirePlayer: (idx) => {
 							var tmp = USER['_allPlayers']; // used to refer to the list of all players
-
 							if (USER['workingPlayers']) {
 								// makes sure the selected is not the same, if so undo the selected
 								if (USER['workingPlayers'].playerid == tmp.players[idx].playerid) {
@@ -412,10 +413,14 @@ function InitLeagueRoster() {
 												}
 											}
 											USER['workingPlayers'] = null;
+											for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
+												tmp.players[i].show = true;
+											}
 										}
 									}).catch((err) => {
 										log(err);
-										alert("Player Taken");
+										// this error should never be executed because the filtering of player list when selecting prevents this
+										vex.dialog.alert("Unable to complete action, player taken");
 										USER['workingPlayers'] = tmp.players[idx].pending = "";
 										USER['workingPlayers'] = null;
 										getAllPlayers({
@@ -425,26 +430,14 @@ function InitLeagueRoster() {
 										}).then(() => {
 											log("Updates after an error");
 											if (USER['_allPlayers']) {
-												var currentOrder = USER['_allPlayers'].order;
-												var currentReverse = USER['_allPlayers'].reverse * -1;
-												USER['_allPlayers'].reverse = 1;
-												USER['_allPlayers'].ordering(1);
+												// reset player orderings
+												USER['_allPlayers'].reverse = -1; // calling ordering will flip -1 to 1 b4 applying update
+												USER['_allPlayers'].ordering(0);
+												// reset player list
 												for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
-													USER._allPlayers.players[i] = Object.assign({}, USER._allPlayers.players[i], USER.allPlayers[i]);
+													USER['_allPlayers'].players[i] = Object.assign({}, USER._allPlayers.players[i], USER.allPlayers[i]);
+													USER['_allPlayers'].players[i]['show'] = true;
 												}
-												if (USER['workingPlayers']) { // when error happens when user is selecting
-													for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
-														if (tmp.players[i].owner === false) {
-															tmp.players[i].show = (tmp.players[idx].owner)? true : false;
-														}
-														else {
-															tmp.players[i].show = (tmp.players[idx].owner)? false : true;
-														}
-													}
-													USER['workingPlayers'].show = true;
-												}
-												USER['_allPlayers'].reverse = currentReverse;
-												USER['_allPlayers'].ordering(currentOrder);
 											}
 										}).catch((err) => {
 											log(err);
@@ -487,10 +480,13 @@ function InitLeagueRoster() {
 					}).then(() => {
 						log("Player List updated");
 						if (USER['_allPlayers']) {
+							// save current user's player orderings
 							var currentOrder = USER['_allPlayers'].order;
 							var currentReverse = USER['_allPlayers'].reverse * -1;
-							USER['_allPlayers'].reverse = 1;
-							USER['_allPlayers'].ordering(1);
+							// revert ordering to ward ascending order
+							USER['_allPlayers'].reverse = -1; // calling ordering will flip -1 to 1 b4 applying update
+							USER['_allPlayers'].ordering(0);
+							// apply updates to the player's list
 							for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
 								if (USER.allPlayers[i].owner != USER['_allPlayers'].players[i].owner)
 									USER._allPlayers.players[i] = Object.assign({}, USER._allPlayers.players[i], {
@@ -498,19 +494,39 @@ function InitLeagueRoster() {
 									});
 								// 	Vue.set(USER['_allPlayers'].players[i], 'owner', USER.allPlayers[i].owner);
 							}
+							var reset = false;
 							if (USER['workingPlayers']) { // if user is selecting when the update happens
 								for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
-									if (tmp.players[i].owner === false) {
-										tmp.players[i].show = (tmp.players[idx].owner)? true : false;
+									if (USER['_allPlayers'].players[i].ward === USER['workingPlayers'].ward) {
+										if (USER['workingPlayers'].owner === false && USER['_allPlayers'].players[i].owner !== false) {
+											// acquire then drop case, if user1 selects player1 to acquire, but user2 drops and select player1 before user1 finishes
+											reset = true; 
+											break;
+										}
+									}
+									if (USER['_allPlayers'].players[i].owner === false || USER['_allPlayers'].players[i].playerid === USER['workingPlayers'].playerid) {
+										USER['_allPlayers'].players[i].show = (USER['workingPlayers'].owner)? true : false;
 									}
 									else {
-										tmp.players[i].show = (tmp.players[idx].owner)? false : true;
+										USER['_allPlayers'].players[i].show = (USER['workingPlayers'].owner)? false : true;
 									}
 								}
-								USER['workingPlayers'].show = true;
 							}
-							USER['_allPlayers'].reverse = currentReverse;
-							USER['_allPlayers'].ordering(currentOrder);
+							if (reset) {
+								vex.dialog.alert("Sorry, another user took that player already!");
+								USER['workingPlayers'] = null;
+								for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
+									USER['_allPlayers'].players[i].show = true;
+								}
+								USER['_allPlayers'].reverse = -1; // calling ordering will flip -1 to 1 b4 applying update
+								USER['_allPlayers'].ordering(0);
+							}
+							else {
+								// revert the ordering to the user's setting
+								USER['_allPlayers'].reverse = currentReverse;
+								USER['_allPlayers'].ordering(currentOrder);
+							}
+
 						}
 					}).catch((err) => {
 						log(err);

@@ -11,6 +11,17 @@
         <link href="https://fonts.googleapis.com/css?family=Roboto:400,900" rel="stylesheet">
         <link rel="stylesheet" type="text/css" href="reset.css">
         <link rel="stylesheet" type="text/css" href="temp-style.css">
+        <!-- Vex Assets -->
+		<script type="text/javascript" src="../assets/vex.combined.min.js"></script>
+		<script type="text/javascript">vex.defaultOptions.className = 'vex-theme-plain';</script>
+		<link rel="stylesheet" type="text/css" href="../assets/vex.css">
+		<link rel="stylesheet" type="text/css" href="../assets/vex-theme-plain.css">
+
+        <style type="text/css">
+        	[v-cloak] {
+        		display: none;
+        	}
+        </style>
 	</head>
 	<body>
 		<h1>Roster</h1>
@@ -30,7 +41,9 @@
 			<button id="logout" onclick="roster.userLogout()">Logout</button>
 		</div>
 
-		<div id="userRoster">
+		<div id="userRoster" v-cloak>
+			<h3>Objective</h3>
+			<p> {{ objective }} </p>
 			<h3>{{ leaguename }}</h3>
 			<p>Choose two consecutive players to swap from benching and starting in your roster</p>
 			<table>
@@ -46,7 +59,8 @@
 			</table>
 		</div>
 
-		<div id="allPlayers">
+
+		<div id="allPlayers" v-cloak>
 			<h3>All Players</h3>
 			<p>Choose two consecutive players to add or drop a player from your roster.</p>
 			<button id="scouting-button" onclick="roster.openScoutingModule();">Scouting Reports</button>
