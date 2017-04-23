@@ -1,5 +1,20 @@
 # Application Testing
 
+### Sample Test
+Visit login, app, and roster pages and execute this in the console
+```javascript
+if (USER.userid)
+  console.log("userid found")
+if (USER.email)
+  console.log("email found")
+if (USER.image)
+  console.log("image found")
+if (USER.name)
+  console.log("name found")
+```
+This is just a sample test for test case A1 it doesn't have to be structure exactly this way, as long as it checks the condition in the test case
+
+# Global Variable
 ### Global Variable to access the application data
 ```javascript
 // Open console and type
@@ -14,7 +29,7 @@ USER.userid
 // email info
 USER.email
 // image url
-USER.url
+USER.image
 // username info
 USER.name
 ```
