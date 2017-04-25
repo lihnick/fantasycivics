@@ -179,6 +179,11 @@
 			cursor: pointer;
 		}
 
+		#search-error {
+			color: red;
+			display: none;
+		}
+
 		</style>
 
 	</head>
@@ -202,6 +207,7 @@
 		<h2>Who is My Alderman?</h2>
 		<p class="center-text">Enter your address to find out:</p>
 		<input type="text" id="search-by-address" value="3300 S Federal Street">
+		<p class="center-text" id="search-error">Error message</p>
 		<button id="search-by-button" class="cta-btn">Search</button>
 	</section>
 

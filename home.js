@@ -34,16 +34,20 @@ searchByAddress.addEventListener('keypress', e => {
 var searchByButton = document.getElementById('search-by-button');
 searchByButton.addEventListener('click', e => {
 	searchForYourAlderman();
-})
+});
+
+var searchError = document.getElementById('search-error');
 
 function searchForYourAlderman(){
+	searchError.style.display = 'none';
 	var addr = searchByAddress.value;
 	findMyWard(addr).then(res => {
 		if(res){
 			showYourAlderman(res);
 		}
 	}).catch(err => {
-		console.error(err);
+		searchError.style.display = 'block';
+		searchError.innerText = err;
 	});
 }
 
@@ -91,7 +95,7 @@ function showYourAlderman(res){
 			tli.innerText = 'For a grand total of ' + sum + ' points.';
 		breakDown.appendChild(tli);
 		window.scrollToId('alderman-result');
-	}).catch(console.err);
+	}).catch(console.error);
 }
 
 var monthSpans = document.getElementsByClassName('insert-month');
