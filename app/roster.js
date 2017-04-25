@@ -341,7 +341,7 @@ function InitLeagueRoster() {
 						updateScoutingReports();
 						setTimeout(function(){
 							stopLoading();
-						}, 3000);
+						}, 1500);
 					},
 					methods: {
 						ordering: (orderBy) => {
