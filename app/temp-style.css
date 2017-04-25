@@ -156,3 +156,46 @@ button:disabled:hover {
 .vex.vex-theme-plain .vex-dialog-button.vex-dialog-button-primary {
 	background: rgba(44, 140, 153, 1);
 }
+
+div.loading {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(44, 140, 153, 1);
+	color: white;
+	/* Center Vertically */
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	resize: vertical;
+}
+
+@keyframes LoadingPulse {
+	0% {
+		width: 25vh;
+	}
+	50% {
+		width: 30vh;
+	}
+	100% {
+		width: 25vh;
+	}
+}
+
+div.loading div {
+	height: 35vh;
+	/* Center Vertically */
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	resize: vertical;
+}
+
+div.loading div img {
+	width: 50vw;
+	display: block;
+	margin: 0 auto;
+	animation: LoadingPulse 2s infinite;
+}

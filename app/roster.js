@@ -1,4 +1,20 @@
+var MINUTE = 60 * 1000;
+var HOUR = 60 * MINUTE;
+var DAY = 24 * HOUR;
+var WEEK = 7 * DAY;
 
+var scout = ScoutingReport();
+
+function updateScoutingReports(){
+	scout.initializeReport('.scout-anchor');
+}
+
+function stopLoading(){
+	var loading = document.getElementById('loading');
+	var rosterPage = document.getElementById('roster-page');
+	loading.style.display = 'none';
+	rosterPage.style.display = 'block';
+}
 
 function InitLeagueRoster() {
 
@@ -168,9 +184,9 @@ function InitLeagueRoster() {
 			}).then(() => {
 				if (!USER['_roster-list']) {
 					USER['_roster-list'] = Vue.component('roster-list', {
-						props: ['row', 'header'],
+						props: ['row', 'header', 'range'],
 						template: '<tr>\
-							<td>{{ row.name }}</td>\
+							<td class="scout-anchor" :data-pid="row.playerid" :data-from="range.from" :data-to="range.to">{{ row.name }}</td>\
 							<td>{{ row.scores[Object.keys(header)[0]] }}</td>\
 							<td>{{ row.scores[Object.keys(header)[1]] }}</td>\
 							<td>{{ row.scores[Object.keys(header)[2]] }}</td>\
@@ -190,6 +206,10 @@ function InitLeagueRoster() {
 						leaguename: USER['selectedleague']['name'],
 						objective: (USER['selectedleague'].schedule === (parseInt(week.losses) + parseInt(week.wins)))? "Game Ended, Redirecting..." : "Choose your lineup for week " + ((parseInt(week.losses) + parseInt(week.wins))+1).toString() + " of " + USER['selectedleague'].schedule.length.toString(),
 						players: USER['roster']['players'],
+						range: {
+							from: USER.rosterdate.prevto - (4 * WEEK),
+							to: USER.rosterdate.prevto
+						},
 						// update aggregator, reference scoring.js
 						aggregator: Object.keys(USER['roster']['players']).map(function(id) {
 							if (!USER['roster']['players'][id].starter){
@@ -199,6 +219,9 @@ function InitLeagueRoster() {
 							return USER['roster']['players'][id].scores[cols[0]] + USER['roster']['players'][id].scores[cols[1]] + USER['roster']['players'][id].scores[cols[2]];
 						}).reduce((a, b) => a + b, 0),
 						toggle: {}
+					},
+					mounted: function(){
+						updateScoutingReports();
 					},
 					methods: {
 						updateAggregator: () => {
@@ -281,10 +304,10 @@ function InitLeagueRoster() {
 
 				if (!USER['_player-list']) {
 					USER['_player-list'] = Vue.component('player-list', {
-						props: ['row', 'header'],
+						props: ['row', 'header', 'range'],
 						template: '<tr v-show=\'row.show\'>\
 							<td>{{ row.ward }}</td>\
-							<td>{{ row.name }} </td>\
+							<td class="scout-anchor" :data-pid="row.playerid" :data-from="range.from" :data-to="range.to">{{ row.name }} </td>\
 							<td>{{ row.scores[Object.keys(header)[0]] }}</td>\
 							<td>{{ row.scores[Object.keys(header)[1]] }}</td>\
 							<td>{{ row.scores[Object.keys(header)[2]] }}</td>\
@@ -315,9 +338,20 @@ function InitLeagueRoster() {
 					data: {
 						headers: Database.Scoring.DATASET_NAMES,
 						players: workingPlayers,
+						range: {
+							from: USER.rosterdate.prevto - (4 * WEEK),
+							to: USER.rosterdate.prevto
+						},
+						rosters: userRosters,
 						//players: USER['allPlayers'],
 						order: 0,
 						reverse: 1
+					},
+					mounted: function(){
+						updateScoutingReports();
+						setTimeout(function(){
+							stopLoading();
+						}, 1500);
 					},
 					methods: {
 						ordering: (orderBy) => {
@@ -354,6 +388,7 @@ function InitLeagueRoster() {
 									pending: (USER['workingPlayers'] && USER['workingPlayers'].playerid == sorted[i].playerid)? USER['workingPlayers'].pending : sorted[i].pending
 								});
 							}
+							updateScoutingReports();
 						},
 						acquirePlayer: (idx) => {
 							var tmp = USER['_allPlayers']; // used to refer to the list of all players
