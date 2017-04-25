@@ -342,7 +342,7 @@ function InitLeagueRoster() {
 							from: USER.rosterdate.prevto - (4 * WEEK),
 							to: USER.rosterdate.prevto
 						},
-						rosters: userRosters,
+						//rosters: userRosters,
 						//players: USER['allPlayers'],
 						order: 0,
 						reverse: 1
