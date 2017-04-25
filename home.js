@@ -353,6 +353,3 @@ for(var p = 0; p < playGameBtns.length; p++){
 		window.open('https://bit.ly/fantasycivicsform');
 	});
 }
-
-
-
