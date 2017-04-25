@@ -9,6 +9,13 @@ function updateScoutingReports(){
 	scout.initializeReport('.scout-anchor');
 }
 
+function stopLoading(){
+	var loading = document.getElementById('loading');
+	var rosterPage = document.getElementById('roster-page');
+	loading.style.display = 'none';
+	rosterPage.style.display = 'block';
+}
+
 function InitLeagueRoster() {
 
 	var app = InitApplication();
@@ -166,9 +173,9 @@ function InitLeagueRoster() {
 			}).then(() => {
 				if (!USER['_roster-list']) {
 					USER['_roster-list'] = Vue.component('roster-list', {
-						props: ['row', 'header'],
+						props: ['row', 'header', 'range'],
 						template: '<tr>\
-							<td>{{ row.name }}</td>\
+							<td class="scout-anchor" :data-pid="row.playerid" :data-from="range.from" :data-to="range.to">{{ row.name }}</td>\
 							<td>{{ row.scores[Object.keys(header)[0]] }}</td>\
 							<td>{{ row.scores[Object.keys(header)[1]] }}</td>\
 							<td>{{ row.scores[Object.keys(header)[2]] }}</td>\
@@ -187,6 +194,10 @@ function InitLeagueRoster() {
 						headers: Database.Scoring.DATASET_NAMES,
 						leaguename: USER['selectedleague']['name'],
 						players: USER['roster']['players'],
+						range: {
+							from: USER.rosterdate.prevto - (4 * WEEK),
+							to: USER.rosterdate.prevto
+						},
 						// update aggregator, reference scoring.js
 						aggregator: Object.keys(USER['roster']['players']).map(function(id) {
 							if (!USER['roster']['players'][id].starter){
@@ -196,6 +207,9 @@ function InitLeagueRoster() {
 							return USER['roster']['players'][id].scores[cols[0]] + USER['roster']['players'][id].scores[cols[1]] + USER['roster']['players'][id].scores[cols[2]];
 						}).reduce((a, b) => a + b, 0),
 						toggle: {}
+					},
+					mounted: function(){
+						updateScoutingReports();
 					},
 					methods: {
 						updateAggregator: () => {
@@ -325,6 +339,9 @@ function InitLeagueRoster() {
 					},
 					mounted: function(){
 						updateScoutingReports();
+						setTimeout(function(){
+							stopLoading();
+						}, 3000);
 					},
 					methods: {
 						ordering: (orderBy) => {
