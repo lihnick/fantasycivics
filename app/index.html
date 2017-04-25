@@ -27,16 +27,16 @@
 
 		<h2>User Info</h2>
 		<div>
-			<p id="userid"></p>
+			<!-- <p id="userid"></p> -->
 			<p id="email"></p>
 			<p id="name"></p>
 			<!-- <img id="image" style="width:64px;height:64px;" alt="No Image"></img> -->
-			<button onclick="app.userLogout()">Logout</button>
+			<button id="logout" onclick="app.userLogout()">Logout</button>
 		</div>
 		
 		<h2>Login</h2>
 
-		<button onclick="app.userLogin()">Login with Google</button>
+		<button id="authenticate" onclick="app.userLogin()">Login with Google</button>
 
 		<!-- Footer -->
 
@@ -52,7 +52,10 @@
 		<script type="text/javascript">
 			// Instantiate app
 			var app = InitApplication();
-			app.getUser();
+			if (app.checkUser()) {
+				app.displayUser();
+			}
+			
 		</script>
 	</body>
 </html>

@@ -13,8 +13,10 @@ var Scoring = {
 		tree_trims: 'yvxb-fxjz.json',
 		garbage_carts: 'a9br-8sqt.json'*/
 		pot_holes: '787j-mys9.json',
-		street_lights: 'h555-t6kz.json',
-		abandoned_vehicles: 'suj7-cg3j.json'
+		graffiti: 'cdmx-wzbz.json',
+		rodent_baiting: 'dvua-vftq.json'
+		//street_lights: 'h555-t6kz.json',
+		//abandoned_vehicles: 'suj7-cg3j.json'
 	},
 
 	DATASET_NAMES: {
@@ -25,8 +27,10 @@ var Scoring = {
 		tree_trims: 'Tree Trims',
 		garbage_carts: 'Garbage Carts'*/
 		pot_holes: 'Pot Holes',
-		street_lights: 'Light Outages',
-		abandoned_vehicles: 'Abandoned Vehicles'
+		graffiti: 'Graffiti',
+		rodent_baiting: 'Rodent Baiting'
+		//street_lights: 'Light Outages',
+		//abandoned_vehicles: 'Abandoned Vehicles'
 	},
 
 	getSocrataData: (url, query, callback, limit) => {

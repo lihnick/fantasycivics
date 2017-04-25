@@ -9,16 +9,7 @@ Database.IN_SIMULATED_TIME = true;
 var test; // each time debug is called, the parameter is updated to test, for debugging
 var private;
 
-
-var Verbose = true;
-var log = console.log;
-var debug = (item) => {
-	if (Verbose) {
-		console.log(item);
-		test = item;
-	}
-}
-if (!Verbose) console.log("Debugging has been turned off.");
+var log = console.log; // shortcut
 
 function getQueryParams(qs) {
 	qs = qs.split('+').join(' ');
@@ -60,6 +51,7 @@ function InitApplication() {
 		logoutRedirect: 'index.html',
 		loginRedirect: 'app.html',
 		leagueRedirect: 'roster.html',
+		finRedirect: 'fin.html',
 		pending: 'Pending',
 		pendingBench: 'Benching',
 		pendingStart: 'Starting',
@@ -94,34 +86,6 @@ function InitApplication() {
 			}
 		}
 	}
-
-	var getLeague = (params) => {
-		if(!params.userid)
-			throw new Error('Must specify {userid}.');
-		else if(!params.leagueid)
-			throw new Error('Must specify {leagueid}.');
-		else if(!params.from)
-			throw new Error('Must specify {from}.');
-		else if(!params.to)
-			throw new Error('Must specify {to}.');
-
-		return Database.getLeague(params).then(function(result) {
-			log(result);
-			return result; // this return is used by loadRosterPage()
-		}, function(err) {
-			log(err);
-		});
-	};
-
-	var openScoutingModule = () => {
-		var leagueid = USER.leagueid;
-		var sim = USER.rosterdate;
-		var timestamp = sim.thisfrom + (0.5 * (sim.thisto - sim.thisfrom));
-		var uParts = document.location.pathname.split('/');
-		var pathname = uParts.slice(0, uParts.length - 1).join('/');
-		var url = document.location.origin + pathname + '/scout.html' + '?time=' + timestamp + '&league=' + leagueid;
-		window.open(url, '_blank');
-	};
 
 	var getUserLeagues = () => {
 		if (!USER['userid'])
@@ -221,6 +185,10 @@ function InitApplication() {
 			return USER;
 		},
 
+		getDatabase: () => {
+			return Database;
+		},
+
 		// Check local storage for users that are logged in from previous sessions
 		checkUser: () => {
 			// At minimum userid is required to identify a user
@@ -229,6 +197,20 @@ function InitApplication() {
 				return false;
 			}
 			else {
+				Database.Auth.getCurrentUser().then((user) => {
+					USER.userid = user.userid;
+					Database.updateUser({
+						userid: user.userid
+					});
+				}).catch((err) => {
+					if(err === 'No user currently authenticated.'){
+						console.error('Log in in to play Fantasy Civics!');
+					}
+					else{
+						console.error(err);
+					}
+				});
+
 				USER.userid = localStorage[Constants.userIdTag];
 				USER.name = localStorage[Constants.userNameTag];
 				USER.email = localStorage[Constants.userEmailTag];
@@ -256,14 +238,11 @@ function InitApplication() {
 		// userLogin should use google authentication to get the user's id
 		userLogin: () => {
 			Database.Auth.signInUser().then(function(result) {
-				log(result);
 				localStorage[Constants.userIdTag] = result.userid;
 				localStorage[Constants.userNameTag] = result.name;
 				localStorage[Constants.userEmailTag] = result.email;
 				localStorage[Constants.userImageTag] = result.image;
-				log(result);
 				Database.updateUser(result).then(() => {
-					log("test");
 					window.location.href = Constants.loginRedirect;
 				}).catch((err) => {log(err)});
 				log("done");
@@ -309,7 +288,6 @@ function InitApplication() {
 					},
 					methods: {
 						loadLeague: (idx) => {
-							log("next");
 							USER.leagueid = USER.userLeagues[idx].leagueid;
 							localStorage[Constants.userSelectedLeague] = USER.userLeagues[idx].leagueid;
 							localStorage[Constants.seletedLeagueStart] = USER.userLeagues[idx].start;

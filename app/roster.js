@@ -7,13 +7,14 @@ function InitLeagueRoster() {
 	if (app.checkUser()) {
 		USER = app.getUser();
 		app.displayUser();
-		console.log("test");
 	}
+	var Database = app.getDatabase();
 
 	var Constants = {
 		logoutRedirect: 'index.html',
 		loginRedirect: 'app.html',
 		leagueRedirect: 'roster.html',
+		finRedirect: 'fin.html',
 		pending: 'Pending',
 		pendingBench: 'Benching',
 		pendingStart: 'Starting',
@@ -28,13 +29,20 @@ function InitLeagueRoster() {
 		seletedLeagueEnd: 'leagueend'
 	};
 
+	// Get information on an selected league
 	var getLeagueData = () => {
 		if (!USER['leagueid'])
 			throw new Error("Leagueid not found.");
 		return Database.getLeagueData({leagueid: USER['leagueid']}).then((leagueData) => {
+			var gameEnd = false;
 			var tmp = leagueData.users[Object.keys(leagueData.users)[0]];
 			var idx = parseInt(tmp.losses) + parseInt(tmp.wins);
+			if (leagueData.schedule.length === idx) {
+				idx--;
+				gameEnd = true;
+			}
 			var obj = leagueData.schedule[idx][0]
+
 			USER['rosterdate'] = {
 				prevfrom: obj.start - (obj.end - obj.start),
 				prevto: obj.start,
@@ -42,8 +50,9 @@ function InitLeagueRoster() {
 				thisto: obj.end,
 				week: idx
 			};
-			log(leagueData);
-			test = leagueData;
+			if (gameEnd) {
+				USER['rosterdate']['ended'] = true;
+			}
 		}).catch((err) => {
 			log("Error thrown, " + err);
 		});
@@ -113,8 +122,6 @@ function InitLeagueRoster() {
 		else if(!params.to)
 			throw new Error('DB - ending date not found');
 
-		 //-KdqV4iI8CRGl3GiB24P, -KdIiWEUj7_toD3MKMO_
-
 		return Database.getAllPlayers(params).then(function(result) {
 			USER['allPlayers'] = [];
 			log(result);
@@ -126,6 +133,7 @@ function InitLeagueRoster() {
 					scores: result[id].scores,
 					starter: result[id].starter,
 					ward: result[id].ward,
+					show: true,
 					pending: ""
 				});
 			});
@@ -136,10 +144,13 @@ function InitLeagueRoster() {
 		});
 	};
 
+
+
 	var LeagueRoster = {
 
 		// Displays the players the user currently have
 		displayRoster: () => {
+			log('showing loading screen');
 			if(!USER.userid)
 				throw new Error('userid not found.');
 			else if(!USER.leagueid)
@@ -170,13 +181,14 @@ function InitLeagueRoster() {
 						</tr>'
 					});
 				}
-
+				var week = USER['selectedleague'].users[Object.keys(USER['selectedleague'].users)[0]];
 				//var workingRoster = jQuery.extend(true, {}, USER['roster']['players']);
 				USER['_userRoster'] = new Vue({
 					el: '#userRoster',
 					data: {
 						headers: Database.Scoring.DATASET_NAMES,
 						leaguename: USER['selectedleague']['name'],
+						objective: (USER['selectedleague'].schedule === (parseInt(week.losses) + parseInt(week.wins)))? "Game Ended, Redirecting..." : "Choose your lineup for week " + ((parseInt(week.losses) + parseInt(week.wins))+1).toString() + " of " + USER['selectedleague'].schedule.length.toString(),
 						players: USER['roster']['players'],
 						// update aggregator, reference scoring.js
 						aggregator: Object.keys(USER['roster']['players']).map(function(id) {
@@ -266,10 +278,11 @@ function InitLeagueRoster() {
 				from: USER.rosterdate.prevfrom,
 				to: USER.rosterdate.prevto
 			}).then(() => {
+
 				if (!USER['_player-list']) {
 					USER['_player-list'] = Vue.component('player-list', {
 						props: ['row', 'header'],
-						template: '<tr>\
+						template: '<tr v-show=\'row.show\'>\
 							<td>{{ row.ward }}</td>\
 							<td>{{ row.name }} </td>\
 							<td>{{ row.scores[Object.keys(header)[0]] }}</td>\
@@ -295,33 +308,34 @@ function InitLeagueRoster() {
 				}
 				// Save point
 				// In order for sorting to work, the _player-list template needs to enclose the whole table element
-
 				var workingPlayers = jQuery.extend(true, {}, USER['allPlayers']);
-				var userRosters = USER['allPlayers'].filter(function(item) {
-					if (item.owner == "testuser0001") return item;
-				});
 
 				USER['_allPlayers'] = new Vue({
 					el: '#allPlayers',
 					data: {
 						headers: Database.Scoring.DATASET_NAMES,
 						players: workingPlayers,
-						rosters: userRosters,
+						//players: USER['allPlayers'],
 						order: 0,
 						reverse: 1
 					},
 					methods: {
 						ordering: (orderBy) => {
+							var rendering = {};
+							for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
+								rendering[USER['_allPlayers'].players[i].playerid] = USER['_allPlayers'].players[i].show;
+							}
+							log(rendering);
 							USER['_allPlayers'].reverse *= -1;
 							USER['_allPlayers'].order = orderBy;
 							var header = Object.keys(Database.Scoring.DATASET_NAMES);
-							var comparator = [	(a, b) => {return (a.ward > b.ward) ? 1 : ((b.ward > a.ward)? -1 : 0);},
-												(a, b) => {return (a.name > b.name)? 1 : ((b.name > a.name)? -1 : 0);},
-												(a, b) => {return (a.scores[header[0]] > b.scores[header[0]])? 1 : ((b.scores[header[0]] > a.scores[header[0]])? -1 : 0);},
-												(a, b) => {return (a.scores[header[1]] > b.scores[header[1]])? 1 : ((b.scores[header[1]] > a.scores[header[1]])? -1 : 0);},
-												(a, b) => {return (a.scores[header[2]] > b.scores[header[2]])? 1 : ((b.scores[header[2]] > a.scores[header[2]])? -1 : 0);},
-												(a, b) => {return ( (a.scores[header[0]] + a.scores[header[1]] + a.scores[header[2]]) > (b.scores[header[0]] + b.scores[header[1]] + b.scores[header[2]]) )? 1 : (( (b.scores[header[0]] + b.scores[header[1]] + b.scores[header[2]]) > (a.scores[header[0]] + a.scores[header[1]] + a.scores[header[2]]) )? -1 : 0);},
-												(a, b) => {return (b.owner == false || a.owner > b.owner)? 1 : ((a.owner == false || b.owner > a.owner)? -1 : 0);},
+							var comparator = [	(a, b) => {return (a.ward > b.ward)? 1 : ((b.ward > a.ward)? -1 : 0);},
+												(a, b) => {return (a.name > b.name)? 1 : ((b.name > a.name)? -1 : ((a.ward > b.ward)? 1*(USER['_allPlayers'].reverse) : -1*(USER['_allPlayers'].reverse)));},
+												(a, b) => {return (a.scores[header[0]] > b.scores[header[0]])? 1 : ((b.scores[header[0]] > a.scores[header[0]])? -1 : ((a.ward > b.ward)? 1*(USER['_allPlayers'].reverse) : -1*(USER['_allPlayers'].reverse)));},
+												(a, b) => {return (a.scores[header[1]] > b.scores[header[1]])? 1 : ((b.scores[header[1]] > a.scores[header[1]])? -1 : ((a.ward > b.ward)? 1*(USER['_allPlayers'].reverse) : -1*(USER['_allPlayers'].reverse)));},
+												(a, b) => {return (a.scores[header[2]] > b.scores[header[2]])? 1 : ((b.scores[header[2]] > a.scores[header[2]])? -1 : ((a.ward > b.ward)? 1*(USER['_allPlayers'].reverse) : -1*(USER['_allPlayers'].reverse)));},
+												(a, b) => {return ( (a.scores[header[0]] + a.scores[header[1]] + a.scores[header[2]]) > (b.scores[header[0]] + b.scores[header[1]] + b.scores[header[2]]) )? 1 : (( (b.scores[header[0]] + b.scores[header[1]] + b.scores[header[2]]) > (a.scores[header[0]] + a.scores[header[1]] + a.scores[header[2]]) )? -1 : ((a.ward > b.ward)? 1*(USER['_allPlayers'].reverse) : -1*(USER['_allPlayers'].reverse)));},
+												(a, b) => {return (b.owner == false || a.owner > b.owner)? 1 : ((a.owner == false || b.owner > a.owner)? -1 : ((a.ward > b.ward)? 1*(USER['_allPlayers'].reverse) : -1*(USER['_allPlayers'].reverse)));},
 												(a, b) => {return (a.ward > b.ward)? 1 : ((b.ward > a.ward)? -1 : 0);}	];
 
 							var sorted = USER.allPlayers.sort(comparator[orderBy]);
@@ -336,18 +350,21 @@ function InitLeagueRoster() {
 									playerid: sorted[i].playerid,
 									starter: sorted[i].starter,
 									scores: sorted[i].scores,
+									show: rendering[sorted[i].playerid],
 									pending: (USER['workingPlayers'] && USER['workingPlayers'].playerid == sorted[i].playerid)? USER['workingPlayers'].pending : sorted[i].pending
 								});
 							}
 						},
 						acquirePlayer: (idx) => {
-							var tmp = USER['_allPlayers'];
-
+							var tmp = USER['_allPlayers']; // used to refer to the list of all players
 							if (USER['workingPlayers']) {
 								// makes sure the selected is not the same, if so undo the selected
 								if (USER['workingPlayers'].playerid == tmp.players[idx].playerid) {
 									tmp.players[idx].pending = "";
 									USER['workingPlayers'] = null;
+									for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
+										tmp.players[i].show = true;
+									}
 								}
 								else if (USER['workingPlayers'].owner ==  USER['userid'] && tmp.players[idx].owner == false ||
 										 USER['workingPlayers'].owner ==  false && tmp.players[idx].owner == USER['userid']) {
@@ -396,10 +413,14 @@ function InitLeagueRoster() {
 												}
 											}
 											USER['workingPlayers'] = null;
+											for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
+												tmp.players[i].show = true;
+											}
 										}
 									}).catch((err) => {
 										log(err);
-										alert("Player Taken");
+										// this error should never be executed because the filtering of player list when selecting prevents this
+										vex.dialog.alert("Unable to complete action, player taken");
 										USER['workingPlayers'] = tmp.players[idx].pending = "";
 										USER['workingPlayers'] = null;
 										getAllPlayers({
@@ -409,15 +430,14 @@ function InitLeagueRoster() {
 										}).then(() => {
 											log("Updates after an error");
 											if (USER['_allPlayers']) {
-												var currentOrder = USER['_allPlayers'].order;
-												var currentReverse = USER['_allPlayers'].reverse * -1;
-												USER['_allPlayers'].reverse = 1;
-												USER['_allPlayers'].ordering(1);
+												// reset player orderings
+												USER['_allPlayers'].reverse = -1; // calling ordering will flip -1 to 1 b4 applying update
+												USER['_allPlayers'].ordering(0);
+												// reset player list
 												for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
-													USER._allPlayers.players[i] = Object.assign({}, USER._allPlayers.players[i], USER.allPlayers[i]);
+													USER['_allPlayers'].players[i] = Object.assign({}, USER._allPlayers.players[i], USER.allPlayers[i]);
+													USER['_allPlayers'].players[i]['show'] = true;
 												}
-												USER['_allPlayers'].reverse = currentReverse;
-												USER['_allPlayers'].ordering(currentOrder);
 											}
 										}).catch((err) => {
 											log(err);
@@ -431,8 +451,18 @@ function InitLeagueRoster() {
 							// selecting the first player to add or drop
 							else {
 								log(idx);
-								tmp.players[idx].pending = (tmp.players[idx].owner)? Constants.pendingDrop : Constants.pendingAcquire;
 								USER['workingPlayers'] = tmp.players[idx];
+								tmp.players[idx].pending = (tmp.players[idx].owner)? Constants.pendingDrop : Constants.pendingAcquire;
+
+								for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
+									if (tmp.players[i].owner === false) {
+										tmp.players[i].show = (tmp.players[idx].owner)? true : false;
+									}
+									else {
+										tmp.players[i].show = (tmp.players[idx].owner)? false : true;
+									}
+								}
+								USER['workingPlayers'].show = true;
 							}
 						}
 					}
@@ -450,17 +480,53 @@ function InitLeagueRoster() {
 					}).then(() => {
 						log("Player List updated");
 						if (USER['_allPlayers']) {
+							// save current user's player orderings
 							var currentOrder = USER['_allPlayers'].order;
 							var currentReverse = USER['_allPlayers'].reverse * -1;
-							USER['_allPlayers'].reverse = 1;
-							USER['_allPlayers'].ordering(1);
+							// revert ordering to ward ascending order
+							USER['_allPlayers'].reverse = -1; // calling ordering will flip -1 to 1 b4 applying update
+							USER['_allPlayers'].ordering(0);
+							// apply updates to the player's list
 							for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
 								if (USER.allPlayers[i].owner != USER['_allPlayers'].players[i].owner)
-									USER._allPlayers.players[i] = Object.assign({}, USER._allPlayers.players[i], {owner: USER.allPlayers[i].owner});
+									USER._allPlayers.players[i] = Object.assign({}, USER._allPlayers.players[i], {
+										owner: USER.allPlayers[i].owner
+									});
 								// 	Vue.set(USER['_allPlayers'].players[i], 'owner', USER.allPlayers[i].owner);
 							}
-							USER['_allPlayers'].reverse = currentReverse;
-							USER['_allPlayers'].ordering(currentOrder);
+							var reset = false;
+							if (USER['workingPlayers']) { // if user is selecting when the update happens
+								for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
+									if (USER['_allPlayers'].players[i].ward === USER['workingPlayers'].ward) {
+										if (USER['workingPlayers'].owner === false && USER['_allPlayers'].players[i].owner !== false) {
+											// acquire then drop case, if user1 selects player1 to acquire, but user2 drops and select player1 before user1 finishes
+											reset = true; 
+											break;
+										}
+									}
+									if (USER['_allPlayers'].players[i].owner === false || USER['_allPlayers'].players[i].playerid === USER['workingPlayers'].playerid) {
+										USER['_allPlayers'].players[i].show = (USER['workingPlayers'].owner)? true : false;
+									}
+									else {
+										USER['_allPlayers'].players[i].show = (USER['workingPlayers'].owner)? false : true;
+									}
+								}
+							}
+							if (reset) {
+								vex.dialog.alert("Sorry, another user took that player already!");
+								USER['workingPlayers'] = null;
+								for (var i = 0; i < Object.keys(USER['_allPlayers'].players).length; i++) {
+									USER['_allPlayers'].players[i].show = true;
+								}
+								USER['_allPlayers'].reverse = -1; // calling ordering will flip -1 to 1 b4 applying update
+								USER['_allPlayers'].ordering(0);
+							}
+							else {
+								// revert the ordering to the user's setting
+								USER['_allPlayers'].reverse = currentReverse;
+								USER['_allPlayers'].ordering(currentOrder);
+							}
+
 						}
 					}).catch((err) => {
 						log(err);
@@ -469,7 +535,6 @@ function InitLeagueRoster() {
 			});
 		},
 		
-
 		// Executes when user clicks the finalize button on the roster page
 		setMatchOutcome: () => {
 			if (!USER['userid'])
@@ -486,11 +551,35 @@ function InitLeagueRoster() {
 			}).then((matchOutcome) => {
 				if (matchOutcome.success) {
 					log("Success");
-					viewOutcome();
+					LeagueRoster.viewOutcome();
 				}
 			}).catch((err) => {
 				console.error(err)
 			});
+		},
+
+		viewOutcome: () => {
+			var leagueid = USER.leagueid;
+			var sim = USER.rosterdate;
+			var timestamp = sim.thisfrom + (0.5 * (sim.thisto - sim.thisfrom));
+			var uParts = document.location.pathname.split('/');
+			var pathname = uParts.slice(0, uParts.length - 1).join('/');
+			var url = document.location.origin + pathname + '/live.html' + '?time=' + timestamp + '&league=' + leagueid;
+			document.location = url;
+		},
+
+		openScoutingModule: () => {
+			var leagueid = USER.leagueid;
+			var sim = USER.rosterdate;
+			var timestamp = sim.thisfrom + (0.5 * (sim.thisto - sim.thisfrom));
+			var uParts = document.location.pathname.split('/');
+			var pathname = uParts.slice(0, uParts.length - 1).join('/');
+			var url = document.location.origin + pathname + '/scout.html' + '?time=' + timestamp + '&league=' + leagueid;
+			window.open(url, '_blank');
+		},
+
+		userLogout: () => {
+			app.userLogout();
 		},
 
 		// this function is specific to the items needed at the roster page
@@ -510,6 +599,10 @@ function InitLeagueRoster() {
 						log(USER);
 						LeagueRoster.displayRoster();
 						LeagueRoster.displayAllPlayers();
+						// This function is called when roster is being loaded, so only redirect if we are loading from roster
+						if (USER.rosterdate.ended) {
+							window.location.href = Constants.finRedirect;
+						}
 					})
 				}).catch((err) => {
 					log("Thrown, " + err);
