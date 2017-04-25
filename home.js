@@ -67,12 +67,15 @@ var aldSub = document.getElementById('your-ward');
 var aldScore = document.getElementById('your-alderman-score');
 var wardNum = document.getElementById('your-ward-number');
 var breakDown = document.getElementById('ward-score-breakdown');
+var yourAldHist = document.getElementById('your-alderman-historical');
 
 function showYourAlderman(res){
 	var alderman = getAldermanByWard(res.WARD);
 	yourAlderman.innerText = alderman.name;
 	aldSub.innerText = 'Alderman of Ward ' + alderman.ward;
 	wardNum.innerText = res.WARD;
+	yourAldHist.dataset.pid = alderman.pid;
+	yourAldHist.innerText = 'View scores for ' + alderman.name;
 	Database.getPlayer({
 		leagueid: DEMO_LEAGUEID,
 		playerid: alderman.pid,
@@ -185,6 +188,11 @@ function getRandomRosterPair(){
 
 var scout = ScoutingReport();
 
+scout.initializeReport('.scout-anchor', {
+	from: demoWeeks[0].to - (4 * WEEK),
+	to: demoWeeks[0].to
+});
+
 function renderRosterTable(table, roster, callback, opt){
 	var options = opt || {};
 	table.innerHTML = '';
@@ -238,7 +246,7 @@ function renderRosterTable(table, roster, callback, opt){
 		var td1 = document.createElement('td');
 			td1.innerText = player.name;
 		//if(!options.locked){
-			td1 = scout.attachReport(td1, player, {
+			td1 = scout.attachReport(td1, player.playerid, {
 				from: demoWeeks[0].to - (4 * WEEK),
 				to: demoWeeks[0].to
 			});
