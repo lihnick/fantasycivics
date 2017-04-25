@@ -32,16 +32,6 @@ function viewOutcome(){
 	document.location = url;
 }
 
-function openScoutingModule(){
-	var leagueid = USER.leagueid;
-	var sim = USER.rosterdate;
-	var timestamp = sim.thisfrom + (0.5 * (sim.thisto - sim.thisfrom));
-	var uParts = document.location.pathname.split('/');
-	var pathname = uParts.slice(0, uParts.length - 1).join('/');
-	var url = document.location.origin + pathname + '/scout.html' + '?time=' + timestamp + '&league=' + leagueid;
-	window.open(url, '_blank');
-}
-
 // App APIs
 function InitApplication() {
 
@@ -86,6 +76,24 @@ function InitApplication() {
 			}
 		}
 	}
+
+	var getLeague = (params) => {
+		if(!params.userid)
+			throw new Error('Must specify {userid}.');
+		else if(!params.leagueid)
+			throw new Error('Must specify {leagueid}.');
+		else if(!params.from)
+			throw new Error('Must specify {from}.');
+		else if(!params.to)
+			throw new Error('Must specify {to}.');
+
+		return Database.getLeague(params).then(function(result) {
+			log(result);
+			return result; // this return is used by loadRosterPage()
+		}, function(err) {
+			log(err);
+		});
+	};
 
 	var getUserLeagues = () => {
 		if (!USER['userid'])

@@ -8,6 +8,13 @@ var KNOWN_USERS = {};
 var SIMULATION_TIME = false;
 var LEAGUE_ID = false;
 
+function stopLoading(){
+	var loading = document.getElementById('loading');
+	var scorePage = document.getElementById('score-page');
+	loading.style.display = 'none';
+	scorePage.style.display = 'block';
+}
+
 Database.Auth.getCurrentUser().then((user) => {
 	login(user);
 }).catch((err) => {
@@ -149,6 +156,7 @@ function render(){
 			var load = document.getElementById('loading-box-score');
 			load.style.display = 'none';
 
+			stopLoading();
 			simulateMatch(match, allPlayers);
 
 			Database.getLeaderboard({

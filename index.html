@@ -100,6 +100,17 @@
 			padding: 5px 7.5px;
 		}
 
+		section:nth-child(odd) button.cta-btn {
+			border-color: white;
+			color: white;
+			background: transparent;
+		}
+
+		section:nth-child(odd) button.cta-btn:hover {
+			background: white;
+			color: rgba(44, 140, 153, 1);
+		}
+
 		p {
 			margin: 10px 0;
 			line-height: 20px;
@@ -151,6 +162,10 @@
 			width: 300px;
 		}
 
+		div.splash-pane:nth-child(1) p {
+			margin: 20px auto;
+		}
+
 		div.splash-pane:nth-child(2) {
 			width: 250px;
 		}
@@ -197,7 +212,8 @@
 		<div class="center-horizontal">
 			<div class="splash-pane">
 				<h1>Fantasy Civics</h1>
-				<p class="center-text">Fantasy Civics is a Fantasy Football-style game to encourage players to learn more about wards and alderman in Chicago.</p>
+				<p class="center-text">Fantasy Civics is a Fantasy Football-style game to encourage players to learn more about wards and aldermen in Chicago.</p>
+				<button class="cta-btn play-game">Sign Up</button>
 			</div>
 			<div class="splash-pane">
 				<img id="splash-logo" src="assets/logo-white.png">
@@ -228,6 +244,7 @@
 		<h3>Ward <span id="your-ward-number"></span> Scoring Breakdown</h3>
 		<ul id="ward-score-breakdown"></ul>
 		<p>Your alderman doesn't directly deal with these issues, but this is a fun way to see how your ward responds to citizen requests.</p>
+		<p>You can also see an alderman's historical fantasy scores. <span id="your-alderman-historical" class="scout-anchor" data-pid="playerid0001">Try it here</span>.</p>
 	</section>
 
 	<section class="landing-pane">
@@ -276,7 +293,7 @@
 	<section class="landing-pane">
 		<h2>Play Fantasy Civics</h2>
 		<p class="center-text">Now you know how to play Fantasy Civics! Get some friends, you can play a full game in 15 minutes!</p>
-		<button class="cta-btn play-game">Play Now</button>
+		<button class="cta-btn play-game">Sign Up</button>
 	</section>
 
 	<section class="landing-pane">
