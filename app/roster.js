@@ -323,6 +323,9 @@ function InitLeagueRoster() {
 						order: 0,
 						reverse: 1
 					},
+					mounted: function(){
+						updateScoutingReports();
+					},
 					methods: {
 						ordering: (orderBy) => {
 							USER['_allPlayers'].reverse *= -1;
