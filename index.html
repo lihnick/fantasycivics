@@ -170,6 +170,15 @@
 			font-style: italic;
 		}
 
+		.explain-text {
+			font-weight: bold;
+		}
+
+		.explain-text:hover {
+			opacity: 0.5;
+			cursor: pointer;
+		}
+
 		</style>
 
 	</head>
@@ -205,7 +214,7 @@
 
 	<section class="landing-pane">
 		<h2>How Does Scoring Work?</h2>
-		<p>Scores are calculated weekly based on 311 requests.</p>
+		<p>Scores are calculated weekly based on <span class="explain-text" data-explain="311 is the hotline for Chicago citizens to request city services such as graffiti removal and crime reporting.">311 requests</span>.</p>
 		<p>Completed 311 requests are worth +1 points and unfulfilled requests are worth -1 points.</p>
 		<p>Here are the types of issues we score on:</p>
 		<h3>Ward <span id="your-ward-number"></span> Scoring Breakdown</h3>
@@ -286,6 +295,14 @@
 		<script type="text/javascript" src="./lib/scouting.js"></script>
 		<script type="text/javascript" src="home.js"></script>
 		<script type="text/javascript">
+
+			var exps = document.getElementsByClassName('explain-text');
+			for(var i = 0; i < exps.length; i++){
+				var exp = exps[i];
+				exp.addEventListener('click', e => {
+					vex.dialog.alert(e.target.dataset.explain);
+				});
+			}
 
 		</script>
 	</body>
