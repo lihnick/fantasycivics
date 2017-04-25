@@ -1,4 +1,13 @@
+var MINUTE = 60 * 1000;
+var HOUR = 60 * MINUTE;
+var DAY = 24 * HOUR;
+var WEEK = 7 * DAY;
 
+var scout = ScoutingReport();
+
+function updateScoutingReports(){
+	scout.initializeReport('.scout-anchor');
+}
 
 function InitLeagueRoster() {
 
@@ -268,10 +277,10 @@ function InitLeagueRoster() {
 			}).then(() => {
 				if (!USER['_player-list']) {
 					USER['_player-list'] = Vue.component('player-list', {
-						props: ['row', 'header'],
+						props: ['row', 'header', 'range'],
 						template: '<tr>\
 							<td>{{ row.ward }}</td>\
-							<td>{{ row.name }} </td>\
+							<td class="scout-anchor" :data-pid="row.playerid" :data-from="range.from" :data-to="range.to">{{ row.name }} </td>\
 							<td>{{ row.scores[Object.keys(header)[0]] }}</td>\
 							<td>{{ row.scores[Object.keys(header)[1]] }}</td>\
 							<td>{{ row.scores[Object.keys(header)[2]] }}</td>\
@@ -306,6 +315,10 @@ function InitLeagueRoster() {
 					data: {
 						headers: Database.Scoring.DATASET_NAMES,
 						players: workingPlayers,
+						range: {
+							from: USER.rosterdate.prevto - (4 * WEEK),
+							to: USER.rosterdate.prevto
+						},
 						rosters: userRosters,
 						order: 0,
 						reverse: 1
@@ -339,6 +352,7 @@ function InitLeagueRoster() {
 									pending: (USER['workingPlayers'] && USER['workingPlayers'].playerid == sorted[i].playerid)? USER['workingPlayers'].pending : sorted[i].pending
 								});
 							}
+							updateScoutingReports();
 						},
 						acquirePlayer: (idx) => {
 							var tmp = USER['_allPlayers'];

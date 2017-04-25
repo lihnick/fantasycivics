@@ -7,6 +7,14 @@ var HOUR = 60 * MINUTE;
 var DAY = 24 * HOUR;
 var WEEK = 7 * DAY;
 
+var lastMonthEst = new Date(Date.now() - (4 * WEEK));
+var lastMonth = new Date(lastMonthEst.getFullYear(), lastMonthEst.getMonth()).getTime();
+var lastMonthStr = moment(lastMonth).format('MMMM');
+var demoWeeks = [
+	{from: lastMonth, to: lastMonth + WEEK},
+	{from: lastMonth + WEEK, to: lastMonth + (2 * WEEK)}
+];
+
 window.scrollToId = (id) => {
 	var el = document.getElementById(id);
 		el.scrollIntoView({
@@ -69,6 +77,9 @@ var wardNum = document.getElementById('your-ward-number');
 var breakDown = document.getElementById('ward-score-breakdown');
 var yourAldHist = document.getElementById('your-alderman-historical');
 
+yourAldHist.dataset.from = demoWeeks[0].to - (4 * WEEK);
+yourAldHist.dataset.to = demoWeeks[0].to;
+
 function showYourAlderman(res){
 	var alderman = getAldermanByWard(res.WARD);
 	yourAlderman.innerText = alderman.name;
@@ -105,13 +116,6 @@ var monthSpans = document.getElementsByClassName('insert-month');
 var visitorTable = document.getElementById('visitor-roster');
 var robotTable = document.getElementById('robot-roster');
 
-var lastMonthEst = new Date(Date.now() - (4 * WEEK));
-var lastMonth = new Date(lastMonthEst.getFullYear(), lastMonthEst.getMonth()).getTime();
-var lastMonthStr = moment(lastMonth).format('MMMM');
-var demoWeeks = [
-	{from: lastMonth, to: lastMonth + WEEK},
-	{from: lastMonth + WEEK, to: lastMonth + (2 * WEEK)}
-];
 for(var m = 0; m < monthSpans.length; m++){
 	var mSpan = monthSpans[m];
 	mSpan.innerText = lastMonthStr;
@@ -187,11 +191,7 @@ function getRandomRosterPair(){
 }
 
 var scout = ScoutingReport();
-
-scout.initializeReport('.scout-anchor', {
-	from: demoWeeks[0].to - (4 * WEEK),
-	to: demoWeeks[0].to
-});
+scout.initializeReport('.scout-anchor');
 
 function renderRosterTable(table, roster, callback, opt){
 	var options = opt || {};

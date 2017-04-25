@@ -9,8 +9,26 @@
 		<script type="text/javascript" src="../assets/moment.min.js"></script>
 		<script type="text/javascript" src="../assets/jquery-3.1.1.min.js"></script>
         <link href="https://fonts.googleapis.com/css?family=Roboto:400,900" rel="stylesheet">
+		<!-- Vex Assets -->
+		<script type="text/javascript" src="../assets/vex.combined.min.js"></script>
+		<script type="text/javascript">vex.defaultOptions.className = 'vex-theme-plain';</script>
+		<link rel="stylesheet" type="text/css" href="../assets/vex.css">
+		<link rel="stylesheet" type="text/css" href="../assets/vex-theme-plain.css">
+		<!-- Plotly -->
+		<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
         <link rel="stylesheet" type="text/css" href="reset.css">
         <link rel="stylesheet" type="text/css" href="temp-style.css">
+        <style type="text/css">
+        	
+			.has-scouting-report {
+				font-weight: bold;
+			}
+
+			.has-scouting-report:hover {
+				cursor: pointer;
+			}
+
+        </style>
 	</head>
 	<body>
 		<h1>Roster</h1>
@@ -62,7 +80,7 @@
 				<th>League <br><button v-on:click="ordering(6)">sort</button></th>
 				<th>Actions</th>
 				<th>Pending</th>
-				<tr is="player-list" v-for="(player, index) in players" v-bind:row="player" v-bind:header="headers" v-on:acquire="acquirePlayer(index)"></tr>
+				<tr is="player-list" v-for="(player, index) in players" v-bind:row="player" v-bind:header="headers" v-bind:range="range" v-on:acquire="acquirePlayer(index)"></tr>
 			</table>
 		</div>
 
@@ -74,6 +92,7 @@
 		<script type="text/javascript" src="../database/scoring.js"></script>
 		<script type="text/javascript" src="../database/auth.js"></script>
 		<script type="text/javascript" src="../database/database.js"></script>
+		<script type="text/javascript" src="../lib/scouting.js"></script>
 		<script type="text/javascript" src="app.js"></script>
 		<script type="text/javascript" src="roster.js"></script>
 
