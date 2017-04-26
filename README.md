@@ -2,6 +2,12 @@
 
 CS 487 - Software Engineering Project
 
+### Demo Verison ###
+
+[What is Fantasy Civics](https://geliclub.github.io/fantasycivics/)
+
+[Fantasy Civics Demo](https://geliclub.github.io/fantasycivics/app/)
+
 ### CS 487 Project Proposal ###
 - [x] Due 2/18/17
 
@@ -85,3 +91,4 @@ Chicago APIs
 
 ### Preliminary Design Report ###
 - [ ] Due 3/11/17
+Need to discuss in future meeting.

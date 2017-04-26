@@ -35,6 +35,47 @@ var Database = {
 	Auth: DatabaseAuth(DatabaseFirebase),
 	Scoring: Scoring,
 
+	LOCK_ROSTERS_AFTER: (5 / 7), // Locks rosters 5/7 of the way through the match
+	IN_SIMULATED_TIME: false,
+
+	getLockTime: (match) => {
+		var duration = match.end - match.start;
+		var lockTime = match.start + (Database.LOCK_ROSTERS_AFTER * duration);
+		return lockTime;
+	},
+
+	when: (eventType, params, callback) => {
+		var res = true;
+		switch(eventType){
+			case 'rosters_change':
+				if(!params.leagueid){
+					throw new Error('Must specify {leagueid}.');
+				}
+				var ref = db.ref('leagues/' + params.leagueid + '/rosters');
+				ref.on('child_changed', (snapshot) => {
+					callback({
+						changed: true
+					});
+				});
+				break;
+			case 'people_join':
+				if(!params.inviteid){
+					throw new Error('Must specify {inviteid}.');
+				}
+				var ref = db.ref('invitations/' + params.inviteid + '/members');
+				ref.on('child_added', (snapshot) => {
+					callback({
+						changed: true
+					});
+				});
+				break;
+			default:
+				throw new Error('No such event listener: ' + eventType);
+				break;
+		}
+		return res;
+	},
+
 	updateUser: (params) => {
 		if(!params.userid){
 			throw new Error('Must specify {userid}.');
@@ -46,9 +87,10 @@ var Database = {
 				if(snapshot.exists()){
 					var userData = snapshot.val();
 					var newData = {
+						userid: userData.userid || params.userid, // Reversed in case world explodes
 						name: params.name || userData.name,
 						image: params.image || userData.image,
-						email: params.email || userData.image
+						email: params.email || userData.email
 					}
 					ref.set(newData).then(() => {
 						resolve({
@@ -248,6 +290,7 @@ var Database = {
 					}
 				}).catch(rejectLeague);
 			}).then((league) => {
+				league.leagueid = params.leagueid;
 				var rosters = league.rosters;
 				var userPromises = [];
 				var promises = [];
@@ -292,18 +335,26 @@ var Database = {
 						}
 					}
 				}).then(() => {
-					var response = {
-						leagueid: params.leagueid,
-						name: league.name,
-						start: league.start,
-						end: league.end,
-						from: params.from,
-						to: params.to,
-						schedule: league.schedule,
-						users: league.users,
-						rosters: rosters
-					}
-					resolve(response);
+					Database.getLeaderboard({
+						leagueid: params.leagueid
+					}, league).then((leaderboard) => {
+						for(var userKey in league.users){
+							league.users[userKey].wins = leaderboard.records[userKey].wins.length;
+							league.users[userKey].losses = leaderboard.records[userKey].losses.length;
+						}
+						var response = {
+							leagueid: params.leagueid,
+							name: league.name,
+							start: league.start,
+							end: league.end,
+							from: params.from,
+							to: params.to,
+							schedule: league.schedule,
+							users: league.users,
+							rosters: rosters
+						}
+						resolve(response);
+					}).catch(reject);
 				}).catch(reject);
 			}).catch(reject);
 		});
@@ -323,6 +374,7 @@ var Database = {
 				else{
 					var rosters = {};
 					var league = snapshot.val();
+					league.leagueid = params.leagueid;
 					for(var uid in league.rosters){
 						rosters[uid] = {};
 						for(var pid in league.rosters[uid]){
@@ -335,18 +387,94 @@ var Database = {
 							}
 						}
 					}
-					var response = {
-						leagueid: params.leagueid,
-						name: league.name,
-						start: league.start,
-						end: league.end,												
-						schedule: league.schedule,
-						users: league.users,
-						rosters: rosters
-					}
-					resolve(response);
+					Database.getLeaderboard({
+						leagueid: params.leagueid
+					}, league).then((leaderboard) => {
+						for(var userKey in league.users){
+							league.users[userKey].wins = leaderboard.records[userKey].wins.length;
+							league.users[userKey].losses = leaderboard.records[userKey].losses.length;
+						}
+						var response = {
+							leagueid: params.leagueid,
+							name: league.name,
+							start: league.start,
+							end: league.end,
+							schedule: league.schedule,
+							users: league.users,
+							rosters: rosters
+						}
+						resolve(response);
+					}).catch(reject);
 				}
 			}).catch(reject);
+		});
+	},
+
+	getLeaderboard: (params, inLeague) => {
+		if(!params.leagueid){
+			throw new Error('Must specify {leagueid}.');
+		}
+
+		var getLeaderboardCallback = (league, resolve, reject) => {
+			var records = Util.clone(league.users);
+			// Convert counters to lists of opponents
+			for(var uid in records){
+				records[uid].userid = uid;
+				records[uid].wins = [];
+				records[uid].losses = [];
+			}
+			var schedule = league.schedule;
+			for(var w in schedule){
+				for(var g in schedule[w]){
+					var match = schedule[w][g];
+					if(match.winner){
+						var loser = (match.home === match.winner) ? match.away : match.home;
+						/*records[match.winner].wins++;
+						records[loser].losses++;*/
+						// Track opponents
+						records[match.winner].wins.push(loser);
+						records[loser].losses.push(match.winner);
+					}
+				}
+			}
+			var rankings = Object.keys(records).map((userKey) => {
+				records[userKey].userid = userKey;
+				return records[userKey];
+			}).sort((a, b) => {
+				var winDiff = b.wins.length - a.wins.length;
+				var loseDiff = a.losses.length - b.losses.length;
+				var order = winDiff;
+				if(winDiff === 0){
+					order = loseDiff;
+				}
+				return order;
+			});
+			resolve({
+				leagueid: params.leagueid,
+				name: league.name,
+				records: records,
+				rankings: rankings
+			});
+		}
+
+		return new Promise((resolve, reject) => {
+			if(inLeague){
+				if(inLeague.leagueid === params.leagueid){
+					getLeaderboardCallback(inLeague, resolve, reject);
+				}
+				else{
+					reject('getLeaderboard: League object passed in to accelerate query does not match the given leagueid.');
+				}
+			}
+			else{
+				Database.getLeague({
+					leagueid: params.leagueid,
+					from: 1,
+					to: 1
+				}).then((league) => {
+					getLeaderboardCallback(league, resolve, reject);
+				}).catch(reject);				
+			}
 		});
 	},
 
@@ -378,6 +506,121 @@ var Database = {
 					players: playerMap
 				}
 				resolve(res);
+			}).catch(reject);
+		});
+	},
+
+	updateRoster: (params) => {
+		if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+		else if(!params.leagueid){
+			throw new Error('Must specify {leagueid}.');
+		}
+		else if(!params.roster){
+			throw new Error('Must specify {roster}.');
+		}
+		else if(!params.change){
+			throw new Error('Must specify {change}.');
+		}
+		else if(Database.IN_SIMULATED_TIME && !params.timestamp){
+			throw new Error('Must specify {timestamp} in simulated time.');
+		}
+		else if(!Database.IN_SIMULATED_TIME){
+			params.timestamp = Date.now();
+		}
+
+		var roster = params.roster;
+		for(var pid in roster){
+			var data = roster[pid].starter;
+			roster[pid] = data; // Flatten Records
+		}
+
+		roster.timestamp = params.timestamp;
+
+		var changes = ['sit', 'start', 'add', 'drop'];
+		for(var c = 0; c < changes.length; c++){
+			var action = changes[c];
+			if(params.change[action]){
+				roster[action] = params.change[action];
+			}
+		}
+
+		return new Promise((resolve, reject) => {
+			var ref = db.ref('rosters/' + params.leagueid + '/' + params.userid);
+			ref.push(roster).then(() => {
+				//console.log('Replicated Roster Successfully: ', roster);
+				resolve({
+					success: true
+				});
+			}).catch(reject);
+		});
+	},
+
+	getHistoricalRoster: (params) => {
+		if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+		else if(!params.leagueid){
+			throw new Error('Must specify {leagueid}.');
+		}
+		else if(!params.to){
+			throw new Error('Must specify {to}.');
+		}
+
+		/*
+		 * Errors not accounted for:
+		 * Error: userid not in league -> request should fail with descriptive error
+		 * Error: league does not exist -> request should fail with descriptive error
+		 */
+
+		return new Promise((resolve, reject) => {
+			var ref = db.ref('rosters/' + params.leagueid + '/' + params.userid);
+			// Using only the endAt() filter, this query gets the earliest possible roster
+			var query = ref.orderByChild('timestamp').endAt(params.to).limitToLast(1);
+			query.once('value', (snapshot) => {
+				var val = snapshot.val();
+				if(val){
+					var keys = Object.keys(val);
+					if(keys.length > 1){
+						reject('getHistoricalRoster: Too many historical rosters were returned.');
+					}
+					else{
+						var roster = val[keys[0]];
+						delete roster.timestamp;
+						var changes = ['sit', 'start', 'add', 'drop'];
+						for(var c = 0; c < changes.length; c++){
+							var action = changes[c];
+							if(roster[action]){
+								delete roster[action];
+							}
+						}
+						resolve({
+							userid: params.userid,
+							leagueid: params.leagueid,
+							to: params.to,
+							roster: roster
+						});
+					}
+				}
+				else{
+					//console.warn('getHistoricalRoster: No historical rosters found, using current roster, may be misdated.');
+					Database.getLeagueData({
+						leagueid: params.leagueid
+					}).then((league) => {
+						var roster = league.rosters[params.userid];
+						for(var pid in roster){
+							var data = roster[pid].starter;
+							roster[pid] = data; // Flatten Records
+						}
+						resolve({
+							userid: params.userid,
+							leagueid: params.leagueid,
+							to: params.to,
+							roster: roster
+						});
+					}).catch(reject);
+				}
 			}).catch(reject);
 		});
 	},
@@ -571,7 +814,7 @@ var Database = {
 				for(var week in schedule){
 					var games = schedule[week];
 					var sampleGame = games[0];
-					if(params.on < sampleGame.end && params.on > sampleGame.start){
+					if(params.on <= sampleGame.end && params.on >= sampleGame.start){
 						foundDate = true;
 						for(var gid in games){
 							var game = games[gid];
@@ -581,6 +824,7 @@ var Database = {
 								res.end = game.end;
 								res.home = game.home;
 								res.away = game.away;
+								res.week = parseInt(week, 10); // Correctly numbered
 								break;
 							}
 						}
@@ -600,6 +844,167 @@ var Database = {
 		});
 	},
 
+	getMatchScore: (params) => {
+		if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+		else if(!params.leagueid){
+			throw new Error('Must specify {leagueid}.');
+		}
+		else if(!params.on){
+			throw new Error('Must specify {on}.');
+		}
+
+		return new Promise((resolve, reject) => {
+			Database.getMatch({
+				leagueid: params.leagueid,
+				userid: params.userid,
+				on: params.on
+			}).then((match) => {
+				var awayProm = Database.getHistoricalRoster({
+					leagueid: params.leagueid,
+					userid: match.away,
+					from: match.start,
+					to: match.end
+				});
+				var homeProm = Database.getHistoricalRoster({
+					leagueid: params.leagueid,
+					userid: match.home,
+					from: match.start,
+					to: match.end
+				});
+				Promise.all([awayProm, homeProm]).then((rosters) => {
+					Database.getAllPlayers({
+						leagueid: params.leagueid,
+						from: match.start,
+						to: match.end
+					}).then((allPlayers) => {
+						var finalScore = {
+							home: false,
+							away: false
+						}
+						var gameRosters = {};
+						for(var i = 0; i < rosters.length; i++){
+							var competitor = rosters[i];
+							var roster = competitor.roster;
+							var totalScore = 0;
+							for(var pid in roster){
+								var player = allPlayers[pid];
+								player.starter = roster[pid];
+								if(roster[pid]){
+									for(var dataset in Scoring.DATASETS){
+										totalScore += player.scores[dataset];
+									}
+								}
+								if(!gameRosters[competitor.userid]){
+									gameRosters[competitor.userid] = {};
+								}
+								gameRosters[competitor.userid][pid] = player;
+							}
+							if(match.home === competitor.userid){
+								finalScore.home = totalScore;
+							}
+							else if(match.away === competitor.userid){
+								finalScore.away = totalScore;
+							}
+						}
+						var winner = (finalScore.home > finalScore.away) ? match.home : match.away;
+						resolve({
+							leagueid: params.leagueid,
+							match: match,
+							rosters: gameRosters,
+							winner: winner
+						});
+					}).catch(reject);
+				}).catch(reject);
+			}).catch(reject);
+		});
+	},
+
+	setMatchOutcome: (params) => {
+		if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+		else if(!params.leagueid){
+			throw new Error('Must specify {leagueid}.');
+		}
+		else if(!params.on){
+			throw new Error('Must specify {on}.');
+		}
+
+		return new Promise((resolve, reject) => {
+			Database.getMatchScore(params).then((score) => {
+				var ref = db.ref('leagues/' + params.leagueid + '/schedule');
+				ref.once('value', (snapshot) => {
+					var schedule = snapshot.val();
+					var weekKey = score.match.week;
+					var games = schedule[weekKey];
+					var found = false;
+					var gameKey = false;
+					for(var g in games){
+						var game = games[g];
+						if(game.home === score.match.home && game.away === score.match.away){
+							found = true;
+							gameKey = g;
+							break;
+						}
+					}
+					if(found){
+						var outcomeRef = db.ref('leagues/' + params.leagueid + '/schedule/' + weekKey + '/' + gameKey + '/winner');
+						outcomeRef.once('value', (snapshot) => {
+							if(snapshot.exists()){
+								reject('setMatchOutcome: Match outcome already determined.');
+							}
+							else{
+								outcomeRef.set(score.winner).then(() => {
+									resolve({
+										success: true
+									});
+								}).catch(reject);
+							}
+						}).catch(reject);
+					}
+					else{
+						reject('setMatchOutcome: Could not find match {match: ' + JSON.stringify(score.match) + '} in league {leagueid: ' + params.leagueid + '} schedule.');
+					}
+				}).catch(reject);
+			}).catch(reject);
+		});
+	},
+
+	isLocked: (params) => {
+		if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+		else if(!params.leagueid){
+			throw new Error('Must specify {leagueid}.');
+		}
+		else if(!params.on){
+			throw new Error('Must specify {on}.');
+		}
+
+		return new Promise((resolve, reject) => {
+			if(Database.IN_SIMULATED_TIME){
+				resolve({
+					locked: false,
+					lockTime: false,
+					match: false
+				});
+			}
+			else{
+				Database.getMatch(params).then((match) => {
+					var lockTime = Database.getLockTime(match);
+					var res = params.on > lockTime;
+					resolve({
+						locked: res,
+						lockTime: lockTime,
+						match: match
+					});
+				}).catch(reject);
+			}
+		});
+	},
+
 	movePlayer: (params) => {
 		if(!params.leagueid){
 			throw new Error('Must specify {leagueid}.');
@@ -613,11 +1018,18 @@ var Database = {
 		else if(!params.start){
 			throw new Error('Must specify {start}.');
 		}
+		else if(Database.IN_SIMULATED_TIME && !params.timestamp){
+			throw new Error('Must specify {timestamp} in simulated time.');
+		}
+		else if(!Database.IN_SIMULATED_TIME){
+			params.timestamp = Date.now();
+		}
 
-		return new Promise((resolve, reject) => {
+		var movePlayerCallback = (resolve, reject) => {
 			var ref = db.ref('leagues/' + params.leagueid + '/rosters/' + params.userid);
 			ref.once('value', (snapshot) => {
 				var players = snapshot.val();
+				var oldRoster = Util.clone(players);
 				if(!players){
 					reject('No roster for user {userid: ' + params.userid + '} in league {leagueid: ' + params.leagueid + '}');
 				}
@@ -637,12 +1049,41 @@ var Database = {
 					players[params.sit].starter = false;
 					players[params.start].starter = true;
 					ref.set(players).then(() => {
-						resolve({
-							success: true
+						Database.updateRoster({
+							userid: params.userid,
+							leagueid: params.leagueid,
+							roster: players,
+							change: params,
+							timestamp: params.timestamp
+						}).then(() => {
+							resolve({
+								success: true
+							});
+						}).catch((err) => {
+							ref.set(oldRoster).then(() => {
+								reject(err);
+							}).reject((fatalErr) => {
+								reject('Fatal Error: Replication failed with error message {error: ' + fatalErr + '}, roster data after movePlayer() call may be out of sync.');
+							});
 						});
 					});
 				}
 			}).catch(reject);
+		}
+
+		return new Promise((resolve, reject) => {
+			Database.isLocked({
+				userid: params.userid,
+				leagueid: params.leagueid,
+				on: Date.now()
+			}).then((res) => {
+				if(res.locked){
+					reject('Roster locked for remainder of the match.');
+				}
+				else{
+					movePlayerCallback(resolve, reject);
+				}
+			});
 		});		
 	},
 
@@ -659,12 +1100,20 @@ var Database = {
 		else if(!params.drop){
 			throw new Error('Must specify {drop}.');
 		}
+		else if(Database.IN_SIMULATED_TIME && !params.timestamp){
+			throw new Error('Must specify {timestamp} in simulated time.');
+		}
+		else if(!Database.IN_SIMULATED_TIME){
+			params.timestamp = Date.now();
+		}
 
-		return new Promise((resolve, reject) => {
+		var acquirePlayerCallback = (resolve, reject) => {
 			Database.getLeagueData(params).then((league) => {
 				if(!(params.userid in league.rosters)){
 					reject('No roster for user {userid: ' + params.userid + '} in league {leagueid: ' + params.leagueid + '}');
 				}
+
+				var oldRoster = Util.clone(league.rosters); // For backup purposes
 
 				var playerToDropIsOwned = false;
 				var playerToAddIsFree = true;
@@ -694,12 +1143,41 @@ var Database = {
 					var newRoster = league.rosters[params.userid];
 					var ref = db.ref('leagues/' + params.leagueid + '/rosters/' + params.userid);
 					ref.set(newRoster).then(() => {
-						resolve({
-							success: true
+						Database.updateRoster({
+							userid: params.userid,
+							leagueid: params.leagueid,
+							roster: newRoster,
+							change: params,
+							timestamp: params.timestamp
+						}).then(() => {
+							resolve({
+								success: true
+							});
+						}).catch((err) => {
+							ref.set(oldRoster).then(() => {
+								reject(err);
+							}).reject((fatalErr) => {
+								reject('Fatal Error: Replication failed with error message {error: ' + fatalErr + '}, roster data after acquirePlayer() call may be out of sync.');
+							});
 						});
 					}).catch(reject);
 				}
 			}).catch(reject);
+		}
+
+		return new Promise((resolve, reject) => {
+			Database.isLocked({
+				userid: params.userid,
+				leagueid: params.leagueid,
+				on: Date.now()
+			}).then((res) => {
+				if(res.locked){
+					reject('Roster locked for remainder of the match.');
+				}
+				else{
+					acquirePlayerCallback(resolve, reject);
+				}
+			});
 		});
 
 	}

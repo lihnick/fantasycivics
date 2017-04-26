@@ -4,25 +4,24 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Requests</title>
 
+		<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"> <!-- For datepickers -->
 
 		<script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
 		<script type="text/javascript" src="../assets/vue.js"></script>
 		<script type="text/javascript" src="../assets/promise.min.js"></script>
 		<script type="text/javascript" src="../assets/moment.min.js"></script>
 		<script type="text/javascript" src="../assets/jquery-3.1.1.min.js"></script>
+		<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script> <!-- For datepickers -->
 		<link href="https://fonts.googleapis.com/css?family=Roboto:400,900" rel="stylesheet">
 		<link rel="stylesheet" type="text/css" href="reset.css">
 		<link rel="stylesheet" type="text/css" href="temp-style.css">
 	</head>
 	<body>
-		<!-- Header -->
-		
 		<h1>Fantasy Civics</h1>
-		<p>Insert splash page, and fancy stuff</p>
+		<p>User account stuffs</p>
 
-		<!-- Contents -->
-		<a href="#">Home</a>
-		<a href="app.html">App</a>
+		<a href="index.html">Home</a>
+		<a href="#">App</a>
 		<a href="roster.html">Roster</a>
 
 		<h2>User Info</h2>
@@ -33,12 +32,19 @@
 			<!-- <img id="image" style="width:64px;height:64px;" alt="No Image"></img> -->
 			<button id="logout" onclick="app.userLogout()">Logout</button>
 		</div>
-		
-		<h2>Login</h2>
 
-		<button id="authenticate" onclick="app.userLogin()">Login with Google</button>
+		<h2>Create Leagues</h2>
+		<a href="join.html"><button>Create a New League</button></a>
 
-		<!-- Footer -->
+		<h2>Current Leagues</h2>
+		<div id="userLeagues">
+			<p>With a league selected, go the roster page to start playing.</p>
+			<table>
+				<th>Status</th><th>Selection</th><th>League Name</th><th>Start</th><th>End</th><th>Users</th>
+				<tr is="league-list" v-for="(league, index) in leagues" v-bind:row="league" v-on:select="loadLeague(index)"></tr>
+			</table>
+		</div>
+
 
 		<!-- script -->
 
@@ -50,12 +56,13 @@
 		<script type="text/javascript" src="../database/database.js"></script>
 		<script type="text/javascript" src="app.js"></script>
 		<script type="text/javascript">
+
 			// Instantiate app
 			var app = InitApplication();
-			if (app.checkUser()) {
-				app.displayUser();
-			}
-			
+			if (app.checkUser()) // getUser() => true or false based on data cached or not
+				app.displayUser(); // displayUser() => modify html DOM to show users infomation if there are user infos
+			app.displayUserLeagues(); // displays all the leagues one user is a part of
+
 		</script>
 	</body>
 </html>

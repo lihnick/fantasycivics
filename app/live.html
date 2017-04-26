@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Fantasy Civics</title>
+
+		<script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
+		<script type="text/javascript" src="../assets/promise.min.js"></script>
+		<script type="text/javascript" src="../assets/moment.min.js"></script>
+		<script type="text/javascript" src="../assets/jquery-3.1.1.min.js"></script>
+		<link href="https://fonts.googleapis.com/css?family=Roboto:400,900" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="reset.css">
+		<link rel="stylesheet" type="text/css" href="temp-style.css">
+		<style>
+
+			section#page {
+				display: none;
+			}
+
+			div#message-container {
+				display: none;
+			}
+
+			span.spacer {
+				width: 25px;
+				display: block;
+			}
+
+			table td {
+				padding-right: 10px;
+			}
+
+			.center {
+				text-align: center;
+			}
+
+			td.center {
+				width: 90px;
+			}
+
+			td.player-name {
+				width: 180px;
+			}
+
+			.board-container {
+				display: inline-block;
+				vertical-align: top;
+			}
+
+			#feed-container {
+				margin: 0 15px;
+			}
+
+			#leaderboard-container {
+				display: none;
+			}
+
+			#back-button {
+				display: inline-block;
+			}
+
+			.feed-meta {
+				opacity: 0.75;
+				font-size: 12px;
+			}
+
+			.feed-item {
+				margin-bottom: 15px;
+			}
+
+			div#score-page {
+				display: none;
+				padding: 20px;
+			}
+
+		</style>
+
+	</head>
+	<body>
+		
+		<!-- Header -->
+
+		<div id="loading" class="loading">
+			<div>
+				<img src="../assets/logo-white.png">
+			</div>
+			<h1>Loading Fantasy Civics...</h1>
+		</div>
+
+		<div id="score-page">
+
+		<h1>Fantasy Civics<a id="back-button" href="roster.html"><button>Back</button></a></h1>
+
+		<div id="message-container">
+			<p><span id="message"></span> <span id="close-message">[Close]</span></p>
+		</div>
+
+		<section id="login">
+			<h2>Login</h2>
+			<button id="login-button">Google Login</button>
+		</section>
+		
+		<section id="page">
+
+			<div class="board-container">
+				<h3>Box Score</h3>
+				<div id="box-score">
+					<p id="loading-box-score">Loading..</p>
+				</div>
+			</div>
+
+			<div class="board-container" id="feed-container">
+				<h3>Game Feed</h3>
+				<h2>Time Remaining: <span id="game-clock">168:00<span></h2>
+				<div id="ticker-feed">
+					<p>Game started.</p>
+				</div>
+			</div>
+
+			<div class="board-container" id="leaderboard-container">
+				<h3>Leaderboard</h3>
+				<div id="leaderboard">
+					<p id="loading-leaderboard">Loading..</p>
+				</div>
+			</div>
+
+		</section>
+
+		</div>
+
+		<!-- Footer -->
+
+		<!-- script -->
+
+		<script type="text/javascript" src="../lib/util.js"></script>
+		<script type="text/javascript" src="../database/player.js"></script>
+		<script type="text/javascript" src="../database/league.js"></script>
+		<script type="text/javascript" src="../database/scoring.js"></script>
+		<script type="text/javascript" src="../database/auth.js"></script>
+		<script type="text/javascript" src="../database/database.js"></script>
+		<script type="text/javascript" src="live.js"></script>
+		<script type="text/javascript">
+
+		</script>
+	</body>
+</html>

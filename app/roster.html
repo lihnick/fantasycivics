@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Roster</title>
+
+		<script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
+		<script type="text/javascript" src="../assets/vue.js"></script>
+		<script type="text/javascript" src="../assets/promise.min.js"></script>
+		<script type="text/javascript" src="../assets/moment.min.js"></script>
+		<script type="text/javascript" src="../assets/jquery-3.1.1.min.js"></script>
+        <link href="https://fonts.googleapis.com/css?family=Roboto:400,900" rel="stylesheet">
+		<!-- Vex Assets -->
+		<script type="text/javascript" src="../assets/vex.combined.min.js"></script>
+		<script type="text/javascript">vex.defaultOptions.className = 'vex-theme-plain';</script>
+		<link rel="stylesheet" type="text/css" href="../assets/vex.css">
+		<link rel="stylesheet" type="text/css" href="../assets/vex-theme-plain.css">
+		<!-- Plotly -->
+		<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="reset.css">
+    <link rel="stylesheet" type="text/css" href="temp-style.css">
+    <style type="text/css">
+        	
+			.has-scouting-report {
+				font-weight: bold;
+			}
+
+			.has-scouting-report:hover {
+				cursor: pointer;
+			}
+
+			div#roster-page {
+				display: none;
+				padding: 20px;
+			}
+    
+      [v-cloak] {
+        display: none;
+      }
+      
+    </style>
+	</head>
+	<body>
+
+		<div id="loading" class="loading">
+			<div>
+				<img src="../assets/logo-white.png">
+			</div>
+			<h1>Loading Fantasy Civics...</h1>
+		</div>
+
+		<div id="roster-page">
+
+		<h1>Roster</h1>
+		<p>Insert roster page, and fancy tables</p>
+		<a href="index.html">Home</a>
+		<a href="app.html">App</a>
+		<a href="#">Roster</a>
+		<button id="outcome" onclick="roster.viewOutcome();">View Match</button>
+		<button id="setmatch" onclick="roster.setMatchOutcome()">Finalize Match</button>
+
+		<h2>User Info</h2>
+		<div>
+			<!-- <p id="userid"></p> -->
+			<p id="email"></p>
+			<p id="name"></p>
+			<!-- <img id="image" style="width:64px;height:64px;" alt="No Image"></img> -->
+			<button id="logout" onclick="roster.userLogout()">Logout</button>
+		</div>
+
+		<div id="userRoster" v-cloak>
+			<h3>Objective</h3>
+			<p> {{ objective }} </p>
+			<h3>{{ leaguename }}</h3>
+			<p>Choose two consecutive players to swap from benching and starting in your roster.</p>
+			<table>
+				<tr>
+					<th>Players</th><th>{{ headers[Object.keys(headers)[0]] }}</th><th>{{ headers[Object.keys(headers)[1]] }}</th><th>{{ headers[Object.keys(headers)[2]] }}</th><th>Score</th><th>lineup</th><th>Actions</th><th>Pending</th>
+				</tr>
+				<tr is="roster-list" v-for="(player, index) in players" v-bind:row="player" v-bind:header="headers" v-bind:range="range" v-on:toggle="togglePlayer(index)"></tr>
+				<tr>
+					<td></td><td></td><td></td><td></td>
+					<td>{{ aggregator }}</td>
+					<td></td><td></td><td></td>
+				</tr>
+			</table>
+		</div>
+
+
+		<div id="allPlayers" v-cloak>
+			<h3>All Players</h3>
+			<p>Choose two consecutive players to add or drop a player from your roster. Click a player to see their stats.</p>
+			<br>
+			<table>
+				<th>Ward <br><button v-on:click="ordering(0)">sort</button></th>
+				<th>Players <br><button v-on:click="ordering(1)">sort</button></th>
+				<th>{{ headers[Object.keys(headers)[0]] }} <br><button v-on:click="ordering(2)">sort</button></th>
+				<th>{{ headers[Object.keys(headers)[1]] }} <br><button v-on:click="ordering(3)">sort</button></th>
+				<th>{{ headers[Object.keys(headers)[2]] }} <br><button v-on:click="ordering(4)">sort</button></th>
+				<th>Score <br><button v-on:click="ordering(5)">sort</button></th>
+				<th>League <br><button v-on:click="ordering(6)">sort</button></th>
+				<th>Actions</th>
+				<th>Pending</th>
+				<tr is="player-list" v-for="(player, index) in players" v-bind:row="player" v-bind:header="headers" v-bind:range="range" v-on:acquire="acquirePlayer(index)"></tr>
+			</table>
+		</div>
+
+		</div>
+
+		<!-- script -->
+
+		<script type="text/javascript" src="../lib/util.js"></script>
+		<script type="text/javascript" src="../database/player.js"></script>
+		<script type="text/javascript" src="../database/league.js"></script>
+		<script type="text/javascript" src="../database/scoring.js"></script>
+		<script type="text/javascript" src="../database/auth.js"></script>
+		<script type="text/javascript" src="../database/database.js"></script>
+		<script type="text/javascript" src="../lib/scouting.js"></script>
+		<script type="text/javascript" src="app.js"></script>
+		<script type="text/javascript" src="roster.js"></script>
+
+		<script type="text/javascript">
+			// Instantiate app
+			var roster = InitLeagueRoster();
+			roster.loadRosterPage();
+
+		</script>
+	</body>
+</html>

@@ -2,9 +2,15 @@
 
 ## Getting Started
 
-All five of these files must be imported.
+All of these files must be imported.
 
 ```html
+<!-- Dependencies -->
+<script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
+<script type="text/javascript" src="../assets/promise.min.js"></script>
+<script type="text/javascript" src="../assets/jquery-3.1.1.min.js"></script>
+<script type="text/javascript" src="../lib/util.js"></script>
+<!-- Database API -->
 <script type="text/javascript" src="./database/player.js"></script>
 <script type="text/javascript" src="./database/league.js"></script>
 <script type="text/javascript" src="./database/scoring.js"></script>
@@ -21,6 +27,32 @@ var Database = InitDatabase();
 The database object currently supports the methods below. Most, if not all, methods return promises and can be handled with `then` and `catch` callbacks.
 
 If not otherwise specified, parameters are required. If there is an ellipsis `...` in a response structure, it means that the format of the above object is repeated for other keys at the same level, if any.
+
+## Globals
+
+**Warning:** If using global values other than the default, remember that the values reset to default on any page load.
+
+### Database.LOCK_ROSTERS_AFTER
+
+Value between `0` and `1` to determine at what point during a match users will no longer be able to modify their rosters. Default: `(5/7)`.
+
+* Ex) `Database.LOCKROSTERS_AFTER = 0.5;` means that rosters will be locked to editing halfway through the match.
+
+### Database.IN_SIMULATED_TIME
+
+Boolean for whether or not matches will be played using historical data and simulated time. Default: `false`.
+
+### Database.Scoring.DATASET_NAMES
+
+A mapping of dataset keys to their user-friendly names. The dataset keys match the keys provided in scoring data responses and every scoring data response includes all of the dataset keys.
+
+```javascript
+{
+	pot_holes: 'Pot Holes',
+	street_lights: 'Light Outages',
+	graffiti: 'Graffiti'
+}
+```
 
 ## Authentication
 
@@ -51,7 +83,7 @@ Sign out user.
 Promise representing success or bearing error.
 
 ### Database.Auth.getCurrentUser()
-Get data for the user who is currently authenticated, if any.
+Get the userid for the user who is currently authenticated, if any. Call `Database.getUser()` with the userid to get additional information.
 
 **Parameters**
 `void`
@@ -60,10 +92,7 @@ Get data for the user who is currently authenticated, if any.
 Promise bearing data or error.
 ```
 {
-	userid: 'testuser0001',
-	name: 'Test User',
-	email: 'test@fantasycivics.edu',
-	image: 'https://fantasycivics.edu/image.png'
+	userid: 'testuser0001'
 }
 ```
 
@@ -301,7 +330,8 @@ Promise bearing data or error.
 		testuser0001: {
 			wins: 0,
 			losses: 0,
-			team: 'Test Team'
+			team: 'Test Team',
+			name: 'Fake Player'
 		}
 		...
 	},
@@ -338,7 +368,7 @@ Promise bearing data or error.
 }
 ```
 
-### Database.getLeague()
+### Database.getLeagueData()
 Get the meta data of an existing league, no player scores.
 
 **Parameters**
@@ -393,6 +423,49 @@ Promise bearing data or error.
 ```
 
 * Each "week" (set of matches) is contained in a list. The `schedule` property of the response is a list of these lists.
+
+### Database.getLeaderboard()
+Get win/loss records and rankings for users in the given league.
+
+**Parameters**
+```
+{
+	leagueid: 'leagueid0001'
+}
+```
+
+**Response**
+Promise bearing data or error.
+```
+{
+	leagueid: 'leagueid0001',
+	name: 'Test League',
+	records: {
+		testuser0001: {
+			wins: ['testuser0002', 'testuser0004'], // List of players beaten
+			losses: ['testuser0003'], // List of players lost to
+			team: 'Test Team',
+			name: 'Fake Player',
+			userid: 'testuser0001'
+		}
+		...
+	},
+	rankings: [
+		{
+			wins: ['testuser0002', 'testuser0004'], // List of players beaten
+			losses: ['testuser0003'], // List of players lost to
+			team: 'Test Team',
+			name: 'Fake Player',
+			userid: 'testuser0001'
+		}
+		...
+	]
+}
+```
+
+* In the `rankings` list, users are sorted in order of rank, where index `0` is first place.
+* In the future, tiebreakers will be implemented.
+* If you already have the `league` object for the given league, you can accelerate this query like so: `Database.getLeaderboard({...}, league)`.
 
 ## Players
 
@@ -449,7 +522,7 @@ Get a player and their scoring data for a given league.
 }
 ```
 
-* If you already have the `league` object for the given league, you can accelerate this query like so: `Database.getAllPlayers({...}, league)`.
+* If you already have the `league` object for the given league, you can accelerate this query like so: `Database.getPlayer({...}, league)`.
 
 **Response**
 Promise bearing data or error.
@@ -507,6 +580,39 @@ Promise bearing data or error.
 	...
 }
 ```
+
+### Database.isLocked()
+Determine whether or not the given user in the given league can edit their roster. This function is used internally with all methods that affect user rosters and will reject the transaction if the roster is locked.
+
+**Parameters**
+```
+{
+	userid: 'testuser0001',
+	leagueid: 'leagueid0001',
+	on: Date.now()
+}
+```
+
+**Response**
+Promise bearing data or error.
+```
+	{
+		locked: true,
+		lockTime: 1483220400000,
+		match: {
+			userid: 'testuser0001',
+			leagueid: 'leagueid0001',
+			on: 1483250400000,
+			home: 'testuser0001',
+			away: 'testuser0002',
+			start: 1483250400000,
+			end: 1485928800000,
+			week: 2
+		}
+	}
+```
+
+* Property `lockTime` in the response is the timestamp at which the roster locks for the current match. It is returned regardless of whether or not the roster is locked. Example use case: if the application wants to let the user know when their roster will lock, or how much time they have left to make changes.
 
 ### Database.movePlayer()
 Switch a starting player with a benched player on the roster of the given user.
@@ -602,11 +708,102 @@ Promise bearing data or error.
 		on: 1483250400000,
 		home: 'testuser0001',
 		away: 'testuser0002',
+		winner: 'testuser0002', // Field will not exist if match is not over
 		start: 1483250400000,
-		end: 1485928800000
+		end: 1485928800000,
+		week: 2
 	}
 ```
 
 * Properties `start` and `end` represent the start and ending times of the match.
+* Property `week` indicates the week in the season the match is part of (does not correspond to week index in schedule).
 
 **Note:** _The process to determine who wins a past match and save that result are still under development._
+
+### Database.getMatchScore()
+Get the score and current leader or final winner of a match a given user is competing in or has competed in on a given date.
+
+**Parameters**
+```
+{
+	userid: 'testuser0001',
+	leagueid: 'leagueid0001',
+	on: 1483250400000
+}
+```
+
+**Response**
+Promise bearing data or error.
+```
+	{
+		leagueid: 'leagueid0001',
+		winner: 'testuser0002', // Field will show current leader of match, even if match is not over
+		match: {
+			userid: 'testuser0001',
+			leagueid: 'leagueid0001',
+			on: 1483250400000,
+			home: 'testuser0001',
+			away: 'testuser0002',
+			winner: 'testuser0002', // Field will not exist if match is not over
+			start: 1483250400000,
+			end: 1485928800000,
+			week: 2
+		}
+		rosters: {
+			testuser0001: {
+				playerid0001: {
+					name: 'Test Player',
+					owner: 'testuser0001',
+					playerid: 'playerid0001',
+					ward: 51,
+					starter: true,
+					scores: {
+						'potholes': 23,
+						'graffiti': -2
+						...
+					}
+				}
+				...
+			}
+			... // Shows same roster for the second player in the match
+		}
+	}
+```
+
+### Database.setMatchOutcome()
+Decide the outcome of a match a given user is competing in on a given date.
+
+**Parameters**
+```
+{
+	userid: 'testuser0001',
+	leagueid: 'leagueid0001',
+	on: 1483250400000
+}
+```
+
+**Response**
+Promise bearing data or error.
+```
+	{
+		success: true
+	}
+```
+
+## Events
+
+Listen for events like so:
+
+```javascript
+Database.when('rosters_change', {
+	leagueid: 'leagueid0001'
+}, function(res){
+	console.log('Rosters Changed: ', res);
+});
+```
+
+The following events are currently supported:
+
+* `rosters_change`
+	* Parameters: `leagueid`
+	* Response: `{changed: true}`

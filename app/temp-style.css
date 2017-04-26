@@ -1,0 +1,201 @@
+/*
+	white: rgba(252, 247, 248, 1);
+	blue: rgba(44, 140, 153, 1);
+	gray: rgba(59, 68, 75, 1);
+	red: rgba(255, 113, 91, 1);
+	yellow: rgba(249, 203, 64, 1);
+*/
+
+html {
+	background: white;
+	font-family: 'Roboto', sans-serif;
+}
+
+body {
+	margin: 0 auto;
+	padding: 10px;
+}
+
+/* TEXT */
+
+h1, h2, h3, h4, p {
+	margin: 10px auto;
+}
+
+h1, h2, h3, h4, p, button, input {
+	font-family: 'Roboto', sans-serif;
+}
+
+h1, h2, h3, h4 {
+	font-weight: bold;
+}
+
+h1 {
+	font-size: 30px;
+}
+
+h2 {
+	font-size: 25px;
+}
+
+h3 {
+	font-size: 20px;
+}
+
+h4 {
+	font-size: 18px;
+}
+
+h3 {
+	/*background: rgba(44, 140, 153, 1);
+	padding: 10px 0;*/
+}
+
+a:link, a:visited {
+	font-weight: bold;
+	color: rgba(44, 140, 153, 1);
+	text-decoration: none;
+	padding: 5px 7.5px;
+}
+
+a:hover, a:active {
+	background: rgba(44, 140, 153, 1);
+	color: white;
+}
+
+ul {
+	list-style: disc inside none;
+	margin: 10px auto;
+}
+
+/* TABLES */
+
+th, td {
+	padding: 7.5px;
+	font-size: 15px;
+	text-align: left;
+	vertical-align: middle;
+}
+
+th {
+	padding: 10px 7.5px;
+	font-weight: bold;
+	background: rgba(59, 68, 75, 0.1);
+	color: rgba(59, 68, 75, 1);
+}
+
+td {
+	border-top: 1px solid rgba(59, 68, 75, 0.25);
+}
+
+#userRoster td:nth-child(1), #allPlayers td:nth-child(2) {
+	width: 180px;
+}
+
+#allPlayers td:nth-child(7) {
+	width: 180px;
+}
+
+/* BUTTONS */
+
+button {
+	outline: none;
+	border: none;
+	padding: 5px;
+	margin: 0;
+	font-size: 12px;
+	border: 2px solid rgba(44, 140, 153, 1);
+	background: transparent;
+	color: rgba(44, 140, 153, 1);
+}
+
+button:hover {
+	background: rgba(44, 140, 153, 1);
+	color: white;
+	cursor: pointer;
+}
+
+td button {
+	margin: 0;
+	width: 75px;
+	border: 2px solid rgba(44, 140, 153, 1);
+	background: transparent;
+	color: rgba(44, 140, 153, 1);
+}
+
+td button:hover {
+	background: rgba(44, 140, 153, 1);
+	color: white;
+}
+
+br + button {
+	border: none;
+	margin-top: 5px;
+	padding: 5px;
+	background: white;
+	/*width: 35px;
+	height: 35px;
+	border-radius: 20px;
+	background: white;
+	display: inline;
+	text-align: center;*/
+}
+
+br + button:hover {
+
+}
+
+button:disabled {
+	opacity: 0;
+}
+
+button:disabled:hover {
+	cursor: default;
+}
+
+.vex.vex-theme-plain .vex-dialog-button.vex-dialog-button-primary {
+	background: rgba(44, 140, 153, 1);
+}
+
+div.loading {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(44, 140, 153, 1);
+	color: white;
+	/* Center Vertically */
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	resize: vertical;
+}
+
+@keyframes LoadingPulse {
+	0% {
+		width: 25vh;
+	}
+	50% {
+		width: 30vh;
+	}
+	100% {
+		width: 25vh;
+	}
+}
+
+div.loading div {
+	height: 35vh;
+	/* Center Vertically */
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	resize: vertical;
+}
+
+div.loading div img {
+	width: 50vw;
+	display: block;
+	margin: 0 auto;
+	animation: LoadingPulse 2s infinite;
+}

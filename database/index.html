@@ -48,12 +48,18 @@
 
 			var l1 = '-KdIiWEUj7_toD3MKMO_';
 			var l2 = '-KdJnBQC6hc7OF9FguyQ';
+			var l3 = '-KdiofxVNZK1_QDoI3cN';
+
+			var c1 = '-Ke5VqjCfDrMlPHuUixl';
+			var c2 = '-KdtthGFgrljtV8WifdI';
+
+			var LEAGUE_ID = c2;
 
 			var Database = InitDatabase();
 
 			// Testing Get League Response
 			Database.getLeague({
-				leagueid: l1,
+				leagueid: LEAGUE_ID,
 				from: new Date('2/12/2017').getTime(),
 				to: Date.now()
 			}).then((league) => {
@@ -80,7 +86,13 @@
 				console.error(err);
 			});
 
-			Database.getUserLeagues({
+			Database.when('rosters_change', {
+				leagueid: LEAGUE_ID
+			}, (res) => {
+				console.log('Rosters Changed: ', res);
+			});
+
+			/*Database.getUserLeagues({
 				userid: 'testuser0002'
 			}).then((res) => {
 				console.log('Test Get User Leagues Response');
@@ -88,11 +100,12 @@
 			}).catch((err) => {
 				console.log('Test Get User Leagues Response');
 				console.error(err);
-			});
+			});*/
 
-			Database.getMatch({
+			// Should return error now that match has passed
+			/*Database.getMatch({
 				userid: 'testuser0002',
-				leagueid: l1,
+				leagueid: LEAGUE_ID,
 				on: Date.now()
 			}).then((res) => {
 				console.log('Test Get Match Response');
@@ -100,11 +113,11 @@
 			}).catch((err) => {
 				console.log('Test Get Match Response');
 				console.error(err);
-			});
+			});*/
 
 			// Comment out after testing once: changes persist
 			/*Database.movePlayer({
-				leagueid: l1,
+				leagueid: LEAGUE_ID,
 				userid: 'testuser0002',
 				sit: 'playerid0020',
 				start: 'playerid0031'
