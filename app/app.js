@@ -26,6 +26,8 @@ function getQueryParams(qs) {
 	return params;
 }
 
+var params = getQueryParams(document.location.search);
+
 function viewOutcome(){
 	var leagueid = USER.leagueid;
 	var sim = USER.rosterdate;
@@ -285,7 +287,15 @@ function InitApplication() {
 				localStorage[Constants.userEmailTag] = result.email;
 				localStorage[Constants.userImageTag] = result.image;
 				Database.updateUser(result).then(() => {
-					window.location.href = Constants.loginRedirect;
+					if(params.redirect){
+						var uParts = document.location.pathname.split('/');
+						var pathname = uParts.slice(0, uParts.length - 1).join('/');
+						var url = document.location.origin + pathname + '/' + params.redirect;
+						document.location = url;
+					}
+					else{
+						window.location.href = Constants.loginRedirect;
+					}
 				}).catch((err) => {log(err)});
 				log("done");
 			}, function(err) {

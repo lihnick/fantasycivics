@@ -14,6 +14,12 @@ Database.Auth.getCurrentUser().then((user) => {
 }).catch((err) => {
 	if(err === 'No user currently authenticated.'){
 		displayMessage('Log in in to play Fantasy Civics!');
+		var params = getQueryParams(document.location.search);
+		var redirect = 'join.html?code=' + params.code;
+		var uParts = document.location.pathname.split('/');
+		var pathname = uParts.slice(0, uParts.length - 1).join('/');
+		var url = document.location.origin + pathname + '/index.html?redirect=' + redirect;
+		document.location = url;
 	}
 	else{
 		console.error(err);
