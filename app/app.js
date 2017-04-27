@@ -5,6 +5,10 @@ var USER = {}; // stores data related to the user that's logged in
 var Database = InitDatabase(); // Moved to private variables, when in production mode
 Database.IN_SIMULATED_TIME = true;
 
+// Dangerous Bug Fix that we will come to regret months from now
+console.log('nick li is here to save the day', localStorage.getItem('leagueid'))
+USER.leagueid = localStorage.getItem('leagueid');
+//
 
 var test; // each time debug is called, the parameter is updated to test, for debugging
 var private;
@@ -21,6 +25,8 @@ function getQueryParams(qs) {
 	}
 	return params;
 }
+
+var params = getQueryParams(document.location.search);
 
 function viewOutcome(){
 	var leagueid = USER.leagueid;
@@ -200,34 +206,64 @@ function InitApplication() {
 		// Check local storage for users that are logged in from previous sessions
 		checkUser: () => {
 			// At minimum userid is required to identify a user
+			var userFound = false;
+			Database.Auth.getCurrentUser().then((user) => {
+				userFound = true;
+				USER.userid = user.userid;
+				Database.updateUser({
+					userid: user.userid
+				});
+				localStorage[Constants.userIdTag] = user.userid;
+			}).catch((err) => {
+				if(err === 'No user currently authenticated.'){
+					console.error('Log in in to play Fantasy Civics!');
+				}
+				else{
+					console.error(err);
+				}
+			});
 			if (localStorage.userid === undefined) {
 				log("No user logged in.");
 				return false;
 			}
 			else {
-				Database.Auth.getCurrentUser().then((user) => {
-					USER.userid = user.userid;
-					Database.updateUser({
-						userid: user.userid
-					});
-				}).catch((err) => {
-					if(err === 'No user currently authenticated.'){
-						console.error('Log in in to play Fantasy Civics!');
-					}
-					else{
-						console.error(err);
-					}
-				});
-
-				USER.userid = localStorage[Constants.userIdTag];
+				
+				if (!userFound) {
+					USER.userid = localStorage[Constants.userIdTag];
+				}
 				USER.name = localStorage[Constants.userNameTag];
 				USER.email = localStorage[Constants.userEmailTag];
 				USER.image = localStorage[Constants.userImageTag];
 				USER.leagueid = localStorage[Constants.userSelectedLeague];
 				USER.leaguestart = parseInt(localStorage[Constants.seletedLeagueStart]);
 				USER.leagueend = parseInt(localStorage[Constants.seletedLeagueEnd]);
+			}
+			log("end of check user");
+			return true;
+		},
 
-				return true;
+		checkUserThenDisplayLeagues: () => {
+			USER.userid = localStorage[Constants.userIdTag];
+			USER.name = localStorage[Constants.userNameTag];
+			USER.email = localStorage[Constants.userEmailTag];
+			USER.image = localStorage[Constants.userImageTag];
+			USER.leagueid = localStorage[Constants.userSelectedLeague];
+			USER.leaguestart = parseInt(localStorage[Constants.seletedLeagueStart]);
+			USER.leagueend = parseInt(localStorage[Constants.seletedLeagueEnd]);
+			if (!USER.userid) {
+				Database.Auth.getCurrentUser().then((user) => {
+					USER.userid = user.userid;
+					Application.displayUserLeagues();
+					Database.getUser(user).then(function(result) {
+						localStorage[Constants.userIdTag] = result.userid; // USER.userid already given
+						localStorage[Constants.userNameTag] = USER.name = result.name;
+						localStorage[Constants.userEmailTag] = USER.email = result.email;
+						localStorage[Constants.userImageTag] = USER.image = result.image;
+						Application.displayUser();
+					}).catch((err) => {log(err);});
+				}).catch((err) => {
+					log(err);
+				});
 			}
 		},
 
@@ -251,7 +287,15 @@ function InitApplication() {
 				localStorage[Constants.userEmailTag] = result.email;
 				localStorage[Constants.userImageTag] = result.image;
 				Database.updateUser(result).then(() => {
-					window.location.href = Constants.loginRedirect;
+					if(params.redirect){
+						var uParts = document.location.pathname.split('/');
+						var pathname = uParts.slice(0, uParts.length - 1).join('/');
+						var url = document.location.origin + pathname + '/' + params.redirect;
+						document.location = url;
+					}
+					else{
+						window.location.href = Constants.loginRedirect;
+					}
 				}).catch((err) => {log(err)});
 				log("done");
 			}, function(err) {

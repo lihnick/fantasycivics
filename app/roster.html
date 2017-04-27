@@ -16,28 +16,28 @@
 		<link rel="stylesheet" type="text/css" href="../assets/vex-theme-plain.css">
 		<!-- Plotly -->
 		<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="reset.css">
-    <link rel="stylesheet" type="text/css" href="temp-style.css">
-    <style type="text/css">
-        	
-			.has-scouting-report {
-				font-weight: bold;
-			}
+	    <link rel="stylesheet" type="text/css" href="reset.css">
+	    <link rel="stylesheet" type="text/css" href="temp-style.css">
+	    <style type="text/css">
+	        	
+				.has-scouting-report {
+					font-weight: bold;
+				}
 
-			.has-scouting-report:hover {
-				cursor: pointer;
-			}
+				.has-scouting-report:hover {
+					cursor: pointer;
+				}
 
-			div#roster-page {
-				display: none;
-				padding: 20px;
-			}
-    
-      [v-cloak] {
-        display: none;
-      }
-      
-    </style>
+				div#roster-page {
+					display: none;
+					padding: 20px;
+				}
+	    
+	      [v-cloak] {
+	        display: none;
+	      }
+	      
+	    </style>
 	</head>
 	<body>
 
@@ -51,21 +51,21 @@
 		<div id="roster-page">
 
 		<h1>Roster</h1>
-		<p>Insert roster page, and fancy tables</p>
-		<a href="index.html">Home</a>
+		<!-- <a href="index.html">Home</a>
 		<a href="app.html">App</a>
-		<a href="#">Roster</a>
-		<button id="outcome" onclick="roster.viewOutcome();">View Match</button>
-		<button id="setmatch" onclick="roster.setMatchOutcome()">Finalize Match</button>
+		<a href="#">Roster</a> -->
+		<!-- <button id="outcome" onclick="roster.viewOutcome();">View Match</button>
+		<button id="setmatch" onclick="roster.setMatchOutcome()">Finalize Match</button> -->
+		<button onclick="goToLobbyViewNow()">Finalize Roster</button>
 
-		<h2>User Info</h2>
-		<div>
+		<!-- <h2>User Info</h2>
+		<div>-->
 			<!-- <p id="userid"></p> -->
-			<p id="email"></p>
-			<p id="name"></p>
+			<!-- <p id="email"></p>
+			<p id="name"></p> -->
 			<!-- <img id="image" style="width:64px;height:64px;" alt="No Image"></img> -->
-			<button id="logout" onclick="roster.userLogout()">Logout</button>
-		</div>
+			<!-- <button id="logout" onclick="roster.userLogout()">Logout</button>
+		</div> -->
 
 		<div id="userRoster" v-cloak>
 			<h3>Objective</h3>
@@ -122,6 +122,14 @@
 			// Instantiate app
 			var roster = InitLeagueRoster();
 			roster.loadRosterPage();
+
+			function goToLobbyViewNow(){
+				var leagueid = localStorage.getItem('leagueid');
+				var uParts = document.location.pathname.split('/');
+				var pathname = uParts.slice(0, uParts.length - 1).join('/');
+				var url = document.location.origin + pathname + '/lobby.html?leagueid=' + leagueid;
+				document.location = url;
+			}
 
 		</script>
 	</body>

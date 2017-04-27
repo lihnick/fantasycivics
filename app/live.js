@@ -222,7 +222,7 @@ function renderBoxScore(match, home, away, league){
 	var SPACER = '<span class="spacer"></span>';
 	var div = document.createElement('div');
 	var h2 = document.createElement('h2');
-		h2.innerText = 'Week ' + (match.week) + ' Matchup';
+		h2.innerText = 'Week ' + (match.week + 1) + ' Matchup';
 	var rows = [];
 	var homeRoster = Object.keys(home.players).map((pid) => { return home.players[pid]; }).sort(rosterSort);
 	var awayRoster = Object.keys(away.players).map((pid) => { return away.players[pid]; }).sort(rosterSort);

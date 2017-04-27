@@ -26,12 +26,28 @@
 				display: none;
 			}
 
-			div#waiting-league-container {
-				display: none;
+			div.page-section {
+				margin: 20px;
 			}
 
-			div#loading {
-				display: none;
+			div#league-players {
+			}
+
+			div#league-players div {
+				display: block;
+				margin: 10px 0;
+			}
+
+			div#league-players div div, div#league-players div button {
+				display: inline-block;
+			}
+
+			div#league-players div button {
+				margin-left: 10px;
+			}
+
+			h1 {
+				text-align: center;
 			}
 
 		</style>
@@ -40,15 +56,6 @@
 	<body>
 		
 		<!-- Header -->
-
-		<div id="loading" class="loading">
-			<div>
-				<img src="../assets/logo-white.png">
-			</div>
-			<h1>Waiting for your league to start...</h1>
-		</div>
-
-		<div id="creator-join-page">
 
 		<h1>Fantasy Civics</h1>
 
@@ -63,28 +70,27 @@
 
 		<section id="page">
 
-			<div id="start-league-container">
-				<h2>Start a New League</h2>
-				<input id="league-name" type="text" placeholder="League Name">
-				<button id="create-button">Start League</button>
-				<h2>Choose an Existing League</h2>
-				<select id="league-select"></select>
-				<button id="select-button">Select</button>
+			<h1 id="league-name"></h1>
+
+			<div class="page-section">
+				<h2>League Lobby</h2>
+				<p id="week-status"></p>
+				<div id="league-players"></div>
 			</div>
 
-			<div id="waiting-league-container">
-				<h2 id="lwr-name">League Waiting Room</h2>
-				<p><a id="league-invite" target="_blank">Send other players this link so they can join.</a></p>
-				<div id="members"></div>
-				<button id="league-create">Start Game</button>
+			<div class="page-section">
+				<h2>Leaderboard</h2>
+				<div id="leaderboard"></div>
 			</div>
 
-			<br>
-			<button id="back-app">Back</button>
+			<div class="page-section">
+				<h2>Past Matches</h2>
+				<div id="past-matches">
+					<p>Coming Soon...</p>
+				</div>
+			</div>
 
 		</section>
-
-		</div>
 
 		<!-- Footer -->
 
@@ -96,13 +102,10 @@
 		<script type="text/javascript" src="../database/scoring.js"></script>
 		<script type="text/javascript" src="../database/auth.js"></script>
 		<script type="text/javascript" src="../database/database.js"></script>
-		<script type="text/javascript" src="join.js"></script>
+		<script type="text/javascript" src="lobby.js"></script>
 		<script type="text/javascript">
 
-			var ba = document.getElementById('back-app');
-			ba.addEventListener('click', e => {
-				window.location = 'app.html';
-			})
+
 
 		</script>
 	</body>
