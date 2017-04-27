@@ -102,6 +102,21 @@ var Database = {
 					}
 				});
 				break;
+			case 'league_created':
+				if(!params.inviteid){
+					throw new Error('Must specify {inviteid} (event overkey).');
+				}
+				var ref = db.ref('events/' + params.inviteid);
+				var query = ref.orderByChild('timestamp').limitToLast(1);
+				query.on('child_added', (snapshot) => {
+					var node = snapshot.val();
+					if(node.event === 'league_created' && node.leagueid){
+						callback({
+							leagueid: node.leagueid
+						});
+					}
+				});
+				break;
 			default:
 				throw new Error('No such event listener: ' + eventType);
 				break;
@@ -1225,9 +1240,14 @@ var Database = {
 		else if(!params.event){
 			throw new Error('Must specify {event}.');
 		}
-		var done = db.ref('events/' + params.leagueid).push({
+		var key = params.leagueid;
+		if(params.overkey){
+			key = params.overkey;
+		}
+		var done = db.ref('events/' + key).push({
 			event: params.event,
 			userid: params.userid,
+			leagueid: params.leagueid,
 			timestamp: Date.now(),
 			data: params.data || false
 		});

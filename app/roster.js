@@ -5,6 +5,17 @@ var WEEK = 7 * DAY;
 
 var scout = ScoutingReport();
 
+function getQueryParams(qs) {
+	qs = qs.split('+').join(' ');
+	var params = {},
+		tokens,
+		re = /[?&]?([^=]+)=([^&]*)/g;
+	while (tokens = re.exec(qs)) {
+		params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+	}
+	return params;
+}
+
 function updateScoutingReports(){
 	scout.initializeReport('.scout-anchor');
 }
@@ -620,6 +631,7 @@ function InitLeagueRoster() {
 		// this function is specific to the items needed at the roster page
 		loadRosterPage: () => {
 			var loadRosterPageCallBack = () => {
+				console.log(USER)
 				getLeagueData({
 					leagueid: USER['leagueid']
 				}).then(() => {

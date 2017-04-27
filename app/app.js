@@ -5,6 +5,10 @@ var USER = {}; // stores data related to the user that's logged in
 var Database = InitDatabase(); // Moved to private variables, when in production mode
 Database.IN_SIMULATED_TIME = true;
 
+// Dangerous Bug Fix that we will come to regret months from now
+console.log('nick li is here to save the day', localStorage.getItem('leagueid'))
+USER.leagueid = localStorage.getItem('leagueid');
+//
 
 var test; // each time debug is called, the parameter is updated to test, for debugging
 var private;
