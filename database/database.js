@@ -97,7 +97,7 @@ var Database = {
 					var node = snapshot.val();
 					if(node.event === 'matches_set'){
 						callback({
-							simulationTime: node.on
+							simulationTime: node.data
 						});
 					}
 				});
@@ -1228,7 +1228,8 @@ var Database = {
 		var done = db.ref('events/' + params.leagueid).push({
 			event: params.event,
 			userid: params.userid,
-			timestamp: Date.now()
+			timestamp: Date.now(),
+			data: params.data || false
 		});
 		return done;
 	}

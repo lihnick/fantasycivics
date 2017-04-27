@@ -26,6 +26,10 @@
 				display: none;
 			}
 
+			div.page-section {
+				margin: 20px;
+			}
+
 			div#league-players {
 			}
 
@@ -36,7 +40,14 @@
 
 			div#league-players div div, div#league-players div button {
 				display: inline-block;
-				margin: 10px;
+			}
+
+			div#league-players div button {
+				margin-left: 10px;
+			}
+
+			h1 {
+				text-align: center;
 			}
 
 		</style>
@@ -59,10 +70,22 @@
 
 		<section id="page">
 
-			<div>
+			<h1 id="league-name"></h1>
+
+			<div class="page-section">
 				<h2>League Lobby</h2>
 				<p id="week-status"></p>
 				<div id="league-players"></div>
+			</div>
+
+			<div class="page-section">
+				<h2>Leaderboard</h2>
+				<div id="leaderboard"></div>
+			</div>
+
+			<div class="page-section">
+				<h2>Past Matches</h2>
+				<div id="past-matches"></div>
 			</div>
 
 		</section>
