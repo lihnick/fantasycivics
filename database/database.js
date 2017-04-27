@@ -69,6 +69,23 @@ var Database = {
 					});
 				});
 				break;
+			case 'rosters_ready':
+				if(!params.leagueid){
+					throw new Error('Must specify {leagueid}.');
+				}
+				var ref = db.ref('events/' + params.leagueid);
+				var query = ref;
+				var state = {};
+				query.on('child_added', (snapshot) => {
+					var node = snapshot.val();
+					if(node.event === 'rosters_ready'){
+						state[node.userid] = true;
+					}
+					else if(node.event === 'rosters_not_ready'){
+						state[node.userid] = false;
+					}
+					callback(state);
+				});
 			default:
 				throw new Error('No such event listener: ' + eventType);
 				break;
@@ -1180,6 +1197,24 @@ var Database = {
 			});
 		});
 
+	},
+
+	emit: (params) => {
+		if(!params.leagueid){
+			throw new Error('Must specify {leagueid}.');
+		}
+		else if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+		else if(!params.event){
+			throw new Error('Must specify {event}.');
+		}
+		var done = db.ref('events/' + params.leagueid).push({
+			event: params.event,
+			userid: params.userid,
+			timestamp: Date.now()
+		});
+		return done;
 	}
 
 }
