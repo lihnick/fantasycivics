@@ -92,6 +92,21 @@ function main(){
 		var info = getSimulationInfo(league);
 		console.log(info);
 
+		// Render Leaderboard
+
+		updateKnownUsers(league.users).then(done => {
+			Database.getLeaderboard({
+				leagueid: LEAGUE_ID
+			}, league).then((leaderboard) => {
+				console.log(leaderboard)
+				var boardDiv = renderLeaderboard(leaderboard.rankings, leaderboard.records, league);
+				var parent2 = document.getElementById('leaderboard');
+				parent2.appendChild(boardDiv);
+			}).catch(displayError);
+		});
+
+		// End Leaderboard
+
 		var weekStatus = document.getElementById('week-status');
 
 		if(info.gameOver){
@@ -348,4 +363,49 @@ function goToRosterView(params){
 	var pathname = uParts.slice(0, uParts.length - 1).join('/');
 	var url = document.location.origin + pathname + '/roster.html';
 	document.location = url;
+}
+
+function createDOMTable(headers, rows){
+	function listToRow(list){
+		return '<tr>' + list.map((val) => {
+			if(val.id){
+				return '<td id="' + val.id + '">' + val.text + '</td>';
+			}
+			else{
+				return '<td>' + val + '</td>';
+			}
+		}).join('') + '</tr>';
+	}
+	var table = document.createElement('table');
+	var html = '';
+	if(headers){
+		html += listToRow(headers);
+	}
+	for(var r = 0; r < rows.length; r++){
+		html += listToRow(rows[r]);
+	}
+	table.innerHTML = html;
+	return table;
+}
+
+function renderLeaderboard(rankings, records, league){
+	var div = document.createElement('div');
+	var h2 = document.createElement('h2');
+		h2.innerText = league.name;
+	var headers = [
+		'Rank',
+		'Name',
+		'Record'
+	];
+	var rows = rankings.map((user, i) => {
+		return [
+			(i + 1),
+			KNOWN_USERS[user.userid].name,
+			'(' + user.wins.length + '-' + user.losses.length + ')'
+		];
+	});
+	var playerTable = createDOMTable(headers, rows);
+	//div.appendChild(h2);
+	div.appendChild(playerTable);
+	return div;	
 }
