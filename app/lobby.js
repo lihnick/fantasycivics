@@ -1,9 +1,10 @@
 var Database = InitDatabase();
 var USER = false;
-var KNOWN_USERS = {};
-var WATCH_LEAGUES = {};
-var YOUR_LEAGUES = {};
-var STUB = false;
+
+var MINUTE = 60 * 1000;
+var HOUR = 60 * MINUTE;
+var DAY = 24 * HOUR;
+var WEEK = 7 * DAY;
 
 Database.Auth.getCurrentUser().then((user) => {
 	Database.getUser({
@@ -22,7 +23,6 @@ Database.Auth.getCurrentUser().then((user) => {
 
 function login(user){
 	USER = user;
-	KNOWN_USERS[USER.userid] = USER;
 	Database.updateUser(user).then((done) => {
 		main();
 	}).catch(displayError);
@@ -62,6 +62,12 @@ loginBtn.addEventListener('click', (e) => {
 	}).catch(displayError);
 });
 
+var SAMPLE_LEAGUE_ID = '-KhTwyzlqYNlG8QF5Nur';
+var LEAGUE_ID = false;
+var GAME_STARTER = false;
+
+var KNOWN_USERS = {};
+
 function main(){
 
 	var page = document.getElementById('page');
@@ -70,7 +76,229 @@ function main(){
 		login.style.display = 'none';
 
 	var params = getQueryParams(document.location.search);
+	LEAGUE_ID = SAMPLE_LEAGUE_ID;
 
-	
+	Database.getLeagueData({
+		leagueid: LEAGUE_ID
+	}).then(league => {
 
+		console.log(league)
+
+		var info = getSimulationInfo(league);
+		console.log(info);
+
+		var weekStatus = document.getElementById('week-status');
+			weekStatus.innerText = 'Waiting to start matches for week ' + info.weekNum + '/' + league.schedule.length + '.';
+
+		updateKnownUsers(league.users).then(done => {
+
+			GAME_STARTER = Object.keys(KNOWN_USERS).sort()[0];
+
+			Database.when('rosters_ready', {
+				leagueid: LEAGUE_ID
+			}, userMap => {
+				renderLobby(userMap, KNOWN_USERS, info.weekNum);
+			});
+
+			Database.when('matches_set', {
+				leagueid: LEAGUE_ID
+			}, res => {
+				var lastWeekStart = info.weekStart - WEEK;
+				console.log('matches_ready', res)
+				if(res.simulationTime > lastWeekStart){
+					var myMatch = false;
+					var foundMyWeekIndex = false;
+					var myWeekIndex = 0;
+					league.schedule.forEach((week, widx) => {
+						week.forEach(match => {
+							console.log('check_weeks', widx, getMatchTime(match), res.simulationTime)
+							if(res.simulationTime > match.start && res.simulationTime < match.end && !foundMyWeekIndex){
+								myWeekIndex = widx;
+								foundMyWeekIndex = true;
+							}
+						});
+					});
+					league.schedule[myWeekIndex].forEach(match => {
+						if(match.home === USER.userid || match.away === USER.userid){
+							myMatch = match;
+						}
+					})
+					if(myMatch){
+						var otherSide = (myMatch.home === USER.userid) ? 'away' : 'home';
+						var opponent = KNOWN_USERS[myMatch[otherSide]].name;
+						var myWeekNum = myWeekIndex + 1;
+						vex.dialog.confirm({
+							message: 'Are you ready to view your week ' + myWeekNum + ' match against ' + opponent + '?',
+							callback: value => {
+								if(value){
+									goToMatchView({
+										leagueid: LEAGUE_ID,
+										on: res.simulationTime
+									});
+								}
+							}
+						});
+					}
+				}
+			});
+
+		}).catch(displayError);
+
+	}).catch(displayError);
+
+}
+
+function updateKnownUsers(map){
+	return Promise.all(Object.keys(map).filter(userid => {
+		return !(userid in KNOWN_USERS);
+	}).map(userid => {
+		return Database.getUser({
+			userid: userid
+		}).then(user => {
+			KNOWN_USERS[user.userid] = user;
+		});
+	}));
+}
+
+function renderLobby(userStates, userMap, weekNum){
+	var holder = document.getElementById('league-players');
+	holder.innerHTML = '';
+	for(var uid in userMap){
+		var user = userMap[uid];
+		var ready = userStates[uid] || false;
+		var div = renderUser(user, ready);
+		holder.appendChild(div);
+	}
+	if(readyToStart(userStates, userMap)){
+		if(USER.userid === GAME_STARTER){
+			var btn = document.createElement('button');
+				btn.innerText = 'Start Week ' + weekNum + ' Matches';
+				btn.addEventListener('click', e => {
+					playMatches();
+				});
+			holder.appendChild(btn);
+		}
+		else{
+			var p = document.createElement('p');
+				p.innerText = KNOWN_USERS[GAME_STARTER].name + ' can now start the game!';
+			holder.appendChild(p);
+		}
+	}
+	else{
+		var p = document.createElement('p');
+			p.innerText = 'Some users are still setting their rosters...';
+		holder.appendChild(p);
+	}
+}
+
+function renderUser(user, ready){
+	var div = document.createElement('div');
+	var name = document.createElement('div');
+		name.innerText = user.name + (ready ? ' is ' : ' is not ') + 'ready.';
+	div.appendChild(name);
+	if(USER.userid === user.userid){
+		var btn = document.createElement('button');
+			btn.innerText = ready ? 'Edit My Roster' : 'I\'m ready!';
+			btn.dataset.ready = ready ? 'ready' : 'not_ready';
+			btn.addEventListener('click', e => {
+				var readyStr = e.target.dataset.ready;
+				Database.emit({
+					leagueid: LEAGUE_ID,
+					userid: USER.userid,
+					event: readyStr === 'ready' ? 'rosters_not_ready' : 'rosters_ready' 
+				}).then(done => {
+					if(readyStr === 'ready'){
+						// Redirect to Roster Edit Page
+					}
+				});
+			});
+		div.appendChild(btn);
+	}
+	return div;
+}
+
+function readyToStart(userStates, userMap){
+	var readyCounter = 0;
+	for(var uid in userMap){
+		var ready = userStates[uid] || false;
+		if(ready){
+			readyCounter++;
+		}
+	}
+	var allReady = readyCounter === Object.keys(userMap).length;
+	return allReady;
+}
+
+function playMatches(){
+	Database.getLeagueData({
+		leagueid: LEAGUE_ID
+	}).then(league => {
+
+		var promises = [];
+		var info = getSimulationInfo(league);
+
+		league.schedule.forEach((week, widx) => {
+			week.forEach((match, midx) => {
+				if(!match.winner && info.simulationTime > match.start){
+					var params = {
+						leagueid: LEAGUE_ID,
+						userid: match.home,
+						on: getMatchTime(match)
+					}
+					console.log('determine match outcome for: ', params);
+					var p = Database.setMatchOutcome(params);
+					promises.push(p);
+				}
+			});
+		});
+
+		Promise.all(promises).then(done => {
+			Database.emit({
+				leagueid: LEAGUE_ID,
+				userid: USER.userid,
+				event: 'matches_set',
+				on: info.simulationTime
+			}).then(done => {
+				console.log('Successfully set match outcomes.');
+			}).catch(displayError);
+		}).catch(displayError);
+
+	}).catch(displayError);
+}
+
+function getSimulationInfo(league){
+	var foundCurrentWeek = false;
+	var weekIndex = 0;
+	var info = {};
+	league.schedule.forEach((week, widx) => {
+		var hasWinner = false;
+		week.forEach((match, midx) => {
+			if(match.winner){
+				hasWinner = true;
+			}
+		});
+		if(!hasWinner && !foundCurrentWeek){
+			weekIndex = widx;
+			foundCurrentWeek = true;
+		}
+	});
+	var match = league.schedule[weekIndex][0];
+	console.log('Week ' + (weekIndex+1) + '/' + league.schedule.length);
+	info.weekNum = (weekIndex+1);
+	info.weekIndex = weekIndex;
+	info.weekStart = match.start;
+	info.weekEnd = match.end;
+	info.simulationTime = getMatchTime(match);
+	return info;
+}
+
+function getMatchTime(match){
+	return ((0.5) * (match.end - match.start)) + match.start;
+}
+
+function goToMatchView(params){
+	var uParts = document.location.pathname.split('/');
+	var pathname = uParts.slice(0, uParts.length - 1).join('/');
+	var url = document.location.origin + pathname + '/live.html' + '?time=' + params.on + '&league=' + params.leagueid;
+	document.location = url;
 }

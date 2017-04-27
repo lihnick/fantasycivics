@@ -86,6 +86,22 @@ var Database = {
 					}
 					callback(state);
 				});
+				break;
+			case 'matches_set':
+				if(!params.leagueid){
+					throw new Error('Must specify {leagueid}.');
+				}
+				var ref = db.ref('events/' + params.leagueid);
+				var query = ref;
+				query.on('child_added', (snapshot) => {
+					var node = snapshot.val();
+					if(node.event === 'matches_set'){
+						callback({
+							simulationTime: node.on
+						});
+					}
+				});
+				break;
 			default:
 				throw new Error('No such event listener: ' + eventType);
 				break;
