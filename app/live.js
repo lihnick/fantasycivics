@@ -108,6 +108,8 @@ var allPlayers = {};
 
 function render(){
 
+	localStorage.setItem('leagueid', LEAGUE_ID);
+
 	Database.getMatchScore({
 		userid: USER.userid,
 		leagueid: LEAGUE_ID,
@@ -304,6 +306,8 @@ function renderBoxScore(match, home, away, league){
 			]);
 	var playerTable = createDOMTable(false, rows);
 	div.appendChild(h2);
+	var bigScore = renderBigScore();
+	div.appendChild(bigScore);
 	var p = document.createElement('p');
 	var winTeam = (match.winner === match.home) ? 'home' : 'away';
 	var loseTeam = (match.winner === match.home) ? 'away' : 'home';
@@ -313,6 +317,25 @@ function renderBoxScore(match, home, away, league){
 	div.appendChild(p);
 	div.appendChild(playerTable);
 	return div;
+}
+
+function getWrappedIndex(list, index){
+	var idx = index % list.length;
+	return idx;
+}
+
+function shuffleWithSeed(list, seed){
+	var seed = seed.toLowerCase();
+	var alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
+	var newList = [];
+	while(list.length > 0){
+		var sidx = getWrappedIndex(seed, newList.length);
+		var letter = seed[sidx];
+		var aidx = getWrappedIndex(list, alphabet.indexOf(letter));
+		var nextItem = list.splice(aidx, 1)[0];
+		newList.push(nextItem);
+	}
+	return newList;
 }
 
 var LIVE_TIMEOUT = 3000;
@@ -349,7 +372,8 @@ function simulateMatchStep(match, players, startTime, endTime, step, lastRun){
 			}
 		}
 
-		promises = shuffle(promises);
+		//promises = shuffle(promises);
+		promises = shuffleWithSeed(promises, 'fantasycivics');
 		ticker.total = promises.length;
 
 		Promise.all(promises).then((data) => {
@@ -514,6 +538,20 @@ function updateScoreFromTick(update, players){
 		var teamFlash = (newTeamScore > currentTeamScore) ? 'green' : 'red';
 		flashDiv(teamScoreSlot, teamFlash);
 	}
+	//
+	if(starter){
+		var starter = players[update.pid].starter;
+		var tid = 'big-score-' + (update.home ? 'home' : 'away');
+		var teamScoreSlot = document.getElementById(tid);
+		var currentTeamScore = parseInt(teamScoreSlot.innerText, 10);
+		var newTeamScore = currentTeamScore + update.score;
+		if(newTeamScore !== currentTeamScore){
+			teamScoreSlot.innerText = newTeamScore;
+			var teamFlash = (newTeamScore > currentTeamScore) ? 'green' : 'red';
+			flashDiv(teamScoreSlot, teamFlash);
+		}
+	}
+	//
 	}
 	catch(e){
 		console.log(id)
@@ -553,4 +591,18 @@ function renderLeaderboard(rankings, records, league){
 	div.appendChild(h2);
 	div.appendChild(playerTable);
 	return div;	
+}
+
+function renderBigScore(){
+	var div = document.createElement('div');
+		div.classList.add('big-score');
+	var home = document.createElement('h1');
+		home.id = 'big-score-home';
+		home.innerText = '0';
+	var away = document.createElement('h1');
+		away.id = 'big-score-away';
+		away.innerText = '0';
+	div.appendChild(home);
+	div.appendChild(away);
+	return div;
 }

@@ -77,8 +77,14 @@ function main(){
 	var login = document.getElementById('login');
 		login.style.display = 'none';
 
+	var readyToAlert = true;
+
 	var params = getQueryParams(document.location.search);
 	LEAGUE_ID = params.leagueid || localStorage.getItem('leagueid');
+
+	if(params.ready){
+		readyToAlert = false;
+	}
 
 	Database.getLeagueData({
 		leagueid: LEAGUE_ID
@@ -153,22 +159,27 @@ function main(){
 							if(match.home === USER.userid || match.away === USER.userid){
 								myMatch = match;
 							}
-						})
-						if(myMatch){
-							var otherSide = (myMatch.home === USER.userid) ? 'away' : 'home';
-							var opponent = KNOWN_USERS[myMatch[otherSide]].name;
-							var myWeekNum = myWeekIndex + 1;
-							vex.dialog.confirm({
-								message: 'Are you ready to view your week ' + myWeekNum + ' match against ' + opponent + '?',
-								callback: value => {
-									if(value){
-										goToMatchView({
-											leagueid: LEAGUE_ID,
-											on: res.simulationTime
-										});
+						});
+						if(readyToAlert){
+							if(myMatch){
+								var otherSide = (myMatch.home === USER.userid) ? 'away' : 'home';
+								var opponent = KNOWN_USERS[myMatch[otherSide]].name;
+								var myWeekNum = myWeekIndex + 1;
+								vex.dialog.confirm({
+									message: 'Are you ready to view your week ' + myWeekNum + ' match against ' + opponent + '?',
+									callback: value => {
+										if(value){
+											goToMatchView({
+												leagueid: LEAGUE_ID,
+												on: res.simulationTime
+											});
+										}
 									}
-								}
-							});
+								});
+							}
+						}
+						else{
+							readyToAlert = true;
 						}
 					}
 				});
