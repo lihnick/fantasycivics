@@ -158,7 +158,10 @@ function renderWaitingRoom(inviteid){
 			});
 		}
 		else{
-			console.log('u joined the league')
+			var hideTheWholeThing = document.getElementById('creator-join-page');
+			var loadingScreen = document.getElementById('loading');
+			loadingScreen.style.display = 'flex';
+			hideTheWholeThing.style.display = 'none';
 		}
 	});
 }

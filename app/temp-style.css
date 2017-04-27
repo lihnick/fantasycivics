@@ -165,6 +165,7 @@ div.loading {
 	height: 100vh;
 	background: rgba(44, 140, 153, 1);
 	color: white;
+	text-align: center;
 	/* Center Vertically */
 	display: flex;
 	flex-direction: column;

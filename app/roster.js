@@ -360,9 +360,9 @@ function InitLeagueRoster() {
 					},
 					mounted: function(){
 						updateScoutingReports();
-						setTimeout(function(){
+						//setTimeout(function(){
 							stopLoading();
-						}, 1500);
+						//}, 1500);
 					},
 					methods: {
 						ordering: (orderBy) => {
