@@ -315,6 +315,25 @@ function renderBoxScore(match, home, away, league){
 	return div;
 }
 
+function getWrappedIndex(list, index){
+	var idx = index % list.length;
+	return idx;
+}
+
+function shuffleWithSeed(list, seed){
+	var seed = seed.toLowerCase();
+	var alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
+	var newList = [];
+	while(newList.length < list.length){
+		var sidx = getWrappedIndex(seed, newList.length);
+		var letter = seed[sidx];
+		var aidx = getWrappedIndex(list, alphabet.indexOf(letter));
+		var nextItem = list.splice(aidx, 1)[0];
+		newList.push(nextItem);
+	}
+	return newList;
+}
+
 var LIVE_TIMEOUT = 3000;
 var FLASH_TIMEOUT = 750;
 
@@ -349,7 +368,8 @@ function simulateMatchStep(match, players, startTime, endTime, step, lastRun){
 			}
 		}
 
-		promises = shuffle(promises);
+		//promises = shuffle(promises);
+		promises = shuffleWithSeed(promises, 'fantasycivics');
 		ticker.total = promises.length;
 
 		Promise.all(promises).then((data) => {
