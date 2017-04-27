@@ -209,6 +209,9 @@ function renderUser(user, ready){
 				}).then(done => {
 					if(readyStr === 'ready'){
 						// Redirect to Roster Edit Page
+						goToRosterView({
+							leagueid: LEAGUE_ID
+						});
 					}
 				});
 			});
@@ -300,5 +303,13 @@ function goToMatchView(params){
 	var uParts = document.location.pathname.split('/');
 	var pathname = uParts.slice(0, uParts.length - 1).join('/');
 	var url = document.location.origin + pathname + '/live.html' + '?time=' + params.on + '&league=' + params.leagueid;
+	document.location = url;
+}
+
+function goToRosterView(params){
+	localStorage.setItem('leagueid', params.leagueid);
+	var uParts = document.location.pathname.split('/');
+	var pathname = uParts.slice(0, uParts.length - 1).join('/');
+	var url = document.location.origin + pathname + '/roster.html';
 	document.location = url;
 }
