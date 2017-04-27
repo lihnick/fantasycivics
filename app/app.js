@@ -200,28 +200,30 @@ function InitApplication() {
 		// Check local storage for users that are logged in from previous sessions
 		checkUser: () => {
 			// At minimum userid is required to identify a user
+			var userFound = false;
+			Database.Auth.getCurrentUser().then((user) => {
+				userFound = true;
+				USER.userid = user.userid;
+				Database.updateUser({
+					userid: user.userid
+				});
+				localStorage[Constants.userIdTag] = user.userid;
+			}).catch((err) => {
+				if(err === 'No user currently authenticated.'){
+					console.error('Log in in to play Fantasy Civics!');
+				}
+				else{
+					console.error(err);
+				}
+			});
 			if (localStorage.userid === undefined) {
 				log("No user logged in.");
 				return false;
 			}
 			else {
-				var userFound = false;
-				Database.Auth.getCurrentUser().then((user) => {
-					userFound = true;
-					USER.userid = user.userid;
-					Database.updateUser({
-						userid: user.userid
-					});
-				}).catch((err) => {
-					if(err === 'No user currently authenticated.'){
-						console.error('Log in in to play Fantasy Civics!');
-					}
-					else{
-						console.error(err);
-					}
-				});
+				
 				if (!userFound) {
-					USER.userid = localStorage[Constants.userIdTag];				
+					USER.userid = localStorage[Constants.userIdTag];
 				}
 				USER.name = localStorage[Constants.userNameTag];
 				USER.email = localStorage[Constants.userEmailTag];
@@ -229,8 +231,33 @@ function InitApplication() {
 				USER.leagueid = localStorage[Constants.userSelectedLeague];
 				USER.leaguestart = parseInt(localStorage[Constants.seletedLeagueStart]);
 				USER.leagueend = parseInt(localStorage[Constants.seletedLeagueEnd]);
+			}
+			log("end of check user");
+			return true;
+		},
 
-				return true;
+		checkUserThenDisplayLeagues: () => {
+			USER.userid = localStorage[Constants.userIdTag];
+			USER.name = localStorage[Constants.userNameTag];
+			USER.email = localStorage[Constants.userEmailTag];
+			USER.image = localStorage[Constants.userImageTag];
+			USER.leagueid = localStorage[Constants.userSelectedLeague];
+			USER.leaguestart = parseInt(localStorage[Constants.seletedLeagueStart]);
+			USER.leagueend = parseInt(localStorage[Constants.seletedLeagueEnd]);
+			if (!USER.userid) {
+				Database.Auth.getCurrentUser().then((user) => {
+					USER.userid = user.userid;
+					Application.displayUserLeagues();
+					Database.getUser(user).then(function(result) {
+						localStorage[Constants.userIdTag] = result.userid; // USER.userid already given
+						localStorage[Constants.userNameTag] = USER.name = result.name;
+						localStorage[Constants.userEmailTag] = USER.email = result.email;
+						localStorage[Constants.userImageTag] = USER.image = result.image;
+						Application.displayUser();
+					}).catch((err) => {log(err);});
+				}).catch((err) => {
+					log(err);
+				});
 			}
 		},
 

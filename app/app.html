@@ -59,9 +59,11 @@
 
 			// Instantiate app
 			var app = InitApplication();
-			if (app.checkUser()) // getUser() => true or false based on data cached or not
-				app.displayUser(); // displayUser() => modify html DOM to show users infomation if there are user infos
-			app.displayUserLeagues(); // displays all the leagues one user is a part of
+			app.checkUserThenDisplayLeagues();
+
+			//if (app.checkUser()) // getUser() => true or false based on data cached or not
+			//	app.displayUser(); // displayUser() => modify html DOM to show users infomation if there are user infos
+			//app.displayUserLeagues(); // displays all the leagues one user is a part of
 
 		</script>
 	</body>
