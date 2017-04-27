@@ -108,6 +108,8 @@ var allPlayers = {};
 
 function render(){
 
+	localStorage.setItem('leagueid', LEAGUE_ID);
+
 	Database.getMatchScore({
 		userid: USER.userid,
 		leagueid: LEAGUE_ID,
