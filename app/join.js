@@ -91,49 +91,78 @@ function render(inviteid){
 	var wlc = document.getElementById('waiting-league-container');
 		wlc.style.display = 'block';
 	var crb = document.getElementById('league-create');
-	crb.addEventListener('click', e => {
+	var renderProm = renderWaitingRoom(inviteid);
+	renderProm.then(done => {
 		if(STUB){
-			startLeagueFromStub(STUB);
+			crb.addEventListener('click', e => {
+				startLeagueFromStub(STUB, inviteid);
+			});
 		}
-	});
-	Database.when('people_join', {
-		inviteid: inviteid
-	}, (res) => {
-		renderWaitingRoom(inviteid);
+		else{
+			crb.style.display = 'none';
+		}
+		Database.when('people_join', {
+			inviteid: inviteid
+		}, (res) => {
+			renderWaitingRoom(inviteid);
+		});
+		Database.when('league_created', {
+			inviteid: inviteid
+		}, res => {
+			console.log(res)
+			vex.dialog.alert({
+				message: 'Ready to join your league?',
+				callback: value => {
+					if(value){
+						goToLobbyView({
+							leagueid: res.leagueid
+						})
+					}
+				}
+			});
+		});
 	});
 }
 
 function renderWaitingRoom(inviteid){
-	Database.getLeagueInvitations({
+	return Database.getLeagueInvitations({
 		userid: USER.userid
 	}).then((userLeagues) => {
 		var stub = userLeagues[inviteid];
-		STUB = stub;
-		var lwrName = document.getElementById('lwr-name');
-			lwrName.innerText = stub.league.name;
-		var link = document.location.origin + document.location.pathname;
-			link += '?code=' + inviteid;
-		var aLink = document.getElementById('league-invite');
-			aLink.href = link;
-		var ul = document.createElement('ul');
-		var promises = [];
-		Object.keys(stub.members).forEach(uid => {
-			var p = Database.getUser({
-				userid: uid
+		if(stub){
+			STUB = stub;
+			var lwrName = document.getElementById('lwr-name');
+				lwrName.innerText = stub.league.name;
+			var link = document.location.origin + document.location.pathname;
+				link += '?code=' + inviteid;
+			var aLink = document.getElementById('league-invite');
+				aLink.href = link;
+			var ul = document.createElement('ul');
+			var promises = [];
+			Object.keys(stub.members).forEach(uid => {
+				var p = Database.getUser({
+					userid: uid
+				});
+				p.userid = uid;
+				promises.push(p);
 			});
-			p.userid = uid;
-			promises.push(p);
-		});
-		Promise.all(promises).then(users => {
-			var memDiv = document.getElementById('members');
-				memDiv.innerHTML = '';
-			users.forEach(user => {
-			var li = document.createElement('li');
-				li.innerText = user.name;
-				ul.appendChild(li);
+			Promise.all(promises).then(users => {
+				var memDiv = document.getElementById('members');
+					memDiv.innerHTML = '';
+				users.forEach(user => {
+				var li = document.createElement('li');
+					li.innerText = user.name;
+					ul.appendChild(li);
+				});
+				memDiv.appendChild(ul);
 			});
-			memDiv.appendChild(ul);
-		});
+		}
+		else{
+			var hideTheWholeThing = document.getElementById('creator-join-page');
+			var loadingScreen = document.getElementById('loading');
+			loadingScreen.style.display = 'flex';
+			hideTheWholeThing.style.display = 'none';
+		}
 	});
 }
 
@@ -180,7 +209,7 @@ function createLeagueInvitation(){
 	}
 }
 
-function startLeagueFromStub(stub){
+function startLeagueFromStub(stub, inviteid){
 	try{
 		Database.createLeague({
 			name: stub.league.name,
@@ -190,10 +219,15 @@ function startLeagueFromStub(stub){
 			weeks: 4
 		}).then((res) => {
 			displayMessage('Created League: ' + res.leagueid);
-			var uParts = document.location.pathname.split('/');
-			var pathname = uParts.slice(0, uParts.length - 1).join('/');
-			var url = document.location.origin + pathname + '/app.html';
-			document.location = url;
+			Database.emit({
+				overkey: inviteid,
+				leagueid: res.leagueid,
+				userid: USER.userid,
+				event: 'league_created',
+				data: inviteid
+			}).then(done => {
+				// Created the league
+			}).catch(displayError);
 		}).catch(displayError);
 	}
 	catch(err){
@@ -215,4 +249,11 @@ function getLatestSunday(){
 		ts -= DAY;
 	}
 	return ts;
+}
+
+function goToLobbyView(params){
+	var uParts = document.location.pathname.split('/');
+	var pathname = uParts.slice(0, uParts.length - 1).join('/');
+	var url = document.location.origin + pathname + '/lobby.html?leagueid=' + params.leagueid;
+	document.location = url;
 }

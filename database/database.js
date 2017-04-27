@@ -69,6 +69,54 @@ var Database = {
 					});
 				});
 				break;
+			case 'rosters_ready':
+				if(!params.leagueid){
+					throw new Error('Must specify {leagueid}.');
+				}
+				var ref = db.ref('events/' + params.leagueid);
+				var query = ref;
+				var state = {};
+				query.on('child_added', (snapshot) => {
+					var node = snapshot.val();
+					if(node.event === 'rosters_ready'){
+						state[node.userid] = true;
+					}
+					else if(node.event === 'rosters_not_ready'){
+						state[node.userid] = false;
+					}
+					callback(state);
+				});
+				break;
+			case 'matches_set':
+				if(!params.leagueid){
+					throw new Error('Must specify {leagueid}.');
+				}
+				var ref = db.ref('events/' + params.leagueid);
+				var query = ref;
+				query.on('child_added', (snapshot) => {
+					var node = snapshot.val();
+					if(node.event === 'matches_set'){
+						callback({
+							simulationTime: node.data
+						});
+					}
+				});
+				break;
+			case 'league_created':
+				if(!params.inviteid){
+					throw new Error('Must specify {inviteid} (event overkey).');
+				}
+				var ref = db.ref('events/' + params.inviteid);
+				var query = ref.orderByChild('timestamp').limitToLast(1);
+				query.on('child_added', (snapshot) => {
+					var node = snapshot.val();
+					if(node.event === 'league_created' && node.leagueid){
+						callback({
+							leagueid: node.leagueid
+						});
+					}
+				});
+				break;
 			default:
 				throw new Error('No such event listener: ' + eventType);
 				break;
@@ -1180,6 +1228,30 @@ var Database = {
 			});
 		});
 
+	},
+
+	emit: (params) => {
+		if(!params.leagueid){
+			throw new Error('Must specify {leagueid}.');
+		}
+		else if(!params.userid){
+			throw new Error('Must specify {userid}.');
+		}
+		else if(!params.event){
+			throw new Error('Must specify {event}.');
+		}
+		var key = params.leagueid;
+		if(params.overkey){
+			key = params.overkey;
+		}
+		var done = db.ref('events/' + key).push({
+			event: params.event,
+			userid: params.userid,
+			leagueid: params.leagueid,
+			timestamp: Date.now(),
+			data: params.data || false
+		});
+		return done;
 	}
 
 }
