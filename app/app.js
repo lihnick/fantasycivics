@@ -205,7 +205,9 @@ function InitApplication() {
 				return false;
 			}
 			else {
+				var userFound = false;
 				Database.Auth.getCurrentUser().then((user) => {
+					userFound = true;
 					USER.userid = user.userid;
 					Database.updateUser({
 						userid: user.userid
@@ -218,8 +220,9 @@ function InitApplication() {
 						console.error(err);
 					}
 				});
-
-				USER.userid = localStorage[Constants.userIdTag];
+				if (!userFound) {
+					USER.userid = localStorage[Constants.userIdTag];				
+				}
 				USER.name = localStorage[Constants.userNameTag];
 				USER.email = localStorage[Constants.userEmailTag];
 				USER.image = localStorage[Constants.userImageTag];
