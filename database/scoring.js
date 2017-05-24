@@ -55,12 +55,12 @@ var Scoring = {
 			source: 'SOCRATA',
 			type: '311'
 		}*/
-		/*ordinance_votes: {
-			name: 'Ordinance Votes',
-			endpoint: 'ordinances',
+		city_council: {
+			name: 'City Council Votes',
+			endpoint: 'city_council',
 			source: 'FIREBASE',
 			type: 'VOTES'
-		}*/
+		}
 	},
 
 	getSocrataData: (url, query, callback, limit) => {
@@ -126,11 +126,11 @@ var Scoring = {
 				var ref = db.ref(dataset.endpoint);
 				var query = ref.orderByChild('timestamp').startAt(params.from).endAt(params.to);
 				query.once('value', snap => {
-					var nodes = snap.val();
+					var nodes = snap.val() || {};
 					var data = Object.keys(nodes).map(nid => {
 						return nodes[nid];
 					}).filter(node => {
-						return node.ocd_person === ward.ocd_person;
+						return node.ocd_person === alderman.ocd_person;
 					});
 					resolve(data);
 				}).catch(reject);
@@ -183,7 +183,31 @@ var Scoring = {
 	},
 
 	scoreVotes: (inData, did, from, to) => {
-		return 0;
+		//console.log(inData)
+		let score = inData.filter(data => {
+			return (data.timestamp > from && data.timestamp < to);
+		}).filter(data => {
+			return (data.type === 'vote' && data.identifier === 'O');
+		}).reduce((acc, vote) => {
+			let wonVotePass = (vote.option === 'yes' && vote.result === 'pass');
+			let wonVoteFail = (vote.option === 'no' && vote.result === 'fail');
+			let contrarian = (vote.option === 'no' && vote.mayor_sponsored);
+			//let absent = (vote.option === 'absent');
+			let update = acc;
+			if(contrarian){
+				update += 10;
+				console.log('contrarian')
+			}
+			if(wonVotePass || wonVoteFail){
+				update += 1;
+			}
+			else{
+				update -= 1;
+			}
+			return update;
+		}, 0);
+		console.log('score:', score)
+		return score;
 	},
 
 	scoreAttendance: (inData, did, from, to) => {

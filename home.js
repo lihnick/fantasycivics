@@ -7,7 +7,8 @@ var HOUR = 60 * MINUTE;
 var DAY = 24 * HOUR;
 var WEEK = 7 * DAY;
 
-var lastMonthEst = new Date(Date.now() - (4 * WEEK));
+//var lastMonthEst = new Date(Date.now() - (4 * WEEK));
+var lastMonthEst = new Date(Date.now());
 var lastMonth = new Date(lastMonthEst.getFullYear(), lastMonthEst.getMonth()).getTime();
 var lastMonthStr = moment(lastMonth).format('MMMM');
 var demoWeeks = [

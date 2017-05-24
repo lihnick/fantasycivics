@@ -8,6 +8,16 @@ let config = {
 let DatabaseFirebase = firebase.initializeApp(config, 'Fantasy Civics Scraper');
 let db = DatabaseFirebase.database();
 
+let saveOutput = (endpoint, list) => {
+	let promises = [];
+	let ref = db.ref(endpoint);
+	list.forEach(node => {
+		let p = ref.push(node);
+		promises.push(p);
+	});
+	return Promise.all(promises);
+}
+
 const URL = 'https://fantasycivicssinatra-vingkan.c9users.io/ocd';
 
 let getOCD = (queryStr) => {
@@ -66,7 +76,7 @@ let voteURL = 'votes?organization__id=ocd-organization/ef168607-9135-4177-ad8e-c
 	voteURL += '&sort=start_date'
 	voteURL += '&page=3'
 
-getOCDFull(voteURL, 11).then(res => {
+getOCDFull(voteURL, 10).then(res => {
 
 	let output = [];
 
@@ -87,8 +97,7 @@ getOCDFull(voteURL, 11).then(res => {
 	Promise.all(promises).then(votes => {
 
 		console.log(votes);
-
-		let aldMap = {};
+		//let aldMap = {};
 
 		votes.forEach(voteData => {
 			let vote = voteData.vote;
@@ -100,6 +109,7 @@ getOCDFull(voteURL, 11).then(res => {
 					ocd_person: sponsor.entity_id,
 					ocd_bill: bill.id,
 					mayor_sponsored: sponsoredByMayor(bill),
+					identifier: bill.identifier[0],
 					result: vote.result,
 					classification: sponsor.classification
 				});
@@ -111,17 +121,21 @@ getOCDFull(voteURL, 11).then(res => {
 					ocd_person: voteCast.voter.id,
 					ocd_bill: bill.id,
 					mayor_sponsored: sponsoredByMayor(bill),
+					identifier: bill.identifier[0],
 					result: vote.result,
 					option: voteCast.option
 				});
-				aldMap[voteCast.voter.id] = voteCast.voter_name
+				//aldMap[voteCast.voter.id] = voteCast.voter_name
 			});
 		});
 
 		console.log(output);
 		window.output = output;
+		//console.log(aldMap)
 
-		console.log(aldMap)
+		saveOutput('city_council', output).then(done => {
+			console.log('Saved to Firebase.');
+		}).catch(console.error);
 
 	});
 
