@@ -5,6 +5,17 @@ var db = DatabaseInstance;
 var SOCRATA_URL = "https://data.cityofchicago.org/resource/";
 var SECRET_TOKEN = "Le00VXF0GK0d8D1tTn2v6Vkpl";
 
+function getAldermanByWard(num){
+	var pnum = '' + num;
+	while(pnum.length < 4){
+		pnum = '0' + pnum;
+	}
+	var pid = 'playerid' + pnum
+	var player = PLAYER_MAP[pid];
+		player.pid = pid;
+	return player;
+}
+
 var Scoring = {
 
 	/*pot_holes: '787j-mys9.json',
@@ -23,18 +34,33 @@ var Scoring = {
 		pot_holes: {
 			name: 'Pot Holes',
 			endpoint: '787j-mys9.json',
-			source: 'SOCRATA'
+			source: 'SOCRATA',
+			type: '311'
 		},
 		graffiti: {
 			name: 'Graffiti',
 			endpoint: 'cdmx-wzbz.json',
-			source: 'SOCRATA'
+			source: 'SOCRATA',
+			type: '311'
 		},
-		rodent_baiting: {
+		/*rodent_baiting: {
 			name: 'Rodent Baiting',
 			endpoint: 'dvua-vftq.json',
-			source: 'SOCRATA'
-		}
+			source: 'SOCRATA',
+			type: '311'
+		},*/
+		/*tree_trims: {
+			name: 'Tree Trims',
+			endpoint: 'yvxb-fxjz.json',
+			source: 'SOCRATA',
+			type: '311'
+		}*/
+		/*ordinance_votes: {
+			name: 'Ordinance Votes',
+			endpoint: 'ordinances',
+			source: 'FIREBASE',
+			type: 'VOTES'
+		}*/
 	},
 
 	getSocrataData: (url, query, callback, limit) => {
@@ -95,6 +121,23 @@ var Scoring = {
 					//reject(e);
 				}
 			}
+			else if(dataset.source === 'FIREBASE'){
+				var alderman = getAldermanByWard(params.ward);
+				var ref = db.ref(dataset.endpoint);
+				var query = ref.orderByChild('timestamp').startAt(params.from).endAt(params.to);
+				query.once('value', snap => {
+					var nodes = snap.val();
+					var data = Object.keys(nodes).map(nid => {
+						return nodes[nid];
+					}).filter(node => {
+						return node.ocd_person === ward.ocd_person;
+					});
+					resolve(data);
+				}).catch(reject);
+			}
+			else{
+				reject('Unknown dataset source.');
+			}
 		});
 	},
 
@@ -135,7 +178,8 @@ var Scoring = {
 			}
 			return comp && inRange;
 		});
-		return completed.length - open.length;
+		var score = completed.length - open.length;
+		return Math.ceil(score / 10);
 	},
 
 	scoreVotes: (inData, did, from, to) => {
