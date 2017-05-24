@@ -379,7 +379,7 @@ var Database = {
 							if(!rosters[meta.uid][meta.pid].scores){
 								rosters[meta.uid][meta.pid].scores = {};
 							}
-							var score = Scoring.scoreData(data, params.from, params.to);
+							var score = Scoring.scoreData(data, meta.dataset, params.from, params.to);
 							rosters[meta.uid][meta.pid].scores[meta.dataset] = score;
 						}
 					}
@@ -736,7 +736,7 @@ var Database = {
 							var data = packets[s];
 							var meta = promises[s];
 							if(meta.type === 'score'){
-								var score = Scoring.scoreData(data, params.from, params.to);
+								var score = Scoring.scoreData(data, meta.dataset, params.from, params.to);
 								res.scores[meta.dataset] = score;
 							}
 						}

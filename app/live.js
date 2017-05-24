@@ -380,7 +380,7 @@ function simulateMatchStep(match, players, startTime, endTime, step, lastRun){
 		Promise.all(promises).then((data) => {
 			data.forEach((update, i) => {
 				var meta = promises[i];
-				var score = Scoring.scoreData(update, match.start, meta.time);
+				var score = Scoring.scoreData(update, meta.dataset, match.start, meta.time);
 				if(score !== 0){
 					ticker.queue.push({
 						data: update,

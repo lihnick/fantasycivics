@@ -21,14 +21,17 @@ var Scoring = {
 
 	DATASETS: {
 		pot_holes: {
+			name: 'Pot Holes',
 			endpoint: '787j-mys9.json',
 			source: 'SOCRATA'
 		},
 		graffiti: {
+			name: 'Graffiti',
 			endpoint: 'cdmx-wzbz.json',
 			source: 'SOCRATA'
 		},
 		rodent_baiting: {
+			name: 'Rodent Baiting',
 			endpoint: 'dvua-vftq.json',
 			source: 'SOCRATA'
 		}
@@ -95,7 +98,23 @@ var Scoring = {
 		});
 	},
 
-	scoreData: (inData, from, to) => {
+	scoreData: (inData, did, from, to) => {
+		var dataset = Scoring.DATASETS[did];
+		if(dataset.type === '311'){
+			return Scoring.score311(inData, did, from, to);
+		}
+		else if(dataset.type === 'VOTES'){
+			return Scoring.scoreVotes(inData, did, from, to);
+		}
+		else if(dataset.type === 'ATTENDANCE'){
+			return Scoring.scoreAttendance(inData, did, from, to);
+		}
+		else{
+			throw new Error('Unknown dataset type.');
+		}
+	},
+
+	score311: (inData, did, from, to) => {
 		var data = inData.filter((issue) => {
 			var openOn = issue.creation_date;
 			var inWeek = false;
@@ -117,6 +136,14 @@ var Scoring = {
 			return comp && inRange;
 		});
 		return completed.length - open.length;
+	},
+
+	scoreVotes: (inData, did, from, to) => {
+		return 0;
+	},
+
+	scoreAttendance: (inData, did, from, to) => {
+		return 0;
 	}
 
 }
