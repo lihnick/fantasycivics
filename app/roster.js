@@ -209,11 +209,17 @@ function InitLeagueRoster() {
 					});
 				}
 				var week = USER['selectedleague'].users[Object.keys(USER['selectedleague'].users)[0]];
+
+				var NAME_HEADER_MAP2 = {};
+				for(var did in Database.Scoring.DATASETS){
+					NAME_HEADER_MAP2[did] = Database.Scoring.DATASETS[did].name;
+				}
+
 				//var workingRoster = jQuery.extend(true, {}, USER['roster']['players']);
 				USER['_userRoster'] = new Vue({
 					el: '#userRoster',
 					data: {
-						headers: Database.Scoring.DATASET_NAMES,
+						headers: NAME_HEADER_MAP2,
 						leaguename: USER['selectedleague']['name'],
 						objective: (USER['selectedleague'].schedule === (parseInt(week.losses) + parseInt(week.wins)))? "Game Ended, Redirecting..." : "Choose your lineup for week " + ((parseInt(week.losses) + parseInt(week.wins))+1).toString() + " of " + USER['selectedleague'].schedule.length.toString(),
 						players: USER['roster']['players'],
@@ -226,7 +232,7 @@ function InitLeagueRoster() {
 							if (!USER['roster']['players'][id].starter){
 								return 0;
 							}
-							var cols = Object.keys(Database.Scoring.DATASET_NAMES);
+							var cols = Object.keys(Database.Scoring.DATASETS);
 							return USER['roster']['players'][id].scores[cols[0]] + USER['roster']['players'][id].scores[cols[1]] + USER['roster']['players'][id].scores[cols[2]];
 						}).reduce((a, b) => a + b, 0),
 						toggle: {}
@@ -240,7 +246,7 @@ function InitLeagueRoster() {
 							if (!USER['roster']['players'][id].starter){
 								return 0;
 							}
-							var cols = Object.keys(Database.Scoring.DATASET_NAMES);
+							var cols = Object.keys(Database.Scoring.DATASETS);
 							return USER['roster']['players'][id].scores[cols[0]] + USER['roster']['players'][id].scores[cols[1]] + USER['roster']['players'][id].scores[cols[2]];
 							}).reduce((a, b) => a + b, 0);
 						},
@@ -344,10 +350,15 @@ function InitLeagueRoster() {
 				// In order for sorting to work, the _player-list template needs to enclose the whole table element
 				var workingPlayers = jQuery.extend(true, {}, USER['allPlayers']);
 
+				var NAME_HEADER_MAP = {};
+				for(var did in Database.Scoring.DATASETS){
+					NAME_HEADER_MAP[did] = Database.Scoring.DATASETS[did].name;
+				}
+
 				USER['_allPlayers'] = new Vue({
 					el: '#allPlayers',
 					data: {
-						headers: Database.Scoring.DATASET_NAMES,
+						headers: NAME_HEADER_MAP,
 						players: workingPlayers,
 						range: {
 							from: USER.rosterdate.prevto - (4 * WEEK),
@@ -373,7 +384,7 @@ function InitLeagueRoster() {
 							log(rendering);
 							USER['_allPlayers'].reverse *= -1;
 							USER['_allPlayers'].order = orderBy;
-							var header = Object.keys(Database.Scoring.DATASET_NAMES);
+							var header = Object.keys(Database.Scoring.DATASETS);
 							var comparator = [	(a, b) => {return (a.ward > b.ward)? 1 : ((b.ward > a.ward)? -1 : 0);},
 												(a, b) => {return (a.name > b.name)? 1 : ((b.name > a.name)? -1 : ((a.ward > b.ward)? 1*(USER['_allPlayers'].reverse) : -1*(USER['_allPlayers'].reverse)));},
 												(a, b) => {return (a.scores[header[0]] > b.scores[header[0]])? 1 : ((b.scores[header[0]] > a.scores[header[0]])? -1 : ((a.ward > b.ward)? 1*(USER['_allPlayers'].reverse) : -1*(USER['_allPlayers'].reverse)));},

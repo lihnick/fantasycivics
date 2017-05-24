@@ -361,8 +361,9 @@ function simulateMatchStep(match, players, startTime, endTime, step, lastRun){
 		for(dataset in Scoring.DATASETS){
 			for(var pid in players){
 				var p = Scoring.queryDataset(dataset, {
-					'$where': Scoring.buildDateQuery('creation_date', startTime, endTime),
-					'ward': players[pid].ward
+					from: startTime,
+					to: endTime,
+					ward: players[pid].ward
 				});
 				p.pid = pid;
 				p.time = endTime;
@@ -486,7 +487,7 @@ function renderTicker(players, match){
 			gameClock.innerText = Math.floor(hoursLeft) + ':' + leftPad(Math.floor(minutesLeft));
 
 			var word = (next.score > 0) ? 'fixed' : 'missed';
-			var tick = 'Ward ' + players[next.pid].ward + ' ' + word + ' ' + Math.abs(next.score) + ' ' + Database.Scoring.DATASET_NAMES[next.dataset].toLowerCase();
+			var tick = 'Ward ' + players[next.pid].ward + ' ' + word + ' ' + Math.abs(next.score) + ' ' + Database.Scoring.DATASETS[next.dataset].name.toLowerCase();
 			var updateMeta = players[next.pid].name;
 			if(next.score !== 0){
 				//console.log(tick);

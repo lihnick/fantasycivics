@@ -1,36 +1,37 @@
-function DatabaseScoring(){
+function DatabaseScoring(DatabaseInstance){
+
+var db = DatabaseInstance;
 
 var SOCRATA_URL = "https://data.cityofchicago.org/resource/";
 var SECRET_TOKEN = "Le00VXF0GK0d8D1tTn2v6Vkpl";
 
 var Scoring = {
 
-	DATASETS: {
-		/*pot_holes: '787j-mys9.json',
-		street_lights: 'h555-t6kz.json',
-		graffiti: 'cdmx-wzbz.json',
-		rodent_baiting: 'dvua-vftq.json',
-		tree_trims: 'yvxb-fxjz.json',
-		garbage_carts: 'a9br-8sqt.json'*/
-		pot_holes: '787j-mys9.json',
-		graffiti: 'cdmx-wzbz.json',
-		rodent_baiting: 'dvua-vftq.json'
-		//street_lights: 'h555-t6kz.json',
-		//abandoned_vehicles: 'suj7-cg3j.json'
-	},
+	/*pot_holes: '787j-mys9.json',
+	street_lights: 'h555-t6kz.json',
+	graffiti: 'cdmx-wzbz.json',
+	rodent_baiting: 'dvua-vftq.json',
+	tree_trims: 'yvxb-fxjz.json',
+	garbage_carts: 'a9br-8sqt.json'
+	pot_holes: '787j-mys9.json',
+	graffiti: 'cdmx-wzbz.json',
+	rodent_baiting: 'dvua-vftq.json'
+	street_lights: 'h555-t6kz.json',
+	abandoned_vehicles: 'suj7-cg3j.json'*/
 
-	DATASET_NAMES: {
-		/*pot_holes: 'Pot Holes',
-		street_lights: 'Light Outages',
-		graffiti: 'Graffiti',
-		rodent_baiting: 'Rodent Baiting',
-		tree_trims: 'Tree Trims',
-		garbage_carts: 'Garbage Carts'*/
-		pot_holes: 'Pot Holes',
-		graffiti: 'Graffiti',
-		rodent_baiting: 'Rodent Baiting'
-		//street_lights: 'Light Outages',
-		//abandoned_vehicles: 'Abandoned Vehicles'
+	DATASETS: {
+		pot_holes: {
+			endpoint: '787j-mys9.json',
+			source: 'SOCRATA'
+		},
+		graffiti: {
+			endpoint: 'cdmx-wzbz.json',
+			source: 'SOCRATA'
+		},
+		rodent_baiting: {
+			endpoint: 'dvua-vftq.json',
+			source: 'SOCRATA'
+		}
 	},
 
 	getSocrataData: (url, query, callback, limit) => {
@@ -58,22 +59,38 @@ var Scoring = {
 		return field + " between '" + new Date(from).toISOString().split('.')[0] + "' and '" + new Date(to).toISOString().split('.')[0] + "'";
 	},
 
-	queryDataset: (dataset, query) => {
+	queryDataset: (did, params) => {
 		return new Promise((resolve, reject) => {
-			try{
-				Scoring.getSocrataData(SOCRATA_URL + Scoring.DATASETS[dataset], query, function(data){
-					if(data.failed){
-						resolve([]);
-					}
-					else{
-						resolve(data);
-					}
-				});
-			}
-			catch(e){
-				console.log('Socrata/AJAX error allowed to be resolved.');
-				console.error(e);
-				//reject(e);
+			var dataset = Scoring.DATASETS[did];
+			if(dataset.source === 'SOCRATA'){
+				if(!params.from){
+					reject('Missing {params.from} in queryDataset.');
+				}
+				else if(!params.to){
+					reject('Missing {params.to} in queryDataset.');
+				}
+				else if(!params.ward){
+					reject('Missing {params.ward} in queryDataset.');
+				}
+				try{
+					var endpoint = dataset.endpoint;
+					Scoring.getSocrataData(SOCRATA_URL + endpoint,  {
+						'$where': Scoring.buildDateQuery('creation_date', params.from, params.to),
+						'ward': params.ward
+					}, function(data){
+						if(data.failed){
+							resolve([]);
+						}
+						else{
+							resolve(data);
+						}
+					});
+				}
+				catch(e){
+					console.log('Socrata/AJAX error allowed to be resolved.');
+					console.error(e);
+					//reject(e);
+				}
 			}
 		});
 	},

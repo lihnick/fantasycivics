@@ -11,7 +11,7 @@ function renderRosters(roster, uid, league){
 		hdr += '<td class="player-name">Player</td>'
 		hdr += '<td class="center">Ward</td>'
 	for(var h = 0; h < scoreHeaders.length; h++){
-		hdr += '<td class="center">' + Database.Scoring.DATASET_NAMES[scoreHeaders[h]] + '</td>'
+		hdr += '<td class="center">' + Database.Scoring.DATASETS[scoreHeaders[h]].name + '</td>'
 		scoreFill += '<td></td>'
 	}
 		hdr += '<td class="center">Score</td>'
@@ -114,7 +114,7 @@ function renderPlayerScores(roster, league, sortFn){
 		hdr += '<td class="player-name">Player</td>'
 		hdr += '<td class="center">Ward</td>'
 	for(var h = 0; h < scoreHeaders.length; h++){
-		hdr += '<td class="center">' + Database.Scoring.DATASET_NAMES[scoreHeaders[h]] + '</td>'
+		hdr += '<td class="center">' + Database.Scoring.DATASETS[scoreHeaders[h]].name + '</td>'
 	}
 		hdr += '<td class="center">Score</td>'
 		hdr += '<td>Team</td>'

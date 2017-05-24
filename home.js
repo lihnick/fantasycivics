@@ -98,7 +98,7 @@ function showYourAlderman(res){
 		for(var sid in data.scores){
 			var pts = data.scores[sid];
 				sum += pts;
-			var dataset = Database.Scoring.DATASET_NAMES[sid];
+			var dataset = Database.Scoring.DATASETS[sid].name;
 			var scoreStr = pts + ' points on ' + dataset;
 			var li = document.createElement('li');
 				li.innerText = scoreStr;

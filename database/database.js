@@ -12,7 +12,7 @@ var DatabaseFirebase = firebase.initializeApp(config, 'Fantasy Civics Database')
 var db = DatabaseFirebase.database();
 
 var League = DatabaseLeague();
-var Scoring = DatabaseScoring();
+var Scoring = DatabaseScoring(db);
 
 function getBotMap(){
 	return new Promise((resolve, reject) => {
@@ -353,8 +353,9 @@ var Database = {
 					for(var pid in roster){
 						for(var dataset in Scoring.DATASETS){
 							var p = Scoring.queryDataset(dataset, {
-								'$where': Scoring.buildDateQuery('creation_date', params.from, params.to),
-								'ward': PLAYER_MAP[pid].ward
+								from: params.from,
+								to: params.to,
+								ward: PLAYER_MAP[pid].ward
 							});
 							p.uid = uid;
 							p.pid = pid;
@@ -721,8 +722,9 @@ var Database = {
 					var promises = [];
 					for(var dataset in Scoring.DATASETS){
 						var p = Scoring.queryDataset(dataset, {
-							'$where': Scoring.buildDateQuery('creation_date', params.from, params.to),
-							'ward': playerData.ward
+							from: params.from,
+							to: params.to,
+							ward: playerData.ward
 						});
 						p.playerid = params.playerid;
 						p.type = 'score';
