@@ -206,6 +206,7 @@ var Scoring = {
 			}
 			return update;
 		}, 0);
+		console.log(moment(from).format('M/D'), 'to', moment(to).format('M/D'))
 		console.log('score:', score)
 		return score;
 	},

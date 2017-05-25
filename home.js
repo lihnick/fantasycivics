@@ -7,13 +7,22 @@ var HOUR = 60 * MINUTE;
 var DAY = 24 * HOUR;
 var WEEK = 7 * DAY;
 
+function incrementMonth(ts, n){
+	var t = n || 0;
+	var d = new Date(ts);
+	return new Date(d.getFullYear(), d.getMonth() + t).getTime();
+}
+
 //var lastMonthEst = new Date(Date.now() - (4 * WEEK));
-var lastMonthEst = new Date(Date.now());
+/*var lastMonthEst = new Date(Date.now());
 var lastMonth = new Date(lastMonthEst.getFullYear(), lastMonthEst.getMonth()).getTime();
-var lastMonthStr = moment(lastMonth).format('MMMM');
+var lastMonthStr = moment(lastMonth).format('MMMM');*/
+
+var demoStart = new Date(2017, 3).getTime();
+var demoStartStr = moment(demoStart).format('MMMM');
 var demoWeeks = [
-	{from: lastMonth, to: lastMonth + WEEK},
-	{from: lastMonth + WEEK, to: lastMonth + (2 * WEEK)}
+	{from: demoStart, to: incrementMonth(demoStart, 1)},
+	{from: incrementMonth(demoStart, 1), to: incrementMonth(demoStart, 2)}
 ];
 
 window.scrollToId = (id) => {
@@ -27,8 +36,8 @@ window.scrollToId = (id) => {
 // To speed up score loading
 Database.getLeague({
 	leagueid: DEMO_LEAGUEID,
-	from: Date.now() - WEEK,
-	to: Date.now()
+	from: incrementMonth(Date.now(), -2), // used to be - WEEK
+	to: incrementMonth(Date.now(), -1)
 }).then(data => {
 	DEMO_LEAGUE_OBJ = data;
 }).catch(console.error);
@@ -78,7 +87,7 @@ var wardNum = document.getElementById('your-ward-number');
 var breakDown = document.getElementById('ward-score-breakdown');
 var yourAldHist = document.getElementById('your-alderman-historical');
 
-yourAldHist.dataset.from = demoWeeks[0].to - (4 * WEEK);
+yourAldHist.dataset.from = incrementMonth(demoWeeks[0].to, -2);
 yourAldHist.dataset.to = demoWeeks[0].to;
 
 function showYourAlderman(res){
@@ -91,8 +100,10 @@ function showYourAlderman(res){
 	Database.getPlayer({
 		leagueid: DEMO_LEAGUEID,
 		playerid: alderman.pid,
-		from: Date.now() - WEEK,
-		to: Date.now()
+		//from: Date.now() - INTERVAL,
+		//to: Date.now()
+		from: incrementMonth(Date.now(), -2),
+		to: incrementMonth(Date.now(), -1)
 	}, DEMO_LEAGUE_OBJ).then(data => {
 		var sum = 0;
 		breakDown.innerHTML = '';
@@ -119,7 +130,8 @@ var robotTable = document.getElementById('robot-roster');
 
 for(var m = 0; m < monthSpans.length; m++){
 	var mSpan = monthSpans[m];
-	mSpan.innerText = lastMonthStr;
+	//mSpan.innerText = lastMonthStr;
+	mSpan.innerText = demoStartStr;
 }
 
 var pastWeek = document.getElementById('insert-past-week');
@@ -226,6 +238,7 @@ function renderRosterTable(table, roster, callback, opt){
 	});
 	var lineupSum = 0;
 	list.forEach((player, idx) => {
+		console.log(player)
 		if(player.starter){
 			lineupSum += scout.sumScores(player.scores);
 		}
@@ -248,7 +261,7 @@ function renderRosterTable(table, roster, callback, opt){
 			td1.innerText = player.name;
 		//if(!options.locked){
 			td1 = scout.attachReport(td1, player.playerid, {
-				from: demoWeeks[0].to - (4 * WEEK),
+				from: incrementMonth(demoWeeks[0].to, -3),
 				to: demoWeeks[0].to
 			});
 		//}

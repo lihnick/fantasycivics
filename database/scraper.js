@@ -72,11 +72,10 @@ let sponsoredByMayor = (bill) => {
 }
 
 let voteURL = 'votes?organization__id=ocd-organization/ef168607-9135-4177-ad8e-c1f7a4806c3a'
-	voteURL += '&start_date__contains=2017-04'
+	voteURL += '&start_date__contains=2017-03'
 	voteURL += '&sort=start_date'
-	voteURL += '&page=3'
 
-getOCDFull(voteURL, 10).then(res => {
+getOCDFull(voteURL, 9).then(res => {
 
 	let output = [];
 
