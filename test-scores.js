@@ -34,7 +34,9 @@ let displayScoredRoster = (id, module, system) => {
 	let h = document.getElementById('h-' + id);
 	let scores = module.scoreByFunction(system.scorePlayer);
 	h.innerText = system.name;
-	let table = RosterView(scores)
+	let table = RosterView(scores, {
+		clickRow: system.clickRow
+	});
 	out.appendChild(table);
 	Sortable.initTable(table);
 }
