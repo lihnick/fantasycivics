@@ -79,7 +79,25 @@
 
 		.compare-roster {
 			display: inline-block;
-			width: 40vw;
+			width: 49%;
+			margin: 0;
+			padding: 0;
+			vertical-align: top;
+		}
+
+		.compare-roster div, .compare-roster select {
+			display: block;
+			margin: 20px auto;
+		}
+
+		.compare-roster div table {
+			width: 80%;
+			margin: 20px auto;
+		}
+
+		h1, h2, h3 {
+			margin: 20px;
+			text-align: center;
 		}
 
 		</style>
@@ -89,12 +107,23 @@
 		
 		<!-- Header -->
 
+		<div id="loading" class="loading">
+			<div>
+				<img src="../assets/logo-white.png">
+			</div>
+			<h1>Loading the Scoring Simulator...</h1>
+		</div>
+
+		<h1>Fantasy Civics Scoring Simulator</h1>
+
 		<div class="compare-roster">
 			<select class="select-system" data-holder="roster1"></select>
+			<h2 id="h-roster1"></h3>
 			<div id="roster1"></div>
 		</div>
 		<div class="compare-roster">
 			<select class="select-system" data-holder="roster2"></select>
+			<h2 id="h-roster2"></h3>
 			<div id="roster2"></div>
 		</div>
 
@@ -115,28 +144,11 @@
 		<script type="text/javascript" src="./lib/roster-view.js"></script>
 		<script type="text/javascript" src="./lib/scouting.js"></script>
 		<script type="text/javascript" src="./lib/scoring.js"></script>
+		<script type="text/javascript" src="./lib/scoring-systems.js"></script>
 		<script type="text/javascript" src="./test-scores.js"></script>
 		<script type="text/javascript">
 
-			let ss = document.getElementsByClassName('select-system');
-			for(let s = 0; s < ss.length; s++){
-				let selector = ss[s];
-				SCORING_SYSTEMS.forEach((system, sidx) => {
-					let option = document.createElement('option');
-					option.value = sidx;
-					option.innerText = system.name;
-					selector.appendChild(option);
-				});
-				selector.addEventListener('change', e => {
-					let id = e.target.dataset.holder;
-					window.dispatchEvent(new CustomEvent('score-roster', {
-						detail: {
-							id: id,
-							system: e.target.value
-						}
-					}));
-				});
-			}
+
 
 		</script>
 	</body>

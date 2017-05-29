@@ -8,35 +8,36 @@ let config = {
 let DatabaseFirebase = firebase.initializeApp(config, 'Fantasy Civics Database');
 let DatabaseInstance = DatabaseFirebase.database();
 
-let SOCRATA_DATASETS = {
-	pot_holes: {
-		name: 'Pot Holes',
-		url: '787j-mys9.json'
-	},
-	graffiti: {
-		name: 'Graffit',
-		url: 'cdmx-wzbz.json'
-	},
-	rodent_baiting: {
-		name: 'Rodent Baiting',
-		url: 'dvua-vftq.json'
-	}
+let ss = document.getElementsByClassName('select-system');
+for(let s = 0; s < ss.length; s++){
+	let selector = ss[s];
+	SCORING_SYSTEMS.forEach((system, sidx) => {
+		let option = document.createElement('option');
+		option.value = sidx;
+		option.innerText = system.name;
+		selector.appendChild(option);
+	});
+	selector.addEventListener('change', e => {
+		let id = e.target.dataset.holder;
+		window.dispatchEvent(new CustomEvent('score-roster', {
+			detail: {
+				id: id,
+				system: e.target.value
+			}
+		}));
+	});
 }
 
-let SCORING_SYSTEMS = [
-	{
-		name: 'Number of Events',
-		scorePlayer: (data) => {
-			return data.length;
-		}
-	},
-	{
-		name: 'Number of Votes',
-		scorePlayer: (data) => {
-			return data.filter(entry => entry.type === 'vote').length;
-		}
-	}
-];
+let displayScoredRoster = (id, module, system) => {
+	let out = document.getElementById(id);
+	out.innerHTML = '';
+	let h = document.getElementById('h-' + id);
+	let scores = module.scoreByFunction(system.scorePlayer);
+	h.innerText = system.name;
+	let table = RosterView(scores)
+	out.appendChild(table);
+	Sortable.initTable(table);
+}
 
 let sm = ScoringModule({
 	database: DatabaseInstance,
@@ -51,17 +52,17 @@ sm.init().then(playerMap => {
 
 	console.log(playerMap)
 
+	var loadingScreen = document.getElementById('loading');
+	loadingScreen.style.display = 'none';
+
+	displayScoredRoster('roster1', sm, SCORING_SYSTEMS[0]);
+	displayScoredRoster('roster2', sm, SCORING_SYSTEMS[1]);
+
 	window.addEventListener('score-roster', e => {
 		let sidx = parseInt(e.detail.system);
 		let system = SCORING_SYSTEMS[sidx];
 		let id = e.detail.id;
-		let out = document.getElementById(id);
-		out.innerHTML = '';
-
-		let scores = sm.scoreByFunction(system.scorePlayer);
-		let table = RosterView(scores)
-		out.appendChild(table);
-		Sortable.initTable(table);
+		displayScoredRoster(id, sm, system);
 	});
 
 }).catch(console.error);
