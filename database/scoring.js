@@ -78,6 +78,30 @@ var Scoring = {
 		});
 	},
 
+	getFromDataset: (params) => {
+		let query = {
+			'$where': Scoring.buildDateQuery('creation_date', params.from, params.to),
+			'ward': PLAYER_MAP[params.player].ward
+		}
+		return new Promise((resolve, reject) => {
+			try{
+				Scoring.getSocrataData(SOCRATA_URL + params.dataset, query, function(data){
+					if(data.failed){
+						resolve([]);
+					}
+					else{
+						resolve(data);
+					}
+				});
+			}
+			catch(e){
+				console.log('Socrata/AJAX error allowed to be resolved.');
+				console.error(e);
+				//reject(e);
+			}
+		});
+	},
+
 	scoreData: (inData, from, to) => {
 		var data = inData.filter((issue) => {
 			var openOn = issue.creation_date;
