@@ -32,7 +32,7 @@ let displayScoredRoster = (id, module, system) => {
 	let out = document.getElementById(id);
 	out.innerHTML = '';
 	let h = document.getElementById('h-' + id);
-	let scores = module.scoreByFunction(system.scorePlayer);
+	let scores = module.scoreByFunction(system);
 	h.innerText = system.name;
 	let table = RosterView(scores, {
 		clickRow: system.clickRow,
@@ -53,7 +53,7 @@ let sm = ScoringModule({
 });
 sm.init().then(playerMap => {
 
-	console.log(playerMap)
+	//console.log(playerMap);
 
 	var loadingScreen = document.getElementById('loading');
 	loadingScreen.style.display = 'none';
