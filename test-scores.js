@@ -35,7 +35,8 @@ let displayScoredRoster = (id, module, system) => {
 	let scores = module.scoreByFunction(system.scorePlayer);
 	h.innerText = system.name;
 	let table = RosterView(scores, {
-		clickRow: system.clickRow
+		clickRow: system.clickRow,
+		module: module
 	});
 	out.appendChild(table);
 	Sortable.initTable(table);
