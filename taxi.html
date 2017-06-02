@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="keywords" content="fantasy, civics, football, sports, chicago, city, ward, alderman, aldermen, 311, graffiti, pot holes, rodent baiting">
+		<meta name="description" content="A Fantasy Football-style game about Chicago city leaders.">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="mobile-web-app-capable" content="yes">
+		<meta property="og:title" content="Fantasy Civics">
+		<meta property="og:description" content="A Fantasy Football-style game about Chicago city leaders.">
+		<meta property="og:image" content="https://geliclub.github.io/fantasycivics/assets/logo-color.png">
+		<link rel="icon" sizes="192x192" href="favicon.ico">
+		<link rel="image_src" href="assets/logo-color.png">
+		<title>Fantasy Civics</title>
+		<script src="https://www.gstatic.com/firebasejs/3.6.9/firebase.js"></script>
+		<script type="text/javascript" src="./assets/promise.min.js"></script>
+		<script type="text/javascript" src="./assets/moment.min.js"></script>
+		<script type="text/javascript" src="./assets/jquery-3.1.1.min.js"></script>
+		<link href="https://fonts.googleapis.com/css?family=Roboto:400,900" rel="stylesheet">
+		<!-- Vex Assets -->
+		<script type="text/javascript" src="assets/vex.combined.min.js"></script>
+		<script type="text/javascript">vex.defaultOptions.className = 'vex-theme-plain';</script>
+		<link rel="stylesheet" type="text/css" href="assets/vex.css">
+		<link rel="stylesheet" type="text/css" href="assets/vex-theme-plain.css">
+		<!-- Plotly -->
+		<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+		<!-- Styles -->
+		<link rel="stylesheet" type="text/css" href="app/reset.css">
+		<link rel="stylesheet" type="text/css" href="app/temp-style.css">
+		<!-- LEAFLET.JS -->
+		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+		<script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+		<style>
+
+		html, body, section {
+			padding: 0;
+			margin: 0;
+		}
+
+		#map {
+			width: 100vw;
+			height: 100vh;
+		}
+
+		</style>
+
+	</head>
+	<body>
+		
+		<!-- Header -->
+
+		<div id="map"></div>
+
+		<!-- Footer -->
+		<script type="text/javascript">
+
+			const TAXI_DATASET_URL = 'https://data.cityofchicago.org/resource/wrvz-psew.json';
+
+			let init = () => {
+				return new Promise((resolve, reject) => {
+					//navigator.geolocation.getCurrentPosition((geo) => {
+						let geo = {
+							coords: {
+								longitude: -87.634738,
+								latitude: 41.867373
+							}
+						}
+						let zoom = 15;
+						let map = L.map('map').setView([geo.coords.latitude, geo.coords.longitude], zoom);
+						let tile = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+							attribution: 'OpenStreetMap'
+						});
+						tile.addTo(map);
+						resolve(map, geo);
+					//});
+				});
+			}
+
+			let getIcon = (colorId) => {
+				let markerHtmlStyles = `
+					background-color: ${colorId || '#583470'};
+					width: 3rem;
+					height: 3rem;
+					display: block;
+					left: -1.5rem;
+					top: -1.5rem;
+					position: relative;
+					border-radius: 3rem 3rem 0;
+					transform: rotate(45deg);`;
+				let icon = L.divIcon({
+					iconAnchor: [0, 24],
+					labelAnchor: [-6, 0],
+					popupAnchor: [0, -36],
+					html: `<span style="${markerHtmlStyles}" />`
+				});
+				return icon;
+			}
+
+			let plot = (map, coords, text) => {
+				let marker = false;
+				if(coords.color){
+					let icon = getIcon(coords.color);
+					marker = L.marker([coords.latitude, coords.longitude], {icon: icon});
+				}else{
+					marker = L.marker([coords.latitude, coords.longitude]);
+				}
+				marker.addTo(map);
+				marker.bindPopup(text);//.openPopup();
+			}
+
+			let plotLine = (map, coordsList, text) => {
+				coordsList[0].color = 'green';
+				coordsList[1].color = 'red';
+				plot(map, coordsList[0], text);
+				plot(map, coordsList[1], text);
+				let list = coordsList.map(coord => {
+					return {
+						lon: coord.longitude,
+						lat: coord.latitude
+					}
+				});
+				let line = L.polyline(list);
+				line.addTo(map);
+				line.bindPopup(text);
+			}
+
+			let buildDateQuery = (params) => {
+				let field = params.field;
+				let from = params.from;
+				let to = params.to;
+				return field + " between '" + new Date(from).toISOString().split('.')[0] + "' and '" + new Date(to).toISOString().split('.')[0] + "'";
+			}
+
+			const DATE_FORMAT = 'dddd M/D h:mm A';
+
+			let getRideCoords = (ride) => {
+				let pickup = ride.pickup_centroid_location;
+				let dropoff = ride.dropoff_centroid_location;
+				if(pickup && dropoff){
+					return [{
+						longitude: pickup.coordinates[0],
+						latitude: pickup.coordinates[1]
+					}, {
+						longitude: dropoff.coordinates[0],
+						latitude: dropoff.coordinates[1]
+					}];
+				}
+				else{
+					return false;
+				}
+			}
+
+			let plotRides = (map, res) => {
+				console.log(res);
+				res.sort((a, b) => {
+					return new Date(a.trip_start_timestamp).getTime() - new Date(b.trip_start_timestamp).getTime();
+				}).forEach(ride => {
+
+					let start = moment(ride.trip_start_timestamp).format(DATE_FORMAT);
+					let end = moment(ride.trip_end_timestamp).format(DATE_FORMAT);
+					//console.log(ride.trip_start_timestamp, ride.trip_end_timestamp)
+					//console.log(start, end, ride.company, ride.fare, ride.trip_total, ride.payment_type);
+
+					console.log(start, end, ride.company || 'No Company');
+
+					let mins = parseFloat(ride.trip_seconds) % 60;
+
+					let html = '';
+						html += `<h4>${ride.company || 'No Company'}</h4>`
+						html += `<ul>`
+						html += `<li>Start: ${start}</li>`
+						html += `<li>End: ${end}</li>`
+						html += `<li>Duration: ${mins} mins</li>`
+						html += `<li>Distance: ${ride.trip_miles} miles</li>`
+						html += `<li>Fare: ${ride.fare}</li>`
+						html += `<li>Total: ${ride.trip_total}</li>`
+						html += `</ul>`
+
+					let coordsList = getRideCoords(ride);
+					if(coordsList){
+						plotLine(map, coordsList, html);
+					}
+
+				});
+			}
+
+			const TIME_RANGE = `between '2017-04-13T23:00:00' and '2017-04-13T23:30:00'`
+
+			init().then((map, geo) => {
+
+				$.get(TAXI_DATASET_URL, {
+					$where: `trip_end_timestamp ` + TIME_RANGE,
+					trip_total: 8.00,
+					payment_type: 'Credit Card'
+				}, res => {
+					plotRides(map, res);
+				});
+
+				$.get(TAXI_DATASET_URL, {
+					$where: `trip_start_timestamp ` + TIME_RANGE,
+					trip_total: 8.00,
+					payment_type: 'Credit Card'
+				}, res => {
+					plotRides(map, res);
+				});
+
+			});
+
+
+
+
+
+
+		</script>
+	</body>
+</html>
