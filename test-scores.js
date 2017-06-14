@@ -55,6 +55,8 @@ sm.init().then(playerMap => {
 
 	//console.log(playerMap);
 
+	window.playerMap = playerMap;
+
 	var loadingScreen = document.getElementById('loading');
 	loadingScreen.style.display = 'none';
 
