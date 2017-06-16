@@ -16,6 +16,9 @@ Database.Auth.getCurrentUser().then((user) => {
 		displayMessage('Log in in to play Fantasy Civics!');
 		var params = getQueryParams(document.location.search);
 		var redirect = 'join.html?code=' + params.code;
+		if(params.startleague){
+			redirect += '&startleague=true';
+		}
 		var uParts = document.location.pathname.split('/');
 		var pathname = uParts.slice(0, uParts.length - 1).join('/');
 		var url = document.location.origin + pathname + '/index.html?redirect=' + redirect;
@@ -77,6 +80,9 @@ function main(){
 
 	var params = getQueryParams(document.location.search);
 
+	if(params.startleague){
+		renderCreatorView();
+	}
 	if(params.code){
 		Database.acceptLeagueInvitation({
 			userid: USER.userid,
@@ -182,6 +188,10 @@ function renderCreatorView(){
 	Database.getLeagueInvitations({
 		userid: USER.userid
 	}).then((userLeagues) => {
+
+		var loadingScreen = document.getElementById('loading');
+			loadingScreen.style.display = 'none';
+
 		var selector = document.getElementById('league-select');
 		for(var iid in userLeagues){
 			var lg = userLeagues[iid];

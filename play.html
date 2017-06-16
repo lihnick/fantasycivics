@@ -104,6 +104,12 @@
 			width: 100%;
 		}
 
+		.big-logo img {
+			width: 200px;
+			display: block;
+			margin: 10px auto;
+		}
+
 		</style>
 
 	</head>
@@ -118,17 +124,19 @@
 			<h1>Loading the Scoring Simulator...</h1>
 		</div>
 
-		<h1>Fantasy Civics Scoring Simulator</h1>
+		<div>
+			<div class="big-logo">
+				<img src="./assets/logo-color.png">
+			</div>
+		</div>
 
 		<div class="compare-roster">
-			<select class="select-system" data-holder="roster1"></select>
-			<h2 id="h-roster1"></h3>
-			<div id="roster1"></div>
+			<h2>Your Roster</h2>
+			<div id="your-roster"></div>
 		</div>
 		<div class="compare-roster">
-			<select class="select-system" data-holder="roster2"></select>
-			<h2 id="h-roster2"></h3>
-			<div id="roster2"></div>
+			<h2>The League</h2>
+			<div id="whole-league"></div>
 		</div>
 
 		<!-- Footer -->
@@ -149,7 +157,7 @@
 		<script type="text/javascript" src="./lib/scouting.js"></script>
 		<script type="text/javascript" src="./lib/scoring.js"></script>
 		<script type="text/javascript" src="./lib/scoring-systems.js"></script>
-		<script type="text/javascript" src="./test-scores.js"></script>
+		<script type="text/javascript" src="./play.js"></script>
 		<script type="text/javascript">
 
 
