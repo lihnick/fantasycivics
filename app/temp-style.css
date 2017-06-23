@@ -200,3 +200,7 @@ div.loading div img {
 	margin: 0 auto;
 	animation: LoadingPulse 2s infinite;
 }
+
+div.loading h1 {
+	line-height: 40px;
+}
