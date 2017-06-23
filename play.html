@@ -34,6 +34,10 @@
 			margin: 0;
 		}
 
+		.page {
+			font-size: 0;
+		}
+
 		.center-vertical {
 
 		}
@@ -43,6 +47,11 @@
 		}
 
 		.center-horizontal div {
+			text-align: left;
+		}
+
+		.center-horizontal table {
+			margin: 0 auto;
 			text-align: left;
 		}
 
@@ -77,17 +86,23 @@
 			font-style: italic;
 		}
 
-		.compare-roster {
+		.col {
 			display: inline-block;
-			width: 49%;
-			margin: 0;
-			padding: 0;
+			margin: 1%;
+			padding: 1%;
 			vertical-align: top;
 		}
 
-		.compare-roster div, .compare-roster select {
-			display: block;
-			margin: 20px auto;
+		.col--half {
+			width: 46%;
+		}
+
+		.col--onethird {
+			width: 30%;
+		}
+
+		.col--twothirds {
+			width: 62%;
 		}
 
 		.compare-roster div table {
@@ -100,14 +115,88 @@
 			text-align: center;
 		}
 
+		p {
+			font-size: 15px;
+			line-height: 20px;
+			margin: 20px auto;
+		}
+
 		.scoring-breakdown table {
-			width: 100%;
+			width: 450px;
+		}
+
+		.scoring-breakdown p {
+			text-align: center;
+		}
+
+		.scoring-breakdown table td {
+			line-height: 30px;
 		}
 
 		.big-logo img {
-			width: 200px;
+			width: 150px;
 			display: block;
-			margin: 10px auto;
+			margin: 15px auto;
+		}
+
+		.headshot {
+			background-position: center center;
+			background-size: 100%;
+			border-radius: 50%;
+		}
+
+		.headshot-roster {			
+			width: 30px;
+			height: 30px;
+		}
+
+		.headshot-profile {			
+			width: 150px;
+			height: 150px;
+			display: block;
+			margin: 0 auto;
+		}
+
+		#section-league {
+			background: rgba(245, 245, 245, 1);
+		}
+
+		table {
+			background: white;
+			padding: 10px;
+		}
+
+		div.entry-buttons {
+			text-align: center;
+		}
+
+		div.entry-buttons button {
+			display: inline-block;
+			margin: 0 10px;
+			padding: 10px 15px;
+			font-size: 15px;
+			font-weight: bold;
+		}
+
+		button#share-roster {
+			background: rgba(44, 140, 153, 1);
+			color: white;
+		}
+
+		button#share-roster:hover {
+			background: rgba(44, 140, 153, 0.25);
+			color: rgba(44, 140, 153, 1);
+		}
+
+		.bold {
+			font-weight: bold;
+		}
+
+		.entry-text {
+			width: 80%;
+			display: block;
+			margin: 0 auto;
+			text-align: center !important;
 		}
 
 		</style>
@@ -116,27 +205,50 @@
 	<body>
 		
 		<!-- Header -->
+		<div class="page">
 
-		<div id="loading" class="loading">
-			<div>
-				<img src="./assets/logo-white.png">
+			<div id="loading" class="loading">
+				<div>
+					<img src="./assets/logo-white.png">
+				</div>
+				<h1 id="loading-message">Loading Fantasy Civics</h1>
 			</div>
-			<h1>Loading the Scoring Simulator...</h1>
-		</div>
 
-		<div>
-			<div class="big-logo">
-				<img src="./assets/logo-color.png">
+			<div class="col col--half">
+				<div class="big-logo">
+					<img src="./assets/logo-color.png">
+				</div>
+				<div class="center-horizontal">
+					<div class="entry-text">
+						<p>Are you ready to play the fantasy sports twist on Chicago city politics?</p>
+						<p>Below, you can see each alder's score from <span class="fill-last-month bold"></span>.</p>
+						<p>Assemble a roster of five alders and share the link with your friends. Check back at the end of <span class="fill-this-month bold"></span> to see whose team scores the most points this month!</p>
+					</div>
+					<div class="entry-buttons">
+						<button id="share-roster">Share Roster</button>
+						<button id="email-updates">Get Updates</button>
+					</div>
+				</div>
 			</div>
-		</div>
+			<div class="col col--half">
+				<h1>Your Roster</h1>
+				<div id="your-roster" class="center-horizontal"></div>
+			</div>
 
-		<div class="compare-roster">
-			<h2>Your Roster</h2>
-			<div id="your-roster"></div>
-		</div>
-		<div class="compare-roster">
-			<h2>The League</h2>
-			<div id="whole-league"></div>
+			<section id="section-league">
+
+			<div class="center-horizontal">
+				<div class="col">
+					<h1>The League</h1>
+					<div id="whole-league"></div>
+				</div>
+				<div class="col">
+					<div id="selected-player"></div>
+				</div>
+			</div>
+
+			</section>
+
 		</div>
 
 		<!-- Footer -->
