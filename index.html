@@ -329,6 +329,15 @@
 				});
 			}
 
+			vex.dialog.alert({
+				message: 'Want to go to our new site?',
+				callback: function(value) {
+					if (value) {
+						window.location = 'https://fantasycivics.github.io';
+					}
+				}
+			});
+
 		</script>
 	</body>
 </html>
